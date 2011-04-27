@@ -1,0 +1,50 @@
+StartPolicy
+        def config(self):
+                WhoisProxy.config(self)
+EndPolicy
+
+C2P: "dump domain netsol.com\r\n"
+P2S: "dump domain netsol.com\r\n"
+S2P: "response\r\n"
+P2C: "response\r\n"
+.
+
+C2P: "?\r\n"
+P2S: "?\r\n"
+S2P: "list\r\n"
+P2C: "list\r\n"
+.
+
+C2P: "\r\n"
+P2S: "\r\n"
+S2P: "response\r\n"
+P2C: "response\r\n"
+.
+
+C2P: "arin.net.134.48.4.129\r\n"
+P2S: "arin.net.134.48.4.129\r\n"
+S2P: "response\r\n"
+P2C: "response\r\n"
+.
+
+C2P: "valami@valami\r\n"
+P2S: "valami@valami\r\n"
+S2P: "response\r\n"
+P2C: "response\r\n"
+.
+
+C2P: "~!@#$%^&*()_+{}|:?>\r\n"
+P2S: "~!@#$%^&*()_+{}|:?>\r\n"
+S2P: "response\r\n" 
+P2C: "response\r\n" 
+. 
+
+C2P: "a"x1024 "\r\n"
+P2C: "Whois protocol error or disallowed protocol element, request denied.\r\n"
+.
+
+C2P: "keres\r\n"
+P2S: "keres\r\n"
+S2P: "a"x1024 "\r\n"
+P2C: Disconnect
+.

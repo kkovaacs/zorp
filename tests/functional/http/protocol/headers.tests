@@ -1,0 +1,38 @@
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+                self.strict_header_checking=TRUE
+EndPolicy
+
+
+# Header and value rules
+#nincs-space-a-kettospont-es-az-ertek-kozott
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Via:ertek\r\n\
+\r\n"
+P2S: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Via: ertek\r\n\
+\r\n"
+.
+                                                                                                             
+#space-van-a-nev-es-a-kettospont-kozott
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Via :ertek\r\n\
+\r\n"
+P2S: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Via: ertek\r\n\
+\r\n"
+.
+                                                                                                             
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+tspecial()%van: ertek\r\n\
+\r\n"
+P2C: "HTTP/1.0 500 Error encountered\r\n" $NIHIL "</html>\n"
+.
+                                                                                                             

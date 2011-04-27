@@ -1,0 +1,135 @@
+
+StartGlobalInfo
+	Tags bug9808
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.rerequest_attempts = 3
+		self.timeout_response = 3000
+EndPolicy
+
+C2P: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+A=time.sleep(5)
+S2P: Disconnect
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+.
+
+C2P: "POST / HTTP/1.1\r\n\
+Host: www\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+P2S: "POST / HTTP/1.1\r\n\
+Host: www\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+A=time.sleep(5)
+S2P: Disconnect
+P2S: "POST / HTTP/1.1\r\n\
+Host: www\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+.
+
+C2P: "POST / HTTP/1.1\r\n\
+Host: www\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+P2S: "POST / HTTP/1.1\r\n\
+Host: www\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+C2P: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+.
+
+
+StartInfo
+	Tags qqq
+EndInfo
+
+C2P: "POST / HTTP/1.1\r\n\
+Host: www\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+a\r\n\
+1234567890\r\n\
+0\r\n\r\n"
+P2S: "POST / HTTP/1.1\r\n\
+Host: www\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+A=time.sleep(5)
+S2P: Disconnect
+P2S: "POST / HTTP/1.1\r\n\
+Host: www\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+.

@@ -1,0 +1,112 @@
+StartGlobalInfo
+        Tags rfc3659
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                FtpProxyRW.config(self)
+                self.strict_port_checking = FALSE
+                AbstractFtpProxy.loadAnswers(self)
+EndPolicy
+
+# MLST
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "MLst src/install/windows.c\r\n"
+P2S: "MLST src/install/windows.c\r\n"
+S2P: "250-Listing src/install/windows.c\r\n\
+ type=file;perm=r;size=993; /misc/src/install/windows.c\r\n\
+250 End\r\n"
+P2C: "250-Listing src/install/windows.c\r\n\
+  type=file;perm=r;size=993; /misc/src/install/windows.c\r\n\
+250 End\r\n"
+
+C2P: "MLst SRC/INSTALL/WINDOWS.C\r\n"
+P2S: "MLST SRC/INSTALL/WINDOWS.C\r\n"
+S2P: "250-Listing SRC/INSTALL/WINDOWS.C\r\n\
+ type=file;perm=r;size=993; /misc/SRC/INSTALL/WINDOWS.C\r\n\
+250 End\r\n"
+P2C: "250-Listing SRC/INSTALL/WINDOWS.C\r\n\
+  type=file;perm=r;size=993; /misc/SRC/INSTALL/WINDOWS.C\r\n\
+250 End\r\n"
+
+C2P: "MLst NONEXISTENT.TXT\r\n"
+P2S: "MLST NONEXISTENT.TXT\r\n"
+S2P: "550 no such file or directory\r\n"
+P2C: "550 no such file or directory\r\n"
+
+C2P: "MLST\r\n"
+P2S: "MLST\r\n"
+S2P: "250-Begin\r\n\
+ type=dir;unique=AQkAAAAAAAABCAAA; /\r\n\
+250 End.\r\n"
+P2C: "250-Begin\r\n\
+  type=dir;unique=AQkAAAAAAAABCAAA; /\r\n\
+250 End.\r\n"
+.
+
+# MLSD
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1286
+C2P: "PORT " %CLIENT_COMMAIP ",5,6\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "MLSD\r\n"
+P2S: "MLSD\r\n"
+S2P: "450 \r\n"
+P2C: "450 \r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1286
+C2P: "PORT " %CLIENT_COMMAIP ",5,6\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "MLSD\r\n"
+P2S: "MLSD\r\n"
+S2P: "150 Opening ASCII mode data connection for MLS.\r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dS2P: "type=cdir;unique=AQkAAAAAAAABCAAA; /\r\n\
+type=dir;unique=AQkAAAAAAAABEAAA; bin\r\n\
+type=dir;unique=AQkAAAAAAAABGAAA; etc\r\n\
+type=dir;unique=AQkAAAAAAAAB8AwA; halflife\r\n\
+type=dir;unique=AQkAAAAAAAABoAAA; incoming\r\n\
+type=dir;unique=AQkAAAAAAAABIAAA; lib\r\n\
+type=dir;unique=AQkAAAAAAAABWAEA; linux\r\n\
+type=dir;unique=AQkAAAAAAAABKAEA; ncftpd\r\n\
+type=dir;unique=AQkAAAAAAAABGAEA; outbox\r\n\
+type=dir;unique=AQkAAAAAAAABuAAA; quake2\r\n\
+type=dir;unique=AQkAAAAAAAABQAEA; winstuff\r\n"
+P2C: "150 Opening ASCII mode data connection for MLS.\r\n"
+dP2C: "type=cdir;unique=AQkAAAAAAAABCAAA; /\r\n\
+type=dir;unique=AQkAAAAAAAABEAAA; bin\r\n\
+type=dir;unique=AQkAAAAAAAABGAAA; etc\r\n\
+type=dir;unique=AQkAAAAAAAAB8AwA; halflife\r\n\
+type=dir;unique=AQkAAAAAAAABoAAA; incoming\r\n\
+type=dir;unique=AQkAAAAAAAABIAAA; lib\r\n\
+type=dir;unique=AQkAAAAAAAABWAEA; linux\r\n\
+type=dir;unique=AQkAAAAAAAABKAEA; ncftpd\r\n\
+type=dir;unique=AQkAAAAAAAABGAEA; outbox\r\n\
+type=dir;unique=AQkAAAAAAAABuAAA; quake2\r\n\
+type=dir;unique=AQkAAAAAAAABQAEA; winstuff\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+S2P: "226 \r\n"
+P2C: "226 \r\n"
+.

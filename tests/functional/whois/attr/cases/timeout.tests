@@ -1,0 +1,23 @@
+StartGlobalInfo
+    Tags timeout D-01046 bug12123
+EndGlobalInfo
+
+StartPolicy
+    def config(self):
+        WhoisProxy.config(self)
+        self.timeout = 2000
+        self.max_line_length = 10
+EndPolicy
+
+C2P: "keres\r\n"
+P2S: "keres\r\n"
+A= time.sleep(3)
+S2P: "barmi\r\n"
+.
+
+C2P: "keres"
+A= time.sleep(3)
+C2P: "\r\n"
+#P2S: "keres\r\n"
+P2C: "Whois protocol error or disallowed protocol element, request denied.\r\n"
+.

@@ -1,0 +1,93 @@
+
+StartGlobalInfo
+	Tags keep-persistent
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.keep_persistent = TRUE
+EndPolicy
+
+# persistent request, non-persistent response, client side remains
+# persistent
+C2P: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+S2P: Disconnect
+C2P: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+.
+
+# persistent request, non-persistent response without content-length
+# proxy changes to chunked encoding
+C2P: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: keep-alive\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+5\r\n\
+12345\r\n"
+S2P: Disconnect
+P2C: "0\r\n\r\n"
+C2P: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+.
+
+# persistent request, non-persistent response without content-length
+# proxy cannot change to chunked encoding as the client only supports
+# HTTP/1.0
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+S2P: Disconnect
+P2C: Disconnect
+.

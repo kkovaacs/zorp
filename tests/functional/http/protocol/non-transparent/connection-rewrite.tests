@@ -1,0 +1,36 @@
+
+StartGlobalInfo
+        Tags bug4141
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.transparent_mode = FALSE
+                self.default_port = server_port
+                self.target_port_range = "80-2000"
+EndPolicy
+
+
+
+# bugfix 4141                                                                                                                                        
+C2P: "GET http://" %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "/var/www/index.html HTTP/1.1\r\n\
+Host: " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "\r\n\
+Proxy-Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Proxy-Connection: keep-alive\r\n\
+\r\n\
+12345"
+.

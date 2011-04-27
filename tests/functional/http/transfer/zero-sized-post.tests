@@ -1,0 +1,54 @@
+StartGlobalInfo
+	Tags bug11057
+EndGlobalInfo
+
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+		self.request_stack["POST"] = (HTTP_STK_DATA, "/bin/cat")
+		self.request["PUT"] = (HTTP_REQ_ACCEPT)
+EndPolicy
+
+# handle zero sized POST requests properly (stacking is requested)
+C2P: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 0\r\n\
+\r\n"
+P2S: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 0\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+Connection: close\r\n\
+\r\n\
+1234567890"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+Connection: close\r\n\
+\r\n\
+1234567890"
+.
+
+# handle zero sized PUT requests properly (stacking is not requested)
+C2P: "PUT /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 0\r\n\
+\r\n"
+P2S: "PUT /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 0\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+Connection: close\r\n\
+\r\n\
+1234567890"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+Connection: close\r\n\
+\r\n\
+1234567890"
+.

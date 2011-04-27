@@ -1,0 +1,77 @@
+
+#### StartPolicy ###############################################################
+
+StartPolicy
+        def config(self):
+		self.option["*"] = TELNET_OPT_ACCEPT
+		self.negotiation["1"] = 2
+		self.negotiation["3"] = TELNET_NEG_NONE
+EndPolicy
+
+IAC=255
+SE=240
+SB=250
+WILL=251
+WONT=252
+DO=253
+DONT=254
+
+SEND=1
+IS=0
+INFO=2
+
+VAR=0
+VALUE=1
+ESC=2
+USERVAR=3
+
+# Check command 1 /only accept if option 2 negotated /
+C2P: IAC WILL 2
+P2S: IAC WILL 2
+S2P: IAC DO 2
+P2C: IAC DO 2
+C2P: IAC 1 "Egy"
+P2S: IAC 1 "Egy"
+.
+
+C2P: IAC WILL 1
+P2S: IAC WILL 1
+S2P: IAC DO 1
+P2C: IAC DO 1
+C2P: IAC 1 "Ketto"
+P2S: "Ketto"
+.
+
+C2P: IAC WILL 3
+P2S: IAC WILL 3
+S2P: IAC DO 3
+P2C: IAC DO 3
+C2P: IAC 1 "Harom"
+P2S: "Harom"
+.
+
+# Check command 3. / It's must accept without negotiation /
+C2P: IAC 3 "Negy"
+P2S: IAC 3 "Negy"
+S2P: IAC 3 "Ot"
+P2C: IAC 3 "Ot"
+.
+
+# Check command 3 / It's accept, when option 3 negotiated /
+C2P: IAC WILL 4
+P2S: IAC WILL 4
+S2P: IAC DO 4
+P2C: IAC DO 4
+C2P: IAC 4 "Hat"
+P2S: IAC 4 "Hat"
+S2P: IAC 4 "Het"
+P2C: "Het"
+.
+
+C2P: IAC WILL 5
+P2S: IAC WILL 5
+S2P: IAC DO 5
+P2C: IAC DO 5
+C2P: IAC 4 "Nyolc"
+P2S: "Nyolc"
+.

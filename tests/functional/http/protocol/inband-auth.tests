@@ -1,0 +1,75 @@
+StartGlobalInfo
+        Tags bug7646
+EndGlobalInfo
+
+
+StartPolicy
+	from Zorp.AuthDB import AbstractAuthenticationBackend
+
+	class SimpleAuth(AbstractAuthenticationBackend):
+		def getMethods(self, session_id, entity):
+			from Zorp.AuthDB import Z_AUTH_METHODS
+			return (Z_AUTH_METHODS, [('Method', 'PASSWD.internal:11:0:Password authentication')])
+
+		def setMethod(self, session_id, method):
+			from Zorp.AuthDB import Z_AUTH_REQUEST
+			return (Z_AUTH_REQUEST, [])
+
+		def converse(self, session_id, credentials):
+			from Zorp.AuthDB import Z_AUTH_ACCEPT
+			return (Z_AUTH_ACCEPT, [('Group', 'aaa'), ('Group', 'bbb')])
+
+	auth_provider = SimpleAuth()
+
+	def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+		self.auth = self.auth_provider
+
+	def userAuthenticated(self, entity, groups, auth_info):
+		if 'aaa' not in groups or 'bbb' not in groups:
+			raise AuthException, 'nincs meg az aaa/bbb csoport'
+			
+EndPolicy
+
+QUOTE = chr(34)
+
+
+C2P: "GET / HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+
+P2C: "HTTP/1.0 401 Authentication is required.\r\n\
+Connection: close\r\n\
+WWW-Authenticate: Basic realm=" %QUOTE "Zorp HTTP auth" %QUOTE "\r\n\
+Content-Type: text/html\r\n\
+\r\n\
+<html>" $NIHIL "</html>\n"
+.
+
+C2P: "GET / HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+Authorization: Basic Y2ljYTptYWNza2E=\r\n\
+\r\n"
+
+P2S: "GET / HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+
+S2P: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+Content-Type: text/html\r\n\
+\r\n\
+abcdef\r\n"
+
+S2P: Disconnect
+
+P2C: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+Content-Type: text/html\r\n\
+\r\n\
+abcdef\r\n"
+
+P2C: Disconnect
+
+.

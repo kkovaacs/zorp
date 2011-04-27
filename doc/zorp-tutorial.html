@@ -1,0 +1,1092 @@
+<html>
+<head>
+<link rel="stylesheet" href="zorp-tutorial.css" type="text/css">
+</head>
+<body>
+<div class="title">Zorp Tutorial</div>
+<img src="/images/line.png" width="50" height="1" hspace="0" vspace="0" border="0" alt="">
+<br>
+<br>
+<br>
+<b>Version 1.0.4</b><br>
+22th April, 2005<br>
+<br>
+<br>
+<div class="title2">1. Introduction</div>
+<br>
+This tutorial serves as an introduction to setting up a Zorp based firewall
+on a GNU/Linux distribution. Zorp is a GPLd proxy firewall implementation
+with the following features:
+<ul>
+  <li> deep protocol analysis (FTP, HTTP, SSL, telnet, finger, whois, plug is included<br>
+  in the GPLd version)
+  <li> flexible decision engine, scriptable in Python
+  <li> true modularity, proxies can extend each other
+</ul>
+<br>
+It is assumed that you have general knowledge about IP networks, you know
+the differences between packet filtering and proxy firewalls and at last but
+not at least you know how to compile a kernel.
+<br>
+This tutorial covers Zorp 3.0, but the contents might apply to other Zorp releases.
+<br><br>
+<div class="title3">1.1. Further readings</div>
+<br>
+You might also want to read the following HOWTO documents:
+
+<ul>
+  <li>Networking Overview HOWTO
+  <li>Net HOWTO
+  <li>Firewall HOWTO
+  <li>IPTables HOWTO
+  <li>Linux 2.4 TPROXY patch documentation<br>
+      (<a href="http://www.balabit.com/products/oss/tproxy/" class="link">http://www.balabit.com/products/oss/tproxy/</a>)<br>
+</ul>
+<br>
+HOWTO documents are made available by the Linux Documentation Project at<br>
+<a href="http://www.linuxdoc.org" class="link">http://www.linuxdoc.org</a>/<br>
+<br>
+
+<div class="title2">2. Installing the operating system</div>
+<p>
+Zorp currently requires a Linux based operating system because of the kernel
+extensions it currently needs are available for the Linux kernel only.
+
+<p>
+There are basically two ways to install an operating system suitable for
+running Zorp:
+
+<ol>
+  <li>Use our customized version of Debian (dubbed ZorpOS) which already
+contains the required patches for Zorp, or
+  <li>Use your favourite Linux distribution and start hand-patching about a
+dozen packages.
+</ol>
+
+<div class="title3">2.1. Installing Zorp on ZorpOS</div>
+
+<p>
+As we don't have an installation program for the GPLd version of ZorpOS
+itself, you'll need to start with a Debian GNU/Linux woody (version 3.0)
+installer. Install a minimal system with only the base packages,
+set up /etc/apt/sources.list to point to our APT repositories while removing
+the original Debian sources and do an "apt-get dist-upgrade". The address of
+our Debian package repository can be found on <a class="link"
+href="http://www.balabit.com/products/zorp_gpl/upgrades/">our Zorp upgrades
+page</a>.
+
+<p>
+Make sure that you install a new kernel image that matches your
+architecture. The name of the package depends on your architecture and
+whether you are multiple processors in your computer. The package is called
+kernel-image-2.4.28-zorpos-&lt;arch&gt; with an appended "-smp" for SMP
+support. For example a pentium4 based box with a single CPU, you will want
+to install "kernel-image-2.4.28-zorpos-pentium4". The following
+architectures are available: pentium, pentium4, athlon.
+
+<p>
+At the end you will find yourself in ZorpOS, kernel, iptables and Zorp
+dependencies properly patched and ready to run Zorp itself.
+</p>
+
+<div class="title3">2.2. Installing Zorp on your favourite distribution</div>
+
+<p>
+This method is somewhat more difficult and requires expertise to patch,
+build and install programs from source.
+
+<p>
+Pick your favourite Linux distribution and install a bare-bones system
+with only the absolutely necessary components you need. 
+
+<p>
+You need to compile a couple of programs and the kernel itself, but a
+compiler is something that should not be installed on the firewall.
+Therefore it is best to compile stuff on a separate host and copy only
+the binaries to the firewall. When compiling on a different host, make sure
+that the libraries that you will link Zorp against have the same version on
+the compiling host and the firewall.
+
+<p>
+Be sure to install build-time dependencies so Zorp will find them later:
+<ul>
+  <li> GLib 2.2, however there are some outstanding problems which we fixed 
+  in our GLib packages, check out our Debian package sources at:
+  <a href="http://www.balabit.com/downloads/zorp/zorp-os/pool/g/glib2.0">
+  http://www.balabit.com/downloads/zorp/zorp-os/pool/g/glib2.0</a>. Some of those
+  fixes are included in GLib 2.4.x.
+
+  <li> Python 2.3 (Zorp 3.0.x requires this Python version, Zorp 2.0/2.1
+  uses Python 2.1, Zorp 1.4 originally used Python 1.5.2
+ (If you have multiple versions of python development environment, make
+ sure that the default version of python and python-extclass is the same!)
+ <li> libcap 1.10 (Zorp optionally manages its own capabilities, dropping
+ unneeded caps if possible)
+ <li> openssl 0.9.7d or later
+
+</ul>
+
+<p>
+Zorp works with either a Linux 2.2 or Linux 2.4 kernel, but neither of
+those is usually compiled as required in distributions. Thus you will need
+to compile your own kernel, see the next section.
+<div class="title2">3. Compiling your own kernel</div>
+<p>
+Zorp is a transparent proxy firewall, thus it needs a couple of kernel
+extensions. Either Linux 2.2 or Linux 2.4 will work but the transparent
+proxy features are somewhat different. If you are using our ZorpOS
+repositories you can skip this section as the kernel in that repository is
+already patched with TProxy.
+
+<p>
+In addition to transparent proxying you might want to add a security patch
+like openwall or grsecurity as the firewall is a security sensitive device.
+<br><br>
+<div class="title3">3.1. Transparent proxying in Linux 2.2</div>
+
+<p>
+Linux 2.2 features built in transparent proxy capabilities, but you need to
+enable them in your kernel configuration. It can be found under the
+"Networking options" menu, the option is called "Transparent proxy support".
+This option requires that you turn on "IP: firewalling" option as well.
+<p>
+You might also want to enable policy routing and other advanced IP features
+as they are often needed on firewalls.
+<br><br>
+<div class="title3">3.2. Transparent proxying in Linux 2.4/2.6</div>
+<p>
+The transparent proxy support that was present in Linux 2.2 was removed from
+Linux 2.4 when iptables was introduced. We implemented a patch against Linux
+2.4 that adds the required features so Zorp tightly integrates into
+NetFilter/iptables.
+<p>
+You can download this patch from 
+<a href="http://www.balabit.com/products/oss/tproxy/" class="link">
+http://www.balabit.com/products/oss/tproxy/</a>
+<p>
+After you add this patch, enable iptables, iptables connection tracking,
+iptables nat and iptables transparent proxying options in your kernel
+configuration. The target 'TPROXY' and the match 'tproxy' is especially
+important, other iptables modules should be compiled as necessary.
+<p>
+Zorp used to detect TProxy functions by attempting to load the
+iptable_tproxy module. This is not true as of Zorp 3.0, Zorp will try to
+autoload the module but will detect TProxy if the loading fails.
+<p>
+
+There are two incompatible versions of TProxy, TProxy 1.2.x is compatible
+with all current Zorp versions but does not work on Linux 2.6 due to a
+colliding setsockopt number. TProxy 2.0 works on Linux 2.6 but not all
+Zorp versions support it yet. (Zorp 3.0 is ok and Zorp 2.1 starting from
+2.1.8.2, that is the second test release of Zorp 2.1.9)
+
+<p>
+In addition to compiling the kernel you will also need to compile the
+iptables userspace program to include the TPROXY and tproxy modules.
+
+
+<div class="title2">4. Compiling Zorp</div>
+<p>
+It is generally good not to have a compiler on your firewall host, so either
+compile the package on a different host, or remove gcc and development files
+from your firewall after installation.
+<p>
+In Zorp 2.0 the core zorp tarball was split into two: a library called
+libzorpll containing the low level functions and Zorp itself.
+<p>
+You will first need to compile libzorpll:<br>
+<pre>
+# tar xvfz libzorpll-3.0.6.0.3.tar.gz
+# cd libzorpll-3.0.6.0.3
+# ./configure
+# make
+# sudo make install #(assuming sudo is the command to make you root)
+</pre>
+<p>
+Make sure that you copy the resulting shared library to your firewall host.
+This can be accomplished by using the DESTDIR make variable:
+<pre>
+# sudo make DESTDIR=/tmp/staging install<br>
+</pre>
+<p>
+This command will use /tmp/staging as a root directory while copying files,
+thus /usr/lib/libzorpll.so is copied to /tmp/staging/usr/lib/libzorpll.so.
+<p>
+At the end of the compilation you can simply copy the contents of your
+staging directory to the firewall host.
+<p>
+Alternatively you can compile libzorpll to a Debian package by entering
+"dpkg-buildpackage" in the extracted source directory. The build process
+results in two Debian packages: libzorpll<soname>_<version>_i386.deb and
+libzorpll-dev_<version>_i386.deb assuming you are compiling on an Intel
+architecture. Install both debs on your compiling host, and libzorpll on
+your firewall host, as development files are needed only for compilation.
+<p>
+If libzorpll was successfully compiled you can go on to compile Zorp itself:
+<pre>
+# tar xvfz zorp-3.0.3.2.tar.gz
+# cd zorp-3.0.3.2
+# ./configure
+# make
+# sudo make DESTDIR=/tmp/staging install
+</pre>
+<p>
+This will compile zorp and copy the resulting binaries to /tmp/staging. The
+configure script checks your system whether it finds the required build
+dependencies. If one of the dependencies are not met, try to install the
+missing package. In addition to what is described in section 2 as Zorp
+requirements, you will also need libzorpll. Please note that some libraries
+are located with the GNOME pkg-config mechanism which installs library
+meta-information to so-called .pc files. pkg-config uses the PKG_CONFIG_PATH
+environment variable to locate these files and you might set it properly for
+the configure script to find libzorpll.
+<p>
+It might be possible that the configure script does not find some of the
+required libraries even if they are installed. The biggest problem usually
+is the Python development files. Zorp looks for the shared library version
+of Python and it is not always provided by distributions. In this case you
+might try to use the '--with-python-headers' and '--with-python-libraries'
+configure options or ask for help on the mailing list.
+<p>
+Of course the trick for building Debian packages is possible again by
+entering "dpkg-buildpackage" in the extracted source directory. It will
+result in the following debs to be created:
+<ul>
+  <li> zorp: the main program
+  <li> zorp-dev: development files needed to compile zorp modules
+  <li> zorp-modules: proxy modules
+  <li> zorp-doc: documentation files
+</ul>
+<p>
+From these only zorp and zorp-modules is required to be installed on your
+firewall host.
+<br>
+<div class="title2">5. Starting up Zorp</div>
+<p>
+Assuming the build process was successful and you copied the necessary files
+to your firewall host, you can now start configuring Zorp itself.
+<br><br>
+<div class="title3">5.1. Sample network topology</div>
+<p>
+In the following sections I am trying to guide you through Zorp
+configuration by using a simple example. This example network has three
+distrinct security zones:
+<ol>
+  <li>an intranet where protected client computers reside<br>
+   <ul>
+     <li> address range: 192.168.0.0/24
+     <li> firewall IP: 192.168.0.254
+     <li> clients are permitted to use HTTP, HTTPS and FTP services destined to any<br>
+     other zones (internet, DMZ)<br>
+     <li> clients are permitted to use SMTP, DNS and NTP installed on the firewall<br>
+   </ul>
+  </li>
+  <li>a demilitarized zone or DMZ on another interface where public access
+   services are provided from (the web server of the company)
+   <ul>
+     <li> address range: 10.0.0.0/24
+     <li> firewall IP: 10.0.0.254
+     <li> web server IP: 10.0.0.1
+     <li> clients are not permitted to use any service outbound
+     <li> clients are permitted to use SMTP, DNS and NTP installed on the firewall
+   </ul>
+  </li>
+  <li> the internet itself with a single, static IP address
+   <ul>
+    <li> firewall IP: 11.12.13.14
+    <li> clients are permitted to use HTTP serviced in the DMZ
+    <li> clients are permitted to use SMTP installed on the firewall
+    <li> the firewall must communicate with the NTP server on the internet and
+     also to post DNS requests to a single forwarder
+   </ul>
+  </li>
+</ol>
+<div class="title3">5.2. Architecture</div><br>
+<p>
+Zorp is a proxy based firewall which means that it has several protocol
+implementations which each take care about mediating a given protocol
+between hosts on its different interfaces.
+<p>
+Zorp based firewalls are usually integrated into the network topology as
+routers, this means that they have an IP address in all their subnets, and
+hosts on different subnets use the firewall as their gateway to the outside
+world.
+<p>
+Although proxy based, Zorp uses a packet filter to preprocess the packet
+stream, and also to provide transparency.
+<p>
+A TCP session is established in the following way:<br>
+<ol>
+<li> the client initiates a connection by sending a TCP SYN packet destined to the
+   server
+<li> the firewall behaves as a router between the client and the server,
+   receives the SYN packet on one of its interfaces and consults the packet
+   filter
+<li> the packet filter rulebase is checked whether the given packet is
+   permitted
+<li> if the given connection is to be processed by a proxy, then the packet
+   filter rulebase contains a REDIRECT (ipchains) or TPROXY (iptables)
+   target. Both REDIRECT and TPROXY requires a port parameter which tells
+   the local port of the firewall host where the proxy is listening.
+   <br><br>
+   It is also perfectly possible although strongly discouraged to bypass the
+   proxies and forward packets directly, you only need to use the ACCEPT
+   target instead of TPROXY.
+<li> Zorp accepts the connection, checks its own access control rules and
+   starts the appropriate proxy 
+<li> the proxy connects to the server on its own as needed (the server side
+   connection is not necessarily established immediately)
+<li> the proxy mediates protocol requests and responses between the
+   communicating hosts while analyzing the ongoing stream
+   
+</ol>
+<p>
+Of course the remaining packets of the TCP session after the initial SYN
+must also be allowed by the packet filter.
+<br><br>
+<div class="title3">5.3. Configuring network interfaces</div>
+<p>
+As I stated earlier a Zorp based firewall fulfills the role of an IP router
+from its neighbour perspective. This means that all its interfaces must be
+configured to have an IP address in the subnet of the connecting network.
+<p>
+The firewall has three interfaces:
+<ul>
+<li> eth0 as the intranet interface with IP 192.168.0.254/24
+<li> eth1 as the DMZ interface with IP 10.0.0.254/24
+<li> eth2 as the internet interface with IP 11.12.13.14
+</ul>
+<b>NOTE</b>: that the transparent proxy patch for Linux 2.4 requires a local
+address which does not collide with any local address in your network. The
+best way to provide one is to configure a dummy0 interface with a dummy IP
+address in the RFC1918 reserved range. You will need to pass this IP to Zorp
+using the --autobind-ip command line option. See the TPROXY patch
+documentation for more information.
+<p>
+(<a href="http://www.balabit.com/products/oss/tproxy/README.txt" class="link">http://www.balabit.com/products/oss/tproxy/README.txt</a>)
+<br><br>
+<div class="title3">5.4. Configuring the packet filter</div>
+<p>
+To configure the packet filter we first need to establish a couple of rules
+we will be adhering to, as the packet filter ruleset can become quite
+complicated. First of all we name all the neighbouring networks. This name
+should be short and easy to remember. These names will be used when naming
+chains.
+</p>
+
+<table class="text" border="1">
+<tr><td><b>Long name</b></td><td><b>Short name</b></td></tr>
+<tr><td>Intranet</td><td>intra</td></tr>
+<tr><td>Internet</td><td>inter</td></tr>
+<tr><td>DMZ</td><td>dmz</td></tr>
+</table>
+<p>
+The iptables subsystem defines several tables each with its own set of
+chains and rules. We will be focusing on two tables now: the filter table
+where simple packet filtering is done, and the tproxy table where we
+are redirecting sessions to our proxies.
+<br><br>
+<div class="title4">5.4.1. Storing the ruleset</div>
+<p>
+Some people like storing their ruleset as a shell script which invokes the
+necessary iptables commands. As I don't like mixing executable code and data
+we use the format defined by iptables-save & iptables-restore.
+<p>
+As raw iptables-restore format has no macro possibility we created a
+frontend named iptables-utils where a couple of scripts help the creation
+and maintenance of a packet filter rulesets. Here's an outline of the
+iptables-utils approach:
+<ul>
+  <li> the following files are used by iptables-utils:
+    <ul>
+      <li> iptables.conf.in: contains our ruleset before processing, this is a
+      user supplied file, we are going to edit this with our favourite
+      editor
+      <li> iptables.conf.var: contains our macro definitions, it might contain
+      a series of C like #define statements. I say C like because macro
+      substition differs from cpp.
+      <li> iptables.conf.new: when processing conf.in & conf.var our new
+      ruleset will be generated here
+      <li> iptables.conf: is our current ruleset, iptables.conf.new is copied
+      here if found to be correct
+    </ul>
+  <li> the ruleset is maintained the following way:<br>
+    <ul>
+     <li> you edit either iptables.conf.in or iptables.conf.var
+     <li> you process your modifications by the command 'iptables-gen', this
+      will result in a iptables.conf.new to be generated
+     <li> you test your new ruleset by invoking 'iptables-test', this script
+      loads the new ruleset, waits a couple of seconds and reloads the
+      old ruleset, if you made a mistake you are still not closed out
+      from the system
+     <li> if the new ruleset is ok, you invoke 'iptables-commit' which
+      overwrites iptables.conf with iptables.conf.new and loads the
+      ruleset
+    </ul>
+</ul>
+<p>
+Using iptables-utils was absolutely beneficial in the long term as the
+number of system-closeouts dramatically decreased, which is good if you
+are hundreds of miles of away from the firewall.
+<p>
+Macro expansion is not simple substition, if a macro contains several
+words the rule where the macro is referenced is copied, at the end you
+get a new rule for each word in your macro. For instance:
+<br><br>iptables.conf.var:<br>
+<br>
+<pre>
+         #define SSH_PERMITTED 1.2.3.4 1.2.3.5
+</pre>
+<br>
+     iptables.conf.in:<br>
+<br>
+<pre>
+         -A INPUT -p tcp -m tcp -s SSH_PERMITTED --dport 22 -j ACCEPT
+</pre>
+<p>
+You will get two rules the first with 1.2.3.4 substituted, the second
+with 1.2.3.5 substituted.
+<br><br>
+<div class="title4">5.4.2. Naming the chains</div>
+<p>
+In addition to the standard chains provided by iptables (INPUT, OUTPUT
+etc) we will create separate chains for each security zone. Each security
+zone will have two chains:
+<ul>
+  <li> a chain which contains rules for traffic which passes the firewall
+  <li> a chain which contains rules for traffic destined to the firewall
+</ul>
+<p>
+The first one will be prefixed by PR which stands for PRoxy rules, the
+second one will be prefixed by LO which stands for LOcal rules. Proxy
+rules will be placed into the 'tproxy' table, local rules will be placed
+into the 'filter' table. If we assume that all traffic goes through
+proxies we won't need NAT nor mangle rules. (of course we can add further
+finetuning to our rulebase, like limiting the number of SYNs etc)
+<br><br>
+<div class="title4">5.4.3. Jumping to our chains</div>
+<p>
+We have two set of chains for each security zone, LOxxx chains are
+processed in the filter table, INPUT chain. PRxxx chains are processed in
+the tproxy table, PREROUTING/OUTPUT chain.
+<p>
+Our filter/INPUT chain will be something like this:
+<br><br>
+<pre>
+     ...
+     -A INPUT -m tproxy -j ACCEPT
+     -A INPUT -i &lt;intranet iface&gt; -j LOintra
+     -A INPUT -i &lt;internet iface&gt; -j LOinter
+     -A INPUT -i &lt;dmz iface&gt;      -j LOdmz
+     -A INPUT -j DROP
+</pre>
+<p>
+This means that all permitted traffic must be enabled in their specific
+chain or will be dropped on the INPUT chain. Of course logging dropped
+packets would be a good idea. It is important to mention that our
+FORWARD chain should contain a single DROP rule as we don't forward
+packets. Each LOxxx chain should look like this:
+<br><br>
+<pre>
+     -A LOintra -p tcp --dport 22 -j ACCEPT
+     ... permit each service ... 
+     -A LOintra -j DROP
+</pre>
+<p>
+Of course our LOxxx chains might be different for each zone, as we might
+permit SSH access from the intranet only.
+<p>
+Note the '-m tproxy' rule at the front of other rules, it allows all
+traffic redirected by any TPROXY feature to pass the filter table. (this
+includes TPROXY redirections, and foreign-bound traffic)
+<p>
+We took care about local services provided by the firewall, let's
+make our proxying rules now.
+<p>
+Our tproxy/PREROUTING chain will be something like this:
+<br><br>
+<pre>
+     -A PREROUTING -i &lt;intranet iface&gt; -d ! &lt;fw intranet IP&gt; -j PRintra
+     -A PREROUTING -i &lt;internet iface&gt; -d ! &lt;fw internet IP&gt; -j PRinter
+     -A PREROUTING -i &lt;dmz iface&gt;      -d ! &lt;fw dmz IP&gt;      -j PRdmz
+</pre>
+<br>
+A PRxxx chain should something like this:<br>
+<br>
+<pre>
+     -A PRintra -d 0/0 --dport 80 -j TPROXY --on-port 50080
+     ... repeat the above rule for each service ...
+</pre>
+<p>
+At the end of a PRxxx chain no DROP should be performed, as unmodified
+sessions will be stopped when the filter table is evaluated. The port
+number specified by TPROXY rules should match the port number where the
+transparent proxy (Zorp in our example) will be bound.
+<p>
+Here is a complete iptables configuration for our sample network:
+<br>
+iptables.conf.var:<br>
+<br>
+<pre>
+#define IFintra   eth0
+#define NETintra  192.168.0.0/24
+
+#define IFinter   eth1
+
+#define IFdmz     eth2
+#define NETdmz    10.0.0.0/24
+
+#define NTP_SERVERS 1.2.3.4 1.2.3.5
+
+#define DNS_SERVERS 2.3.4.5
+</pre>
+
+<br>
+iptables.conf.in:<br>
+<pre>
+*tproxy
+:PREROUTING ACCEPT
+:OUTPUT ACCEPT
+:PRintra -
+:PRinter -
+:PRdmz -
+-A PREROUTING -i IFintra -j PRintra
+-A PREROUTING -i IFinter -j PRinter
+-A PREROUTING -i IFdmz   -j PRdmz
+// PRintra chain
+-A PRintra -p tcp --dport 80 -j TPROXY --on-port 50080
+-A PRintra -p tcp --dport 443 -j TPROXY --on-port 50443
+-A PRintra -p tcp --dport 21 -j TPROXY --on-port 50021
+// PRinter chain
+-A PRinter -p tcp --dport 80 -j TPROXY --on-port 50080
+// PRdmz chain
+// no services permitted
+COMMIT
+*filter
+:INPUT DENY
+:FORWARD DENY
+:OUTPUT ACCEPT
+:noise -
+:spoof -
+:spoofdrop DROP
+:LOintra -
+:LOinter -
+:LOdmz -
+-A INPUT -j noise
+-A INPUT -j spoof
+// permit all traffic initiated by transparent proxies
+-A INPUT -m tproxy  -j ACCEPT
+//
+// permit all TCP traffic initiated by local processes, or allowed by rules
+// below, we don't trust the state match for UDP traffic, they will be handled
+// by individual rules below.
+//
+-A INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
+// permit all loopback traffic
+-A INPUT -i lo -j ACCEPT
+-A INPUT -i IFintra -j LOintra
+-A INPUT -i IFinter -j LOinter
+-A INPUT -i IFdmz   -j LOdmz
+-A INPUT -j DROP
+-A FORWARD -j LOG --log-prefix "FORWARD DROP: "
+-A FORWARD -j DROP
+// LOintra
+-A LOintra -p udp --dport 53 -j ACCEPT
+-A LOintra -p udp --dport 123 -j ACCEPT
+-A LOintra -p tcp --syn --dport 25 -j ACCEPT
+-A LOintra -j LOG --log-prefix "LOintra DROP: "
+-A LOintra -j DROP
+// LOinter
+// permit DNS replies, bind is configured to send out DNS packets from this
+// port. We could also use the state match in our INPUT chain.
+-A LOinter -p udp -s DNS_SERVERS --dport 53000 -j ACCEPT
+-A LOinter -p udp -s NTP_SERVERS --dport 123 -j ACCEPT
+-A LOinter -p tcp --syn --dport 25 -j ACCEPT
+-A LOinter -j LOG --log-prefix "LOinter DROP: "
+-A LOinter -j DROP
+// LOdmz
+-A LOdmz -p udp --dport 53 -j ACCEPT
+-A LOdmz -p udp --dport 123 -j ACCEPT
+-A LOdmz -p tcp --syn --dport 25 -j ACCEPT
+-A LOdmz -j LOG --log-prefix "LOdmz DROP: "
+-A LOdmz -j DROP
+//
+// noise chain, should drop all packets which need not be logged,
+// otherwise it should return to the main ruleset
+//
+-A noise -p udp --dport 137:139 -j DROP
+-A noise -j RETURN
+//
+// spoof chain, should drop all packets with spoofed source address
+// otherwise it should return to the main ruleset
+//
+-A spoof -i lo -j RETURN
+-A spoof ! -i lo -s 127.0.0.0/8 -j spoofdrop
+-A spoof -i IFintra ! -s NETintra -j spoofdrop
+-A spoof ! -i IFintra -s NETintra -j spoofdrop
+-A spoof -i IFdmz ! -s NETdmz -j spoofdrop
+-A spoof ! -i IFdmz -s NETdmz -j spoofdrop
+-A spoof -j RETURN
+//
+-A spoofdrop -j LOG --log-prefix "Spoofed packet: "
+-A spoofdrop -j DROP
+COMMIT
+</pre>
+<br>
+<div class="title3">5.5. Configuring Zorp</div>
+<p>
+This section focuses on Zorp configuration.
+<br><br>
+<div class="title4">5.5.1. Zorp &amp; Python</div>
+<p>
+The configuration of Zorp is Python based, in fact the configuration file is
+a Python module in itself. This does not mean however that the administrator
+would have to learn Python and does neither mean that Zorp itself is
+written in Python.
+<p>
+The use of Python is twofold:
+<ol>
+ <li> it is used as a glue to connect Zorp components together
+   <br><br>
+   These parts are implemented by us and live as Python modules in the
+   directory '/usr/share/zorp/pylib'.<br><br>
+
+ <li> it is used to describe the configuration and to customize proxy behaviour<br>
+   <br>
+   This part is written by the administrator, but an effort was made to make
+   the configuration file look like configuration and _NOT_ a program.  A
+   standard policy without tricks is easier to write than a 'netperm-table'
+   (of TIS fwtk fame).
+   
+</ol>
+<p>
+Though the configuration file may not seem like a Python module, it is
+important to know it is parsed as one. So the following syntactical
+requirements of Python apply:
+<p>
+Indentation is important as it marks the beginning of a block, similar to
+what braces do in C/C++/Java. This means that the way you indent blocks
+must be consistent for that given block. For example this is correct:
+
+<pre>
+    if self.request_url == 'http://www.balabit.hu/':
+        print('debug message')
+        return HTTP_REQ_ACCEPT
+    return HTTP_REQ_REJECT
+</pre>
+    <br>
+  This is not:<br>
+  <br>
+<pre>
+    if self.request_url == 'http://www.balabit.hu/':
+          print('debug message')
+        return HTTP_REQ_ACCEPT
+    return HTTP_REQ_REJECT
+</pre>
+    <br>
+  The code snippet above could be expressed in a C-like language like this:<br>
+<br>
+<pre>
+    if (self.request_url == 'http://www.balabit.hu/')
+      {
+        print('debug message');
+        return HTTP_REQ_ACCEPT;
+      }
+    return HTTP_REQ_REJECT;
+</pre>
+<br><br>
+<div class="title4">5.5.2. Zorp components</div>
+<p>
+To start configuring Zorp you will need to know the following Zorp components:
+<ul>
+<li> Instance: it is possible to start several instances of Zorp just like you
+  can start many instances of any program. Each zorp instance has a name and
+  its own set of services to provide. Several instances can use the same
+  configuration file, though each will process only the relevant parts.
+
+<li> Zone: A zone encapsulates a part of the neighbouring network. Each client
+  and server is a member of exactly one zone, membership based on IP
+  address. Zorp uses a zone based access control which means that the
+  permitted set of services available to a client/server combination is
+  assigned to the zones those clients and services reside in.
+<li> Service: a service encapsulates a proxy and associated parameters. Each
+  service is identified by a unique name which is used for logging and
+  access control purposes.
+<li> Listener: a listener is an object which listens for connection on a given
+  port and for each accepted TCP session it is capable of starting service
+  instances. Listeners are the input point of Zorp, usually the packet
+  filter redirects TCP sessions to one of the ports where a Zorp Listener is
+  waiting.
+<li> Router: a router in Zorp decides the destination of a given session. Each
+  service has an associated Router but as it defaults to TransparentRouter
+  it does not have to be explicitly given.
+<li> Chainer: a chainer is used even less often than a Router, it is also
+  associated with services and their task is to establish the server side
+  connections of proxies.
+</ul>
+<div class="title4">5.5.3. The simplest Zorp configuration</div>
+<p>
+Zorp uses two files to store its configuration. The file named
+'instances.conf' contains the list of Zorp instances to be run. Its content
+is processed by the 'zorpctl' script. The other file, usually named
+'policy.py' stores the policy (aka ruleset) of one or more Zorp instances.
+<p>
+The following listing is a complete, working Zorp policy file with a single
+instance named 'intra', and a single zone named 'inter' which encapsulates
+the whole IPv4 address space. 
+<pre>
+from Zorp.Core import *
+
+InetZone('inter', '0.0.0.0/0')
+
+def intra():
+	pass
+</pre>
+<br>
+A few things to notice:<br>
+<ul>
+<li> this file is a Python module, therefore the import statement on the first
+  line, it imports all core Zorp symbols that are required even for basic
+  operation.
+<li> the name of our zone here matches the name we used while writing our
+  packet filter ruleset, this is not a requirement, it is just good
+  practice to make your firewall ruleset cleaner.
+<li> the instance named 'intra' is represented as a Python function with no
+  arguments. This is currently empty, thus the Python NOP called 'pass' as
+  the function body (Python requires at least one statement in every block).
+  You will see how this can be augmented with Service and Listener
+  definitions so 'pass' will not be needed.
+</ul>
+<p>
+
+Zorp instances can be started and stopped by the 'zorpctl' program (it used
+to be a script until Zorp 2.1, but is a C program Zorp 3.0 onwards).
+'zorpctl start' starts all known instances, 'zorpctl stop' stops them. 'zorpctl'
+works by parsing the '${prefix}/etc/zorp/instances.conf' file. Each instance name
+in the instances.conf file must have a corresponding instance definition in
+the policy file to work correctly. A sample instances.conf file will be
+shown in the following paragraphs.
+<p>
+This is simple enough, isn't it? Now let's augment it with the definitions
+of our zones, and let's create three instances for each of our zones:
+<pre> 
+from Zorp.Core import *
+
+
+InetZone('intra', '192.168.0.0/24')
+InetZone('dmz', '10.0.0.0/24')
+InetZone('inter', '0.0.0.0/0')
+
+def intra():
+	pass
+
+def dmz():
+	pass
+
+def inter():
+	pass
+</pre>
+<p>
+You will need the following instances.conf(5) file to start your zorp
+instances using zorpctl:
+<br>
+<pre>
+intra -v3 -p /etc/zorp/policy.py --autobind-ip 192.168.0.1
+inter -v3 -p /etc/zorp/policy.py --autobind-ip 192.168.0.1
+dmz -v3 -p /etc/zorp/policy.py   --autobind-ip 192.168.0.1
+</pre>
+<p>
+The 'instances.conf' file specifies Zorp startup parameters to use when the
+given instance is started. Consult zorp(8) manpage or run
+'/usr/lib/zorp/zorp --help' for more details.
+
+<p>
+One important point to make is the 'autobind-ip' argument in the example
+above, TPROXY requires a local, non-routeable IP address to make
+transparency possible. See section 5.4 and the TPROXY README file for more
+details.
+<br><br>
+<div class="title4">5.5.4. Adding our services</div>
+<p>
+Although our Zorp process is running by entering the configuration in the
+previous section, it would do nothing really useful. To do anything useful
+we have to define services, and listeners.
+<pre>
+from Zorp.Core import *
+from Zorp.Http import *
+
+InetZone('intra', '192.168.0.0/24',
+	 outbound_services=['intra_HTTP'])
+InetZone('dmz', '10.0.0.0/24',
+	 inbound_services=['intra_HTTP'])
+InetZone('inter', '0.0.0.0/0',
+	 inbound_services=['intra_HTTP'])
+
+def intra():
+	Service('intra_HTTP', HttpProxy)
+	Listener(SockAddrInet('192.168.0.254', 50080), 'intra_HTTP')
+
+def dmz():
+	pass
+
+def inter():
+	pass
+</pre>
+
+A few things to notice:
+
+<ul>
+<li> we have added a new import line to import all symbols the HTTP module
+  provides, the most important being HttpProxy which we used in our service
+  definition.
+  
+<li> we have added access control information to our zones, the 'intra_HTTP'
+  service is permitted to be used outbound from the zone 'intra', and is
+  permitted to target servers in the zones 'dmz' and 'inter'.
+  
+<li> we have removed the 'pass' statement from our 'intra' function and added
+  two statements instead: a service definition and a listener definition
+<li> The service definition names our new service 'intra_HTTP' which is using
+  the proxy named HttpProxy, further options could be specified here as you
+  will see in coming sections.
+<li> The listener opens the port 192.168.0.254:50080, our packet filter rules
+  redirect all transparent, port 80 traffic to this port
+<li> The listener starts the service named in its second argument.
+<li> Service names are divided into three parts separated by an underscore:
+  source zone, protocol, destination zone. If the service is transparent and
+  the destination is not known, the destination zone is omitted from the
+  service name. This naming scheme is not required by Zorp, though the use
+  of some kind of scheme makes firewall administration easier.
+</ul>
+<p>
+Here is a complete listing of the simple policy I presented in section 5.1.
+<pre>
+from Zorp.Core import *
+from Zorp.Plug import *
+from Zorp.Http import *
+from Zorp.Ftp import *
+
+InetZone('intra', '192.168.0.0/24',
+	 outbound_services=['intra_HTTP', 'intra_HTTPS', 'intra_FTP'])
+InetZone('dmz', '10.0.0.0/24',
+	 inbound_services=['intra_HTTP', 'inter_HTTP_dmz'])
+InetZone('inter', '0.0.0.0/0',
+	 outbound_services=['inter_HTTP_dmz'],
+	 inbound_services=['intra_HTTP', 'intra_HTTPS', 'intra_FTP'])
+
+def intra():
+	Service('intra_HTTP', HttpProxy)
+	Listener(SockAddrInet('192.168.0.254', 50080), 'intra_HTTP')
+
+	Service('intra_HTTPS', PlugProxy)
+	Listener(SockAddrInet('192.168.0.254', 50443), 'intra_HTTPS')
+
+	Service('intra_FTP', FtpProxy)
+	Listener(SockAddrInet('192.168.0.254', 50021), 'intra_FTP')
+
+def dmz():
+	pass
+
+def inter():
+	Service('inter_HTTP_dmz', HttpProxy,
+		router=DirectedRouter(SockAddrInet('10.0.0.1', 80)))
+	Listener(SockAddrInet('11.12.13.14', 50080), 'inter_HTTP_dmz')
+</pre>
+<p>
+A few things to notice:<br>
+<br>
+<ul>
+<li> we have added two new import statements to import the symbols provided by
+  the Plug and Ftp proxies.
+<li> we used a PlugProxy for HTTPS purposes, we could also have used an SSL
+  proxy instead
+<li> our 'inter_HTTP_dmz' service has a fixed destination, this is accomplished by
+  using an explicit router specification: we use DirectedRouter() to specify
+  the destination server. All other services use the default router named
+  TransparentRouter() which means they connect to the original destination
+  of the client.
+<li> the 'inter_HTTP_dmz' service has a fully qualified name, since we
+  know the destination zone as - unlike other services - it has a fixed,
+  predefined destination: it connects to the webserver in the DMZ.
+</ul>
+<br>
+<div class="title4">5.5.5. Customizing proxies</div>
+<p>
+In the previous section we implemented a firewall policy in about 30 lines.
+Although our example was quite simple there are real world firewalls with
+policies not more difficult than our sample. 
+<p>
+Until we did not really use the fact that we have a programming language in
+our hands. The configuration above is simple, but it doesn't show the
+potential Zorp provides.
+<p>
+The second argument of a Service statement is a proxy class, the fact it is
+a class makes easy customization possible. As customization requires a bit
+more knowledge about Python, we provided a good number of predefined proxy
+classes. As an example Ftp has a couple of predefined variations: 
+<p>
+
+<ul>
+<li> FtpProxyRO, <br>
+  an FTP proxy which permits downloading only<br>
+  <br>
+<li> FtpProxyAnonRO, <br>
+  an FTP proxy which permits downloading only, and only the anonymous user<br>
+  is permitted<br>
+</ul>
+<p>
+If you cannot find the necessary customization, then - and only then - do
+you need to derive your own class. The next listing shows how.
+<br>
+<pre>
+class HttpProxyAnonimize(HttpProxy):
+	def config(self):
+		HttpProxy.config(self)
+		# customization statements
+</pre>
+<p>
+The listing above shows a class definition in Python, our new class has the
+name 'HttpProxyAnonimize', it is derived from HttpProxy and has defined the
+method named 'config'. The 'config' method calls the 'config' method in our
+superclass to also derive default configuration settings. You can take the
+above code snippet as a skeleton for your future customizations. Changing
+the parent class to 'FtpProxy' and making our 'config' method to call the
+config method from 'FtpProxy' would create a customized Ftp proxy class.
+<p>
+What can you put in your 'config()' method? Anything that the proxy
+provides. Our HTTP proxy has over 30 settings and there are complex
+filtering rules that you can set. Documentation on each attribute a given
+proxy provides can be found in the Python module for that proxy. This means
+that the documentation for our Http proxy can be found in
+/usr/share/zorp/pylib/Zorp/Http.py. The documentation usually also contains
+examples.
+<p>
+Now, let us create an Http proxy that hides the browser type:
+<pre>
+class HttpProxyAnonimize(HttpProxy):
+	def config(self):
+        	HttpProxy.config(self)
+                self.request_headers["User-Agent"] = \
+			(HTTP_HDR_CHANGE_VALUE, "Mozilla 5.0")
+</pre>
+<p>
+That's it, now you can refer to HttpProxyAnonimize from your service
+definitions like this:
+<pre>
+def intra():
+	Service('intra_HTTP', HttpProxyAnonimize)
+	Listener(SockAddrInet('192.168.0.254', 50080), 'intra_HTTP')
+	
+	...
+</pre>
+<p>
+A little bit more complex example shows how to remove Referer information.
+This is a bit more difficult as a lot of sites relies on Referer being
+correct, some of them simply stops working if the referer does not point to
+them. Thus simply changing the referer value to something fixed will not work.
+<p>
+We work around this by setting the referer field to the currently request
+URL. Let us extend our previous HttpProxyAnonimize with this feature:
+
+<pre>
+class HttpProxyAnonimize(HttpProxy):
+	def config(self):
+        	HttpProxy.config(self)
+                self.request_headers["User-Agent"] = \
+			(HTTP_HDR_CHANGE_VALUE, "Mozilla 5.0")
+                self.request_headers["Referer"] = \
+			(HTTP_HDR_POLICY, self.rewriteReferer)
+
+	def rewriteReferer(self, name, value):
+		self.current_header_value = self.request_url
+		return HTTP_HDR_ACCEPT
+</pre>
+<p>
+As you can see we have defined a Python function to perform the Referer
+change. Of course we can do even more complex things by extending the proxy
+functionality here and there, however this is not the scope of this
+document.
+
+<br><br>
+<div class="title3">5.6. What is modularity?</div>
+<p>
+As I have already written in the introduction, Zorp has a modular
+architecture, proxies can extend each other. But what does this mean
+exactly?
+<p>
+
+Each proxy in Zorp is generalized in a way that it is independent of the
+communication mechanism used towards its client or server peers. This means
+that proxies don't really care whether they communicate using a real TCP
+connection or a UNIX domain socket. This comes handy when we want to analyze
+something that has multiple protocol levels:
+<p>
+
+For example simple HTTP uses TCP as its transport protocol but does not have
+authentication or integrity protection on its own. If you add SSL to the
+picture you get HTTPS: HTTP running on SSL, which in turn runs on TCP. As
+Zorp has an SSL capable proxy (implementing an MITM in fact), we can
+construct an HTTPS proxy out of our ordinary HTTP and SSL proxies. Here is
+an example:
+<p>
+
+<pre>
+class HttpsProxy(PsslProxy):
+
+       class EmbeddedHttpProxy(HttpProxy):
+               def config(self):
+                       HttpProxy.config(self)
+                       self.request_header["User-Agent"] = (HTTP_HDR_DROP)
+
+       def config(self):
+               PsslProxy.config(self)
+               self.client_need_ssl = TRUE
+               self.client_key_file = '/etc/zorp/https.key'
+               self.client_cert_file = '/etc/zorp/https.crt'
+               self.client_verify_type = PSSL_VERIFY_NONE
+               self.server_need_ssl = TRUE
+               self.server_ca_directory = '/etc/zorp/https_trusted_ca.crt'
+               self.server_verify_type = PSSL_VERIFY_REQUIRED_TRUSTED
+
+               # here we specify that decrypted protocol stream is
+               # to be passed to an instance of EmbeddedHttpProxy above
+               self.stack_proxy = EmbeddedHttpProxy
+</pre>
+
+<br>
+A few things to notice:
+<ul>
+<li> Python syntax is fully recursive, this comes well when defining
+  "EmbeddedHttpProxy", this way we can emphasize that it is embedded into
+  "HttpsProxy". However this is syntactic sugar only, nothing requires you
+  to define embedded proxy classes within other classes, you can use your
+  proven Http filtering class inside SSL.
+<li> The most important part is the line with the comment, we specify that
+  as soon as the SSL handshakes are completed, an EmbeddedHttpProxy should
+  be started with the decrypted protocol streams. The stacked proxy can do
+  anything to modify protocol contents.
+<li> The PSSL proxy allows encryption to be enabled or disabled on both of its
+  client or server side, thus it can be used to wrap or unwrap protocol streams
+  into/out of SSL.
+<li> Of course the proxy above can be fully transparent.
+<li> Not all proxies provide embedded protocol streams that you can attach
+  other proxies to (PsslProxy and PlugProxy does, FingerProxy does not)
+</ul>
+
+
+
+<p>
+<div class="title2">6. Where to look for further information</div>
+<ul>
+<li>Proxy specific documentation -<br<br>
+  it is available in inline Python docstrings of each proxy module<br><br>
+<li>Python layer -<br><br>
+  a couple of Zorp objects are implemented in pure Python, each of these
+  classes is documented in the appropriate Python module.<br><br>
+<li>mailing list -<br><br>
+  last but not at least the mailing list and its archive is a useful
+  resource. we usually respond to questions quite fast.
+</ul>
+
+</body>
+</html>

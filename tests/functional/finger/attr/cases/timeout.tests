@@ -1,0 +1,29 @@
+StartGlobalInfo
+    Tags timeout D-01046 bug12123
+EndGlobalInfo
+
+StartPolicy
+    def config(self):
+        FingerProxy.config(self)
+        self.max_hop_count = 1
+        self.timeout = 3000
+EndPolicy
+
+C2P: "barki@barhol.com@"
+A=time.sleep(6)
+C2P: "barhonnan.hu@barkie.org\r\n"
+#P2S: "barki@barhol.com\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+C2P: "barki@barhol.com@barhonnan.hu@barkie.org\r\n"
+P2S: "barki@barhol.com\r\n"
+S2P: "peldaul "
+A=time.sleep(6)
+S2P: "barmilyen valasz\r\n"
+#P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.

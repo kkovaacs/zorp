@@ -1,0 +1,107 @@
+StartGlobalInfo
+	Tags content-length
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+
+# Content length scenarios
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Content-Length: 0\r\n\
+\r\n\
+entitas test\"
+
+P2S: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Content-Length: 0\r\n\
+\r\n"
+
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 19\r\n\
+Connection: close\r\n\
+\r\n\
+masik entitas teste"
+
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 19\r\n\
+Connection: close\r\n\
+\r\n\
+masik entitas teste"
+.
+
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Content-Length: 12\r\n\
+\r\n\
+entitas test\r\n\
+Expires: Thu, 01 Dec 1994 16:00:00 GMT\r\n\
+From: webmaster@w3.org\r\n\
+If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT\r\n\
+Last-Modified: Tue, 15 Nov 1994 12:45:26 GMT\r\n\"
+
+P2S: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Content-Length: 12\r\n\
+\r\n\
+entitas test"
+.
+
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Content-Length: 1024\r\n\
+\r\n"\
+ "%s"x512
+P2S: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Content-Length: 1024\r\n\
+\r\n"\
+ "%s"x512
+.
+
+C2P: "GET /var/www/index3.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /var/www/index3.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345 a tobbi csak felesleg"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+.
+
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+Content-Length: bubba\r\n\
+\r\n"
+P2C: "HTTP/1.0 500 Error encountered\r\n" $NIHIL "</html>\n"
+.
+
+StartInfo
+	Tags	bug6533
+EndInfo
+
+C2P: "GET /var/www/index3.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /var/www/index3.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.0 302 OK\r\n\
+Content-Length: 0\r\n\
+\r\n"
+P2C: "HTTP/1.0 302 OK\r\n\
+Content-Length: 0\r\n\
+\r\n"
+.

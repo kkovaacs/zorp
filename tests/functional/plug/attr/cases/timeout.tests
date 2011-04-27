@@ -1,0 +1,24 @@
+StartGlobalInfo
+    Tags timeout D-01046 bug12123
+EndGlobalInfo
+
+StartPolicy
+    def config(self):
+        self.timeout = 3000
+EndPolicy
+
+C2P: "1"
+A=time.sleep(6)
+C2P: "2"
+P2S: "1"
+P2S: Disconnect
+P2C: Disconnect
+.
+
+S2P: "1"
+A=time.sleep(6)
+S2P: "2"
+P2C: "1"
+P2C: Disconnect
+P2S: Disconnect
+.

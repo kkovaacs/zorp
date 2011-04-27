@@ -1,0 +1,117 @@
+What is Zorp?
+
+Zorp as you probably know by now is a proxy firewall suite featuring several
+native application level gateways for different protocols. This document
+serves as an introduction for you to gasp the ideas behind Zorp.
+
+1. What is a packet filter?
+---------------------------
+
+Packet filters just as their name suggest filters network traffic by
+packets. For each individual packet a decision is made whether it is allowed
+or rejected. Packet filters make their decisions based on packet headers,
+without checking packet payload.
+
+Since common services (like HTTP or FTP) have an assigned port number,
+access of different services can be controlled by enabling some ports and
+disallowing others.
+
+The problem with this approach is that it is possible to run a service on a
+port number different from its assigned number. For example you could run a
+POP3 server on port 80, which is usually assigned to HTTP services.
+
+Another problem is that the transmitted information flow is processed in
+packets. There were several IP stack vulnerabilities (mainly DoS attacks)
+which were exploitable with incorrectly formatted IP frames. Simple packet
+filters do not protect against these attacks.
+
+2. What is NAT (Network Address Translation)?
+---------------------------------------------
+
+NAT is a technique commonly used in packet filters to change the source
+and/or the destination addresses of forwarded packets.
+
+A common scenario is when you have a protected subnet behind a firewall
+using one of the reserved IP address ranges (192.168.0.0/16) and NAT-ing
+this address range to the outside world as if it was a single IP address
+(this is commonly called masquerading).
+
+The problem is that once a connection is established from inside, each
+packet in the reverse direction is automatically forwarded provided that
+it is sent to the appropriate port on the outside interface. Given that the
+range of ports which masquerading uses is quite small, one can easily send
+packets to all ports in that range, some of them will be forwarded to
+internal hosts.
+
+The linux kernel doesn't check by default whether a packet to be
+demasqueraded was sent from the correct address.
+
+3. What is an application level gateway?
+----------------------------------------
+
+Application level gateways (or proxies for short) - unlike simple packet
+filters - process the information flow at the application level. This means
+that while packet filters do not touch nor interpret packet payload, an
+application level gateway implements a specific application protocol (HTTP,
+FTP or POP3 for instance), and checks whether the dataflow conforms to that
+given protocol. You cannot send POP3 requests in a HTTP proxy, the proxy
+will try to interpret POP3 requests as HTTP protocol elements, and since the
+two protocol differ, the request will fail.
+
+Since most security vulnerabilities are exploited with protocol inconforming
+requests, these - if the application level gateways are well written - can
+be filtered by these gateways.
+
+Application level gateways can bounds-check a given protocol element (check
+for too long filenames) or look for invalid patterns (filter all filenames
+containing '../' to prevent dot-dot bug exploits).
+
+Since proxies process protocols at this level, they provide higher security
+in most cases.
+
+4. What is the architecture of a Zorp based firewall?
+-----------------------------------------------------
+
+Zorp uses both application level gateways and packet filter. However packet
+filter is only used as an aid, no packet forwarding is done.
+
+IPChains filters packets as they enter the system, and denies all unneeded
+packets. 
+
+Zorp application proxies are listening on the appropriate interfaces.
+
+IPChains is the glue with its REDIRECT target, which intercepts connections
+and redirects them to the listening proxy.
+
+The proxy accepts the connection and acts in the name of the client to
+initiate further connections to the server. Of course packet filtering is
+done on the server side too.
+
+5. What is this Python thing in Zorp?
+-------------------------------------
+
+In addition to providing well written proxies in Zorp, we didn't want to
+limit you to the settings we wanted to implement. Everything is scriptable,
+you can define your hooks to modify proxy behaviour. These little scriptlets
+are written in Python.
+
+Additionally Python is used as a glue between different Zorp components, so
+high level abstractions are implemented in Python. For instance the whole
+access control can easily be replaced with your own. We are currently using
+a simple discretionary access control, but we want to implement
+alternatives, like a TCSEC class B/CC LSPP mandatory access control.
+
+The configuration and the firewall policy itself is written in Python too,
+however we made everything possible to make it look like an ordinary
+configuration file.
+
+6. What are Zorp instances?
+---------------------------
+
+Just as any program, you can be launched more than once at the same time.
+Each instance can have its own configuration and parameters. It is advisable
+to split your Zorp services to instances.
+
+Each Zorp instance is capable of using all protocol proxies, they are stored
+in and loaded from shared objects.
+

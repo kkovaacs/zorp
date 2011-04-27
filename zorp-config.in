@@ -1,0 +1,87 @@
+#!/bin/sh
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+exec_prefix_set=no
+
+usage="\
+Usage: zorp-config [--prefix[=DIR]] [--exec-prefix[=DIR]] [--version] [--libs] [--cflags]"
+
+if test $# -eq 0; then
+      echo "${usage}" 1>&2
+      exit 1
+fi
+
+while test $# -gt 0; do
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *) optarg= ;;
+  esac
+
+  case $1 in
+    --prefix=*)
+      prefix=$optarg
+      if test $exec_prefix_set = no ; then
+        exec_prefix=$optarg
+      fi
+      ;;
+    --prefix)
+      echo $prefix
+      ;;
+    --exec-prefix=*)
+      exec_prefix=$optarg
+      exec_prefix_set=yes
+      ;;
+    --exec-prefix)
+      echo $exec_prefix
+      ;;
+    --version)
+      echo @VERSION@
+      ;;
+    --cppflags)
+      echo "-I@includedir@/zorp @DEPS_CPPFLAGS@"
+      ;;
+    --cflags)
+      echo "@CFLAGS@"
+      ;;
+    --libs)
+      echo "-lzorp -lzorpproxy -L@libdir@"
+      ;;
+    --local-cppflags)
+      # the build directory is a hack
+      includes="-I@zorp_srcdir@/lib -I@zorp_srcdir@/build -I@zorp_srcdir@/libproxy -I@zorp_srcdir@ @DEPS_CPPFLAGS@"
+      echo $includes
+      ;;
+    --local-cflags)
+      echo "@CFLAGS@"
+      ;;
+    --local-libs)
+      echo "-L@zorp_srcdir@/lib/ -L@zorp_srcdir@/libproxy -L@zorp_srcdir@/lib/.libs -L@zorp_srcdir@/libproxy/.libs -lzorp -lzorpproxy"
+      ;;
+    --datadir)
+      echo @datadir@/@PACKAGE@
+      ;;
+    --moduledir)
+      echo @libdir@/@PACKAGE@
+      ;;
+    --trace)
+      echo @enable_trace@
+      ;;
+    --debug)
+      echo @enable_debug@
+      ;;
+    --dmalloc)
+
+      echo @enable_dmalloc@
+      ;;
+    --residual_protection)
+      echo @enable_residual_protection@
+      ;;
+    *)
+      echo "${usage}" 1>&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+

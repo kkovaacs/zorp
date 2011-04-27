@@ -1,0 +1,85 @@
+StartPolicy
+	def config(self):
+		WhoisProxy.config(self)
+		self.timeout = 2000
+		self.max_line_length = 10
+EndPolicy
+
+# Timeout check moved to timeout.tests
+
+C2P: "12345678\r\n"
+P2S: "12345678\r\n"
+.
+
+C2P: "123456789\r\n"
+P2C: "Whois protocol error or disallowed protocol element, request denied.\r\n"
+.
+
+C2P: "12345678\r\n"
+P2S: "12345678\r\n"
+S2P: "12345678\r\n"
+P2C: "12345678\r\n"
+.
+
+C2P: "12345678\r\n"
+P2S: "12345678\r\n"
+S2P: "123456789\r\n"
+P2S: Disconnect
+P2C: Disconnect
+.
+
+StartPolicy
+	def config(self):
+		WhoisProxy.config(self)
+		self.max_request_length = 10
+EndPolicy
+
+C2P: "1234567890\r\n"
+P2S: "1234567890\r\n"
+.
+C2P: "12345678901\r\n"
+P2C: "Whois protocol error or disallowed protocol element, request denied.\r\n"
+.
+
+C2P: "1234567890\r\n"
+P2S: "1234567890\r\n"
+S2P: "1234567890\r\n"
+P2C: "1234567890\r\n"
+.
+C2P: "1234567890\r\n"
+P2S: "1234567890\r\n"
+S2P: "12345678901\r\n"
+P2C: "12345678901\r\n"
+.
+
+StartPolicy
+	def config(self):
+		WhoisProxy.config(self)
+	def whoisRequest(self, request):
+		if self.request == "minta":
+			return Z_ACCEPT
+		else:
+			return Z_REJECT
+EndPolicy
+
+C2P: "minta\r\n"
+P2S: "minta\r\n"
+.
+
+C2P: "nem minta\r\n"
+P2C: "Policy violation, request denied.\r\n"
+.
+
+StartPolicy
+	def config(self):
+		WhoisProxy.config(self)
+		self.response_header = "eleje"
+		self.response_footer = "vege"
+EndPolicy
+
+C2P: "request\r\n"
+P2S: "request\r\n"
+S2P: "response\r\n"
+S2P: Disconnect
+P2C: "elejeresponse\r\nvege"
+.

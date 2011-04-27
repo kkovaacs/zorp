@@ -1,0 +1,134 @@
+############################################################################
+##
+## Copyright (c) 2000-2001 BalaBit IT Ltd, Budapest, Hungary
+## All rights reserved.
+##
+## $Id: policy.py.sample,v 1.16 2003/02/11 14:45:32 bazsi Exp $
+##
+############################################################################
+
+#
+# sample firewall policy with transparent access to FTP, HTTP and CVS protocols.
+# For FTP and HTTP we use application level gateways, for CVS we use a plug.
+# (as long as CVS protocol proxy is not available)
+#
+# firewall internal network: 192.168.1.0/24
+# firewall internal interface: 192.168.1.1
+# firewall external interface: 193.225.235.6
+#
+
+from Zorp.Core import *
+from Zorp.Plug import *
+from Zorp.Http import *
+from Zorp.Ftp import *
+
+Zorp.firewall_name = 'zorp@site'
+
+InetZone("site-net", "192.168.1.0/24", 
+	 # list of allowed outbound services, '*' matches anything
+	 outbound_services=["intra_http", "intra_ftp", "intra_cvs"],
+		
+	 # list of allowed inbound services, '*' matches anything
+	 inbound_services=[])
+		
+InetZone("local", "127.0.0.0/8",
+         inbound_services=["*"],
+         outbound_services=[])
+        
+InetZone("internet", "0.0.0.0/0",
+         inbound_services=["*"],
+         outbound_services=[])
+
+# 
+# Here's a proxy event handler definition. We are deriving from a
+# simple plug proxy, which is blindly copying in both directions.
+#
+# Instances of this class represent a "plug proxy". For a complete
+# documentation for the features and available attributes of plug see the
+# file /doc/modules/plug.txt
+#
+
+class IntraCvs(PlugProxy):
+
+        def config(self):
+        
+     		""" The config event is sent in configuration state, some attributes
+     		can only be set here. """
+     		
+        	# uncommenting this would make this plug one-way only (server->client)
+                #self.copy_to_server = FALSE
+                # same but client->server copying would only be performed
+                #self.copy_to_client = FALSE
+
+                self.packet_stats_interval = 100
+
+	def startUp(self):
+		""" startUp is called after configuration, but before any data
+		is transferred. """
+		
+		# this is empty now
+		pass
+						
+	def shutDown(self):
+		""" called just before terminating the proxy. """
+		pass
+		
+	def packetStats(self, client_bytes, client_pkt, server_bytes, server_pkt):
+		""" plug is sending this event after self.packet_stats_interval number
+		of packets had been transferred. """
+		
+		# report traffic information
+		proxyLog(self, 'plug.debug', 3, "server->client: packet=%d, bytes=%d, bandwidth=%f" % (client_pkt, client_bytes, self.bandwidth_to_client))
+		proxyLog(self, 'plug.debug', 3, "client->server: packet=%d, bytes=%d, bandwidth=%f" % (server_pkt, server_bytes, self.bandwidth_to_server))
+		return 1
+		
+
+#
+# Let's define a transparent http proxy, which rewrites the user_agent
+# header to something different.
+#
+class IntraHttp(HttpProxy):
+
+        def config(self):
+        	HttpProxy.config(self)
+                self.transparent_mode = TRUE
+                self.request_headers["User-Agent"] = (HTTP_HDR_CHANGE_VALUE, "Lynx/2.8.3rel.1")
+                self.request["GET"] = (HTTP_REQ_POLICY, self.filterURL)
+                # self.parent_proxy = "proxy.site.net"
+                # self.parent_proxy_port = 3128
+                # self.timeout = 60000
+                # self.max_keepalive_requests = 10
+                
+	def filterURL(self, method, url, version):
+	        # return HTTP_REQ_REJECT here to reject this request
+	        # change self.request_url to redirect to another url
+	        # change connection_mode to HTTP_CONNECTION_CLOSE to force kept-alive connections to close
+	        log("http.info", 3, "%s: GET: %s" % (self.session.session_id, url))
+
+class IntraFtp(FtpProxy):
+	def config(self):
+		FtpProxy.config(self)
+
+#
+# The name of this function is passed to the Zorp binary with the --as
+# command line option.
+#
+
+# zorp_http instance
+def zorp_http():
+	
+	# create services
+	Service("intra_http", IntraHttp)
+	Service("intra_ftp", IntraFtp)
+	
+	# bind services to listeners
+	# you'll need the packet filter redirect these connections, and
+	# to protect transparent listeners, since if you connect to
+	# a transparent listener directly, Zorp reconnects to itself.
+	Listener(SockAddrInet("192.168.1.1", 50080), "intra_http")
+	Listener(SockAddrInet("192.168.1.1", 50021), "intra_ftp")
+
+# zorp_plug instance
+def zorp_plug():
+	Service("intra_cvs", IntraCvs)
+	Listener(SockAddrInet("192.168.1.1", 52401), "intra_cvs")

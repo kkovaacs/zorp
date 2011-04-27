@@ -1,0 +1,29 @@
+StartGlobalInfo
+	Tags halaszg
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+		self.timeout_request=30000
+                self.max_url_length = 200
+                self.parent_proxy = "172.16.80.1"
+                self.parent_proxy_port = 8080
+                self.permit_proxy_requests = TRUE
+                self.rewrite_host_header = TRUE
+                self.request["GET"] = (HTTP_REQ_POLICY, self.filterURL)
+                self.transparent_mode = FALSE
+        def filterURL(self, method, url, version):
+                self.request_url = 'http://owa.domain.int/exchange/'
+                return HTTP_REQ_ACCEPT
+EndPolicy
+
+C2P: "GET http://www.kakukk.bu/ HTTP/1.0\r\n\
+Host: www.kakukk.bu\r\n\
+\r\n"
+P2S: "GET http://owa.domain.int/exchange/ HTTP/1.0\r\n\
+Host: owa.domain.int\r\n\
+\r\n"
+.
+
+

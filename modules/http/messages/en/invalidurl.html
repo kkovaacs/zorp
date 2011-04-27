@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>Invalid URL</title>
+<STYLE TYPE="text/css">
+<!--
+H1 { font-family: Arial, Verdana;}
+BODY {
+	margin: 0px;
+	font-family:verdana, arial, helvetica, sans-serif;
+	font-size:10px;
+	color:#3c4964;
+	background-color:#ffffff;
+}
+
+P.section {
+	font-weight: bolder;
+	font-family:verdana, arial, helvetica, sans-serif;
+	font-size:10px;
+
+}
+
+P.footer {
+	font-family:verdana, arial, helvetica, sans-serif;
+	font-size:10px;
+
+}
+
+UL {
+	list-style-type: square;
+	font-family:verdana, arial, helvetica, sans-serif;
+	font-size:10px;
+
+}
+.header {
+	color: black;
+	font-family:verdana, arial, helvetica, sans-serif;
+	font-size:14px;
+	font-weight: bolder;
+	border-bottom: 5px solid #8eb6e3;
+	background-color: #caddf3;
+}
+
+.footerline {
+	color: black;
+	font-family:verdana, arial, helvetica, sans-serif;
+	font-size:14px;
+	font-weight: bolder;
+	border-top: 5px solid #8eb6e3;
+}
+
+-->
+</STYLE>
+</head>
+<body>
+<table border="0" cellspacing="0" cellpadding="15" width="100%">
+<tr><td class="header">@INFO@</td></tr>
+<tr><td class="main">
+<p class="section">The URL you are trying to fetch is invalid.</p>
+
+<p class="section">Possible reasons:</p>
+<ul>
+  <li>The link you followed is bogus.
+  <li>The browser you are using is bogus.
+  <li>The administrator enabled strict URL checking, and although the URL is
+      RFC compliant, the request contains characters denied by the policy.
+</ul>
+
+<p class="section">Possible solutions:</p>
+<ul>
+  <li>Contact the author of the webpage.
+  <li>Contact the developer of your browser.
+  <li>Contact your system administrator.
+  <li>Contact your Zorp support team for assistance.
+</ul>
+<p class="footer">Page generated on @HOST@ by Zorp version @VERSION@ on @DATE@.</p>
+
+<tr><td class="footerline">&nbsp;</td></tr>
+</table>
+</body>
+</html>

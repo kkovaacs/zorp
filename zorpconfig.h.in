@@ -1,0 +1,167 @@
+/* zorpconfig.h.in.  Generated from configure.in by autoheader.  */
+
+/* Enable debugging */
+#undef ENABLE_DEBUG
+
+/* Enable ipf based tproxy */
+#undef ENABLE_IPFILTER_TPROXY
+
+/* Enable IP option processing */
+#undef ENABLE_IPOPTIONS
+
+/* Enable IPv6 support */
+#undef ENABLE_IPV6
+
+/* Enable Linux 2.2 tproxy behaviour */
+#undef ENABLE_LINUX22_TPROXY
+
+/* Enable netfilter tproxy */
+#undef ENABLE_NETFILTER_TPROXY
+
+/* Enable prefork support */
+#undef ENABLE_PREFORK
+
+/* Enable trace messages */
+#undef ENABLE_TRACE
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the `gethostbyname_r' function. */
+#undef HAVE_GETHOSTBYNAME_R
+
+/* Define to 1 if you have the <google/coredumper.h> header file. */
+#undef HAVE_GOOGLE_COREDUMPER_H
+
+/* Define to 1 if you have the `inet_aton' function. */
+#undef HAVE_INET_ATON
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the <limits.h> header file. */
+#undef HAVE_LIMITS_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Have MSG_PROXY flag (Linux 2.2) */
+#undef HAVE_MSG_PROXY
+
+/* Define to 1 if you have the `prctl' function. */
+#undef HAVE_PRCTL
+
+/* Zorp may enable core_dumping Linux 2.4- */
+#undef HAVE_PR_SET_DUMPABLE
+
+/* Define to 1 if you have the <Python.h> header file. */
+#undef HAVE_PYTHON_H
+
+/* Define to 1 if you have the `select' function. */
+#undef HAVE_SELECT
+
+/* Define to 1 if you have the `snprintf' function. */
+#undef HAVE_SNPRINTF
+
+/* Define to 1 if you have the `socket' function. */
+#undef HAVE_SOCKET
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strerror' function. */
+#undef HAVE_STRERROR
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* We have a Solaris style gethostbyname_r; */
+#undef HAVE_SUN_GETHOSTBYNAME_R
+
+/* Define to 1 if you have the <sys/capability.h> header file. */
+#undef HAVE_SYS_CAPABILITY_H
+
+/* Define to 1 if you have the <sys/prctl.h> header file. */
+#undef HAVE_SYS_PRCTL_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the `vsnprintf' function. */
+#undef HAVE_VSNPRINTF
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* The size of `void *', as computed by sizeof. */
+#undef SIZEOF_VOID_P
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Zorp package version */
+#undef VERSION
+
+/* Configuration date */
+#undef ZORP_CONFIG_DATE
+
+/* datadir */
+#undef ZORP_DATADIR
+
+/* libdir */
+#undef ZORP_LIBDIR
+
+/* Required license version */
+#undef ZORP_LICENSE_VERSION
+
+/* pidfiledir */
+#undef ZORP_PIDFILEDIR
+
+/* Required product name in license */
+#undef ZORP_PRODUCT_NAME
+
+/* Zorp source revision number */
+#undef ZORP_SOURCE_REVISION
+
+/* localstatedir */
+#undef ZORP_STATEDIR
+
+/* sysconfdir */
+#undef ZORP_SYSCONFDIR
+
+/* Number of bits in a file offset, on hosts where this is settable. */
+#undef _FILE_OFFSET_BITS
+
+/* Define for large files, on AIX-style hosts. */
+#undef _LARGE_FILES

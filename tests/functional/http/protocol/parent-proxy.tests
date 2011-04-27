@@ -1,0 +1,81 @@
+
+StartGlobalInfo
+        Tags bug5144
+	Min-Version 3.0
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.parent_proxy = '1'
+EndPolicy
+
+# 5144
+# 1.0 request, 1.0 response; Proxy-Connection header present -> persistent
+##INFO##
+##Tags: bug5144
+##
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET http://www/ HTTP/1.0\r\n\
+Host: www\r\n\
+Proxy-Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Proxy-Connection: keep-alive\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: close\r\n\
+\r\n"
+P2S: "GET http://www/ HTTP/1.0\r\n\
+Host: www\r\n\
+Proxy-Connection: close\r\n\
+\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+
+# 5144
+# 1.0 request, 1.0 response; Connection header present -> persistent
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET http://www/ HTTP/1.0\r\n\
+Host: www\r\n\
+Proxy-Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: close\r\n\
+\r\n"
+P2S: "GET http://www/ HTTP/1.0\r\n\
+Host: www\r\n\
+Proxy-Connection: close\r\n\
+\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+

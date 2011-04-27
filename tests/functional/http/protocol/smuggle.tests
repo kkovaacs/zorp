@@ -1,0 +1,40 @@
+StartGlobalInfo
+        Tags bug7034
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+
+# some duplicated headers are elminated
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Host: www2\r\n\
+Accept: 1\r\n\
+Accept: 2\r\n\
+\r\n"
+P2S: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Accept: 1\r\n\
+Accept: 2\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Content-Length: 15\r\n\
+Age: 1\r\n\
+Age: 2\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Age: 1\r\n\
+Age: 2\r\n\
+\r\n\
+12345"
+S2P: Disconnect
+P2C: Disconnect
+.
+

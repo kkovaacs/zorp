@@ -1,0 +1,36 @@
+StartGlobalInfo
+	Tags bug11370
+EndGlobalInfo
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: "PORT " %CLIENT_COMMAIP ",5,21\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+PORT = PORT1*256 + PORT2
+IP = str(IP1)+'.'+str(IP2)+'.'+str(IP3)+'.'+str(IP4)
+S2P: "200 Ok\r\n"
+P2C: "200 Ok\r\n"
+C2P: Listen 1301
+C2P: "RETR egyik\r\n"
+P2S: "RETR egyik\r\n"
+S2P: "150-Data Follow\r\n150-Kakukk\r\n150 Vege\r\n"
+S2P: Connect IP PORT
+C2P: Accept
+dS2P: Disconnect
+P2C: "150-Data Follow\r\n Kakukk\r\n150 Vege\r\n"
+dP2C: Disconnect
+S2P: "226-Ok\r\n226 Vege\r\n"
+P2C: "226-Ok\r\n226 Vege\r\n"
+.

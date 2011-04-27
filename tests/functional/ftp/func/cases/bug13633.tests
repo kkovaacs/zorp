@@ -1,0 +1,84 @@
+StartGlobalInfo
+	Tags bug13633
+EndGlobalInfo
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+S2P: "220 ProFTPD 1.3.1 Server (Debian)\r\n"
+P2C: "220 ProFTPD 1.3.1 Server (Debian)\r\n"
+C2P: "USER anonymous\r\n"
+P2S: "USER anonymous\r\n"
+S2P: "331 Send your password\r\n"
+P2C: "331 Send your password\r\n"
+C2P: "PASS legion@\r\n"
+P2S: "PASS legion@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2C: "230 Anonymous access granted\r\n"
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+PORT=1290
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen PORT
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,10)\r\n"
+P2C: "227 Entering Passive Mode (" $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 ")\r\n"
+C_PORT=PORT1*256+PORT2
+C_IP=str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+C2P: Connect C_IP C_PORT
+C2P: "NLST\r\n"
+P2S: "NLST\r\n"
+S2P: "150 Opening ASCII mode data connection for file list\r\n"
+S2P: Accept
+dS2P: Disconnect
+P2C: "150 Opening ASCII mode data connection for file list\r\n"
+dP2C: Disconnect
+S2P: "226 Transfer complete.\r\n"
+P2C: "226 Transfer complete.\r\n"
+C2P: "QUIT\r\n"
+P2S: "QUIT\r\n"
+S2P: "221 Goodbye.\r\n"
+P2C: "221 Goodbye.\r\n"
+.
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+S2P: "220 ProFTPD 1.3.0 Server (Debian)\r\n"
+P2C: "220 ProFTPD 1.3.0 Server (Debian)\r\n"
+C2P: "USER anonymous\r\n"
+P2S: "USER anonymous\r\n"
+S2P: "331 Send your password\r\n"
+P2C: "331 Send your password\r\n"
+C2P: "PASS legion@\r\n"
+P2S: "PASS legion@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2C: "230 Anonymous access granted\r\n"
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+PORT=1290
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen PORT
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,10)\r\n"
+P2C: "227 Entering Passive Mode (" $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 ")\r\n"
+C_PORT=PORT1*256+PORT2
+C_IP=str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+C2P: Connect C_IP C_PORT
+C2P: "NLST\r\n"
+P2S: "NLST\r\n"
+S2P: Accept
+dS2P: Disconnect
+S2P: "226 Transfer complete.\r\n"
+dP2C: Disconnect
+P2C: "226 Transfer complete.\r\n"
+C2P: "QUIT\r\n"
+P2S: "QUIT\r\n"
+S2P: "221 Goodbye.\r\n"
+P2C: "221 Goodbye.\r\n"
+.
+

@@ -1,0 +1,97 @@
+
+StartGlobalInfo
+        Tags bug4072 bug4250
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.permit_both_connection_headers = TRUE
+		self.permit_proxy_requests = TRUE
+EndPolicy
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: keep-alive\r\n\
+Proxy-Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Connection: keep-alive\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+P2C: "HTTP/1.0 200 OK\r\n\
+Connection: keep-alive\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+.
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: keep-alive\r\n\
+Proxy-Connection: close\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Connection: keep-alive\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+P2C: "HTTP/1.0 200 OK\r\n\
+Connection: keep-alive\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+.
+
+C2P: "GET http://www.net.org/var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: close\r\n\
+Proxy-Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Connection: keep-alive\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+P2C: "HTTP/1.0 200 OK\r\n\
+Proxy-Connection: keep-alive\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+.
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: keep-alive\r\n\
+Proxy-Connection: close\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Connection: keep-alive\r\n\
+Proxy-Connection: close\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+P2C: "HTTP/1.0 200 OK\r\n\
+Connection: keep-alive\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+.

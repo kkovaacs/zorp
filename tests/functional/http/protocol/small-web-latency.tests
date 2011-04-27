@@ -1,0 +1,34 @@
+StartGlobalInfo
+        Tags  D-01817
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+EndPolicy
+
+
+C2P: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 7\r\n\
+\r\n\
+a"
+A=time.sleep(5)
+S2P: "a"
+A=time.sleep(5)
+S2P: "a"
+A=time.sleep(5)
+S2P: "a"
+A=time.sleep(5)
+S2P: "a\r\n"
+
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 7\r\n\
+\r\n\
+aaaaa\r\n"
+.

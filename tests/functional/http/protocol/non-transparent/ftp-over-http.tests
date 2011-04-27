@@ -1,0 +1,206 @@
+StartGlobalInfo
+        Tags ftpoverhttp bug5126
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.transparent_mode = FALSE
+                self.default_port = server_port
+		self.permit_ftp_over_http = TRUE
+                self.target_port_range = "21"
+EndPolicy
+
+
+# Simple directoty list.
+C2P: "GET ftp://ftp.szerver.hu/ HTTP/1.1\r\n\
+Host: ftp.szerver.hu\r\n\
+\r\n"
+S2P: "220 Szia\r\n"
+P2S: "USER anonymous\r\n"
+S2P: "331 Send your password\r\n"
+P2S: "PASS ftp@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2S: "CWD /\r\n"
+S2P: "250 Requested file action okay, completed\r\n"
+P2S: "TYPE A\r\n"
+S2P: "200 Representation type is ASCII\r\n"
+P2S: "PASV\r\n"
+PORT=1290
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen PORT
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,10)\r\n"
+P2S: "LIST\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Accept
+dS2P: "-rw-r--r--   1 root     root           11 Jan 14 14:09 README\r\n\
+-rw-r--r--   1 root     root          270 Mar 15  2001 makendx.pl\r\n\
+drwxr-xr-x  11 root     root        87132 Jul  3  2002 rfc\r\n\
+drwxr-xr-x   2 sasa     sasa          297 Jul  9  2004 sasa\r\n\
+drwxr-xr-x   2 root     root           82 Nov  4  2003 solaris\r\n"
+dS2P: Disconnect
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Type: text/html\r\n\
+Proxy-Connection: close\r\n\
+\r\n" $NIHIL "</BODY></HTML>"
+.
+
+# Simple file download
+C2P: "GET ftp://ftp.szerver.hu/something.txt HTTP/1.1\r\n\
+Host: ftp.szerver.hu\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "220 Szia\r\n"
+P2S: "USER anonymous\r\n"
+S2P: "331 Send your password\r\n"
+P2S: "PASS ftp@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2S: "CWD /something.txt\r\n"
+S2P: "550 sdgfdgd: No such file or directory\r\n"
+#P2S: "CWD /\r\n"
+#S2P: "250 Requested file action okay, completed\r\n"
+P2S: "TYPE I\r\n"
+S2P: "200 Representation type is Binary\r\n"
+P2S: "PASV\r\n"
+PORT=1291
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen PORT
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,11)\r\n"
+P2S: "RETR something.txt\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Accept
+dS2P: "En vagyok a file."
+dS2P: Disconnect
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Type: application/octet-stream\r\n\
+Proxy-Connection: close\r\n\
+\r\n\
+En vagyok a file."
+.
+
+# Directory list for non existance directory
+C2P: "GET ftp://ftp.szerver.hu/nonexists/ HTTP/1.1\r\n\
+Host: ftp.szerver.hu\r\n\
+\r\n"
+S2P: "220 Szia\r\n"
+P2S: "USER anonymous\r\n"
+S2P: "331 Send your password\r\n"
+P2S: "PASS ftp@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2S: "CWD /nonexists\r\n"
+#FIXMEE ???
+S2P: "550 nonexists.txt: Not a directory\r\n"
+#S2P: "550 nonexists: No such file or directory\r\n"
+P2C: "HTTP/1.0 500 Error encountered\r\nProxy-Connection: close\r\nContent-Type: text/html\r\n\r\n" $NIHIL "</html>\n"
+.
+
+# Download non-existing file.
+C2P: "GET ftp://ftp.szerver.hu/nonexists.txt HTTP/1.1\r\n\
+Host: ftp.szerver.hu\r\n\
+\r\n"
+S2P: "220 Szia\r\n"
+P2S: "USER anonymous\r\n"
+S2P: "331 Send your password\r\n"
+P2S: "PASS ftp@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2S: "CWD /nonexists.txt\r\n"
+S2P: "550 nonexists.txt: Not a directory\r\n"
+P2S: "TYPE I\r\n"
+S2P: "200 Representation type is Binary\r\n"
+P2S: "PASV\r\n"
+PORT=1293
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen PORT
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,13)\r\n"
+P2S: "RETR nonexists.txt\r\n"
+S2P: "550 nonexists.txt: No such file or directory\r\n"
+P2C: "HTTP/1.0 500 Error encountered\r\nProxy-Connection: close\r\nContent-Type: text/html\r\n\r\n" $NIHIL "</html>\n"
+.
+
+# Download file from sub directory.
+C2P: "GET ftp://ftp.szerver.hu/almafa/korte HTTP/1.1\r\n\
+Host: ftp.szerver.hu\r\n\
+\r\n"
+S2P: "220 Szia\r\n"
+P2S: "USER anonymous\r\n"
+S2P: "331 Send your password\r\n"
+P2S: "PASS ftp@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2S: "CWD /almafa/korte\r\n"
+S2P: "550 /almafa/korte: Not a directory\r\n"
+P2S: "CWD /almafa\r\n"
+S2P: "250 Requested file action okay, completed\r\n"
+P2S: "TYPE I\r\n"
+S2P: "200 Representation type is Binary\r\n"
+P2S: "PASV\r\n"
+PORT=1294
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen PORT
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,14)\r\n"
+P2S: "RETR korte\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Accept
+dS2P: "En vagyok a korte."
+dS2P: Disconnect
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Type: application/octet-stream\r\n\
+Proxy-Connection: close\r\n\
+\r\n\
+En vagyok a korte."
+.
+
+StartInfo
+	Tags bug9787
+EndInfo
+
+# Download file from subdirectory, server uses 125 status to confirm data channel.
+C2P: "GET ftp://ftp.szerver.hu/almafa/korte HTTP/1.1\r\n\
+Host: ftp.szerver.hu\r\n\
+\r\n"
+S2P: "220 Szia\r\n"
+P2S: "USER anonymous\r\n"
+S2P: "331 Send your password\r\n"
+P2S: "PASS ftp@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2S: "CWD /almafa/korte\r\n"
+S2P: "550 /almafa/korte: Not a directory\r\n"
+P2S: "CWD /almafa\r\n"
+S2P: "250 Requested file action okay, completed\r\n"
+P2S: "TYPE I\r\n"
+S2P: "200 Representation type is Binary\r\n"
+P2S: "PASV\r\n"
+PORT=1294
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen PORT
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,14)\r\n"
+P2S: "RETR korte\r\n"
+S2P: "125 Data Follow\r\n"
+S2P: Accept
+dS2P: "En vagyok a korte."
+dS2P: Disconnect
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Type: application/octet-stream\r\n\
+Proxy-Connection: close\r\n\
+\r\n\
+En vagyok a korte."
+.
+
+# Download non-existing file from non-existing directory.
+C2P: "GET ftp://ftp.szerver.hu/nihil/nonexists.txt HTTP/1.1\r\n\
+Host: ftp.szerver.hu\r\n\
+\r\n"
+S2P: "220 Szia\r\n"
+P2S: "USER anonymous\r\n"
+S2P: "331 Send your password\r\n"
+P2S: "PASS ftp@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2S: "CWD /nihil/nonexists.txt\r\n"
+S2P: "550 /nihil/nonexists.txt: No such file or directory\r\n"
+P2S: "CWD /nihil\r\n"
+S2P: "550 /nihil: No such file or directory\r\n"
+P2C: "HTTP/1.0 500 Error encountered\r\n\
+Proxy-Connection: close\r\n\
+Content-Type: text/html\r\n\
+\r\n" $NIHIL "</html>\n"
+.

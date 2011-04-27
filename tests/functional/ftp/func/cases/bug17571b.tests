@@ -1,0 +1,68 @@
+StartGlobalInfo
+	Tags bug17571
+EndGlobalInfo
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+		AbstractFtpProxy.loadAnswers(self)
+EndPolicy
+
+
+S2P: "220 --------- Welcome to Pure-FTPd [privsep] [TLS] ----------\r\n"
+P2C: "220 --------- Welcome to Pure-FTPd [privsep] [TLS] ----------\r\n"
+C2P: "USER someuser\r\n"
+P2S: "USER someuser\r\n"
+S2P: "331 User someuser OK. Password required\r\n"
+P2C: "331 User someuser OK. Password required\r\n"
+C2P: "PASS somepass\r\n"
+P2S: "PASS somepass\r\n"
+S2P: "230 Your bandwidth usage is restricted\r\n"
+P2C: "230 Your bandwidth usage is restricted\r\n"
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen 1290
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,10)\r\n"
+P2C: "227 Entering Passive Mode (" $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 ")\r\n"
+C_PORT=PORT1*256+PORT2
+C_IP=str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+C2P: "LIST\r\n"
+P2S: "LIST\r\n"
+C2P: Connect C_IP C_PORT
+S2P: Accept
+S2P: "150 Accepted data connection\r\n"
+dS2P: "barmi\r\n"
+S2P: "226 Options: -l \r\n"
+P2C: "150 Accepted data connection\r\n"
+dS2P: "barmi2\r\n"
+dS2P: Disconnect
+dP2C: "barmi\r\nbarmi2\r\n"
+dP2C: Disconnect
+P2C: "226 Options: -l \r\n"
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+C2P: "TYPE I\r\n"
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,11)\r\n"
+P2C: "227 Entering Passive Mode (" $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 ")\r\n"
+C_PORT=PORT1*256+PORT2
+C_IP=str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+C2P: Connect C_IP C_PORT
+P2S: "TYPE I\r\n"
+C2P: "PASV\r\n"
+S2P: "200 TYPE is now 8-bit binary\r\n"
+P2C: "200 TYPE is now 8-bit binary\r\n"
+P2S: "PASV\r\n"
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,11)\r\n"
+P2C: "227 Entering Passive Mode (" $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 ")\r\n"
+C_PORT=PORT1*256+PORT2
+C_IP=str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+C2P: "QUIT\r\n"
+P2S: "QUIT\r\n"
+S2P: "421 Logoff\r\n"
+P2C: "421 Logoff\r\n"
+P2C: Disconnect
+.

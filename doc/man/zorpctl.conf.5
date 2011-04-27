@@ -1,0 +1,191 @@
+'\" t
+.\"     Title: zorpctl.conf
+.\"    Author: [see the "Author" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 02/16/2011
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "ZORPCTL\&.CONF" "5" "02/16/2011" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+zorpctl.conf_ \- zorpctl(8) configuration file\&.
+.SH "DESCRIPTION"
+.PP
+The
+zorpctl\&.conf
+file describes various global options ifluencing the behavior of
+\fB \fR\fBzorpctl(8)\fR\fB \fR\&.
+\fBzorpctl(8)\fR
+processes the file line by line, each line having the structure described below\&. Empty lines and lines beginning with \*(Aq#\*(Aq are comments and are ignored\&.
+.SH "STRUCTURE"
+.PP
+
+\fBvariable name = variable value\fR
+.PP
+Each non\-empty line specifies a variable name and its value separated by the equal sign (\*(Aq=\*(Aq)\&. The following variables are available:
+.PP
+\fBAUTO_RESTART\fR
+.RS 4
+Enable the automatic restart feature of
+\fBzorpctl\fR\&. Instances in auto\-restart mode are restarted automatically when they exit\&. Default value: 1 (TRUE)\&.
+.RE
+.PP
+\fBAUTO_RESTART_TIME_THRESHOLD\fR
+.RS 4
+If a restarted instance exits within this interval (specified in seconds), the restart attempt is considered a failure\&. Default value: 60 seconds\&.
+.RE
+.PP
+\fBAUTO_RESTART_MAX_COUNT\fR
+.RS 4
+Maximum number of restart attempts\&. If the instance is not successfully restarted from
+\fIAUTO_RESTART_MAX_COUNT\fR
+attempts, the event is logged\&. Default value: 3\&.
+.RE
+.PP
+\fBAUTO_RESTART_DELAY\fR
+.RS 4
+Wait
+\fIAUTO_RESTART_DELAY\fR
+seconds before attempting to restart the Zorp instance\&.
+.RE
+.PP
+\fBSTOP_CHECK_DELAY\fR
+.RS 4
+The rate (delay in seconds) to check a stopping Zorp instance at\&. Default value: 1\&.
+.RE
+.PP
+\fBSTOP_CHECK_TIMEOUT\fR
+.RS 4
+The number of seconds to wait for a stopping Zorp instance\&. Default value: 3\&.
+.RE
+.PP
+\fBSTART_CHECK_TIMEOUT\fR
+.RS 4
+In
+\fIauto\-restart\fR
+mode there is no real way to detect whether Zorp failed to load or not\&. Zorpctl waits
+\fISTART_CHECK_TIMEOUT\fR
+seconds and assumes that Zorp loaded successfully if it did not exit within this interval\&. Default value: 5 seconds\&.
+.RE
+.PP
+\fBSTART_WAIT_TIMEOUT\fR
+.RS 4
+In
+\fIno\-auto\-restart\fR
+mode the successful loading of a Zorp instance can be verified by instructing Zorp to daemonize itself and waiting for the parent to exit\&. This parameter specifies the number of seconds to wait for Zorp to daemonize itself\&. Default value: 60 seconds\&.
+.RE
+.PP
+\fBPROCESS_LIMIT_MIN\fR
+.RS 4
+The minimum process limit (\fIulimit \-u\fR) used by Zorp in the case when the process limit (calculated from the
+\fI\-\-threads\fR
+parameter) would result a lower value\&. Default value: 256\&.
+.RE
+.PP
+\fBPROCESS_LIMIT_RESERVE\fR
+.RS 4
+The number of extra processes to be allocated (e\&.g\&.: for proxy modules that are known to spawn new processes)\&. Default value: 64\&. This parameter is added to the regular (calculated as the sum of the processes of a program allowed to run per user) process limit\&.
+.RE
+.PP
+\fBFD_LIMIT_THRESHOLD\fR
+.RS 4
+The expected maximal number of file descriptors openened by the threads\&. The global fd limit is
+\fIFD_LIMIT_THRESHOLD\fR
+multiplied by the thread limit\&. Default value: 64\&.
+.RE
+.PP
+\fBFD_LIMIT_MIN\fR
+.RS 4
+The minimum fd limit (\fIulimit \-n\fR) used by Zorp in the case when the process limit (calculated from the
+\fI\-\-threads\fR
+and
+\fIFD_LIMIT_THRESHOLD\fR
+parameters) would result a lower value\&. Default value: 1024\&.
+.RE
+.PP
+\fBZORP_APPEND_ARGS\fR
+.RS 4
+Zorp\-specific arguments to be appended to the command line of each Zorp instance\&. Also recognised as
+\fIAPPEND_ARGS\fR
+(deprecated)\&. Default value:
+\fI""\fR\&.
+.RE
+.PP
+\fBZORPCTL_APPEND_ARGS\fR
+.RS 4
+Zorpctl\-specific arguments to be appended to the command line of each instance\&. Default value:
+\fI""\fR\&.
+.RE
+.PP
+\fBCHECK_PERMS\fR
+.RS 4
+Specifies whether to check the permissions of the Zorp configuration directory\&. If set, Zorp refuses to run if the
+/etc/zorp
+directory can be written by user other then
+\fIzorp\fR
+Default value: 1 (TRUE)\&.
+.RE
+.PP
+\fBCONFIG_DIR\fR
+.RS 4
+The path to the Zorp configuration directory to check if CHECK_PERMS is enabled\&. NOTE: it does not change the Zorp policy file argument, this parameter is only used by the permission validating code\&. Default value:
+${prefix}/etc/zorp
+\&.
+.RE
+.PP
+\fBCONFIG_DIR_OWNER, CONFIG_DIR_GROUP, CONFIG_DIR_MODE\fR
+.RS 4
+The owner/group/permissions values considered valid for the configuration directory\&.
+\fBzorpctl\fR
+fails if the actual owner/group/permissions values conflict the ones set here\&. Default values:
+\fIroot\&.zorp, 0750\fR
+\&.
+.RE
+.PP
+\fBPIDFILE_DIR\fR
+.RS 4
+The path to the Zorp pid file directory\&. The directory is created automatically prior to starting Zorp if it does not already exist\&.It is created if it does not exist, before NOTE: No
+\fI\-\-pidfile\fR
+argument is passed to Zorp, only texistance of the directory is verified\&. Default value:
+/var/run/zorp\&.
+.RE
+.PP
+\fBPIDFILE_DIR_OWNER, PIDFILE_DIR_GROUP, PIDFILE_DIR_MODE\fR
+.RS 4
+The owner/group/permission values the pidfile directory is created with if it does not exist\&. Default values:
+\fIroot\&.root, 0700\fR\&.
+.RE
+.SH "FILES"
+.PP
+.PP
+The default location for
+zorpctl\&.conf
+is
+/etc/zorp/zorpctl\&.conf\&.
+.SH "AUTHOR"
+.PP
+This manual page was written by the BalaBit Documentation Team <documentation@balabit\&.com>\&.
+.SH "COPYRIGHT"
+.PP
+Copyright \(co 2006 BalaBit IT Security Ltd\&. All rights reserved\&. For more information about the legal status of this document please read:
+\m[blue]\fBhttp://www\&.balabit\&.com/products/zorp/docs/legal_notice\&.bbq\fR\m[]

@@ -1,0 +1,3 @@
+usr/lib/zorp/libhttp.*
+usr/share/zorp/pylib/Zorp/Http.py
+usr/share/zorp/http/*

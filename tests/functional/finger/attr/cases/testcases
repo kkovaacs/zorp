@@ -1,0 +1,198 @@
+
+
+StartPolicy
+	def config(self):
+		FingerProxy.config(self)
+		self.max_hop_count = 1
+EndPolicy
+
+#strict_username_check = TRUE
+C2P: "&^%*(+-@barmi.com\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+C2P: "barki@barhol.com@barhonnan.hu@barkie.org\r\n"
+P2S: "barki@barhol.com\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+C2P: "barki@barhol.com\r\n"
+P2S: "barki@barhol.com\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+StartPolicy
+	def config(self):
+		FingerProxy.config(self)
+		self.max_hostname_length = 5
+		self.max_hop_count = 10
+EndPolicy
+
+C2P: "barki@123.56\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+
+C2P: "barki@12.45\r\n"
+P2S: "barki@12.45\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+StartPolicy
+	def config(self):
+		FingerProxy.config(self)
+		self.max_line_length = 12
+		self.max_hop_count = 10
+EndPolicy
+
+C2P: "barki@12.45\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+C2P: "barki@12.4\r\n"
+P2S: "barki@12.4\r\n"
+S2P: "barmilyen\r\n"
+P2C: "barmilyen\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+StartPolicy
+	def config(self):
+		FingerProxy.config(self)
+		self.max_username_length = 5
+		self.max_hop_count = 10
+EndPolicy
+
+C2P: "barkimas@alsomucsaj.hu\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+C2P: "barki@alsomucsaj.hu\r\n"
+P2S: "barki@alsomucsaj.hu\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+StartPolicy
+	def config(self):
+		self.max_hop_count = 10
+	def fingerRequest(self, username, hostname):
+		if self.request_detailed == 1:
+			self.request_detailed = 0
+		else:
+			self.request_detailed = 1
+		if self.request_hostnames == '@mucsajalso.net':
+			self.request_hostnames = '@mucsajfelso.org'
+		if self.request_hostnames == '@mucsajalso.net@verpelet.org':
+			self.request_hostnames = '@mucsajfelso.org@lachaza.net@verpelet.org'
+		if self.request_username == 'barki':
+			self.request_username = 'barkimas'
+		return Z_ACCEPT
+EndPolicy
+
+C2P: "/W akarki@barhol.net\r\n"
+P2S: "akarki@barhol.net\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+
+C2P: "akarki@barhol.net\r\n"
+P2S: "/W akarki@barhol.net\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+C2P: "akarki@mucsajalso.net\r\n"
+P2S: "/W akarki@mucsajfelso.org\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+C2P: "akarki@mucsajalso.net@verpelet.org\r\n"
+P2S: "/W akarki@mucsajfelso.org@lachaza.net@verpelet.org\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+C2P: "barki@barhol.net\r\n"
+P2S: "/W barkimas@barhol.net\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+C2P: "barki@mucsajalso.net\r\n"
+P2S: "/W barkimas@mucsajfelso.org\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+StartPolicy
+	def config(self):
+		FingerProxy.config(self)
+		self.response_header = "header "
+		self.response_footer = "footer"
+		self.strict_username_check = FALSE
+		self.max_hop_count = 10
+EndPolicy
+
+C2P: "barki@12.45\r\n"
+P2S: "barki@12.45\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "header peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: "footer"
+P2C: Disconnect
+.
+
+C2P: "&^%*(+-@barmi.com\r\n"
+P2S: "&^%*(+-@barmi.com\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "header peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: "footer"
+P2C: Disconnect
+.
+
+StartPolicy
+	def config(self):
+		FingerProxy.config(self)
+		self.max_hop_count = 10
+		self.timeout = 6000
+EndPolicy
+
+C2P: "barki@12.45\r\n"
+P2S: "barki@12.45\r\n"
+.
+
+C2P: "b"
+A= time.sleep(6) 
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+.

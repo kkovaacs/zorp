@@ -1,0 +1,24 @@
+StartGlobalInfo
+	Tags qqq
+EndGlobalInfo
+
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.permit_invalid_hex_escape = TRUE
+EndPolicy
+
+C2P: "GET /web/v2/portal.nsf/kapcsolatok_hu?OpenView&ExpandView&Count=500%1%20x HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /web/v2/portal.nsf/kapcsolatok_hu?OpenView&ExpandView&Count=500%1%20x HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+\r\n\
+123456789012"
+P2C: "HTTP/1.0 200 OK\r\n\
+\r\n\
+123456789012"
+.

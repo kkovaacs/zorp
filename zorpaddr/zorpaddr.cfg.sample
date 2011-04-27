@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<configurations>
+<configuration name="main">
+  <section name="main">
+    <refresh>12</refresh>
+  </section>
+  <!-- group definitions (type: group).
+
+   "interfaces": interfaces in the current group.
+   Optionally a preference value
+   can be added to each group in format 'interface_name:preference'
+   sum of preference values should be at most 100/group (percent)
+
+  "hosts": Optional, can set up to 5 different host which is used for
+   line testing. If none of them responds that means the group has
+   no interface which can be used. Zorp decides what to do, probably
+   rejects all connections (in this group).
+   Both IP addresses and hostnames can be used.
+  -->
+  <section name="test1" type="group">
+     <interfaces>eth0:98 eth2</interfaces>
+     <hosts>www.google.com 192.168.1.2 10.0.1.4</hosts>
+  </section>
+  <section name="test2" type="group">
+     <interfaces>eth0:1 vmnet1:8 vmnet8:18</interfaces>
+  </section>
+  <!-- interface definitions (type: iface). Mandatory.
+  Currently only  speed settings supported in bit/sec.
+  If it is not set, it results a virtually dead line
+  (never selected)-->
+  <section name="eth0" type="iface">
+      <speed>1000</speed>
+  </section>
+</configuration>
+</configurations>

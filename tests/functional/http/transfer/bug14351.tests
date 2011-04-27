@@ -1,0 +1,59 @@
+StartGlobalInfo
+        Tags bug14351
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+		self.request_stack["*"] = (HTTP_STK_DATA, "/bin/echo -en '0 SETVERDICT\\\\nn[]Verdict\\\\nnZ_ACCEPT\\\\nn\\\\nn'>&3; read alma <&3; /bin/echo -en '123456789012'")
+                HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+
+
+C2P: "GET /accept.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: close\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+
+P2S: "GET /accept.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: close\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\nc\r\n123456789012\r\n0\r\n\r\n"
+
+
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+
+
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+.
+
+StartPolicy
+        def config(self):
+		self.request_stack["*"] = (HTTP_STK_DATA, "/bin/echo -en '0 SETVERDICT\\\\nn[]Verdict\\\\nnZ_REJECT\\\\nn\\\\nn'>&3; read alma <&3")
+                HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+C2P: "GET /reject.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: close\r\n\
+Content-Length: 6\r\n\
+\r\n\
+reject\n"
+
+P2C: "HTTP/1.0 500 Error encountered\r\n" $NIHIL "</html>\n"
+.
+
+

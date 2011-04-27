@@ -1,0 +1,137 @@
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+
+# 1.0 request, no connection header -> non-persistent
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+# 1.0 request, 1.0 response; connection header present -> persistent
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: close\r\n\
+\r\n"
+P2S: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: close\r\n\
+\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+# 1.0 request with connection keep-alive
+# 1.1 response without header; -> non-persistent, with an explicit Connection header added
+C2P: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET / HTTP/1.0\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+StartInfo
+	Tags	bug4096
+EndInfo
+
+# 4096
+C2P: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+\r\n\
+entitas resze\r\n\
+\r\n"
+S2P: Disconnect
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+entitas resze\r\n\
+\r\n"
+P2C: Disconnect
+.
+
+StartInfo
+	Tags	bug6444
+EndInfo
+
+# HTTP/1.1 reconnect when the server drops connection while we are waiting
+# for the client
+C2P: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 17\r\n\
+\r\n\
+entitas resze\r\n\
+\r\n"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 17\r\n\
+\r\n\
+entitas resze\r\n\
+\r\n"
+C2P: "GET / HTTP/1.1\r\n"
+A=time.sleep(1)
+S2P: Disconnect
+C2P: "Host: www\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.

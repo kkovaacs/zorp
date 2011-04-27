@@ -1,0 +1,181 @@
+StartGlobalInfo
+        Tags bug5559
+        Min-Version 3.0
+EndGlobalInfo
+
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.request["POST"] = (HTTP_REQ_POLICY, self.checkRequestHeaderManip)
+                self.response["POST", '404'] = (HTTP_REQ_POLICY, self.checkResponseHeaderManip)
+                self.strict_header_checking = FALSE
+
+        def checkRequestHeaderManip(self, method, url, version):
+                if self.getRequestHeader('Content-Type') == 'ezegymimetipus01':
+                        self.setRequestHeader('Content-Type', 'ezegymimetipus02')
+                        return HTTP_REQ_ACCEPT
+                elif self.getRequestHeader('Content-Type') == 'ezegymimetipus03':
+                        self.setRequestHeader('Kutykurutty', 'ezegymimetipus04')
+                        return HTTP_REQ_ACCEPT
+                elif self.getRequestHeader('Content-Type') == 'ezegymimetipus05':
+                        self.setResponseHeader('Content-Type', 'ezegymimetipus06')
+                        return HTTP_REQ_ACCEPT
+                elif self.getResponseHeader('Content-Type') == 'ezegymimetipus07':
+                        self.setRequestHeader('Content-Type', 'ezegymimetipus08')
+                        return HTTP_REQ_ACCEPT
+                elif self.getRequestHeader('Content-Type') == 'ezegymimetipus13':
+                        return HTTP_REQ_ACCEPT
+                elif self.getRequestHeader('Content-Type') == 'ezegymimetipus15':
+                        return HTTP_REQ_ACCEPT
+                elif self.getRequestHeader('Content-Type') == 'ezegymimetipus07':
+                        return HTTP_REQ_ACCEPT
+                return HTTP_REQ_REJECT
+
+        def checkResponseHeaderManip(self, method, url, version, response):
+                if self.getResponseHeader('Content-Type') == 'ezegymimetipus09':
+                        self.setResponseHeader('Content-Type', 'ezegymimetipus10')
+                        return HTTP_RSP_ACCEPT
+                elif self.getResponseHeader('Content-Type') == 'ezegymimetipus11':
+                        self.setResponseHeader('Kutyimutyi', 'ezegymimetipus12')
+                        return HTTP_RSP_ACCEPT
+                elif self.getResponseHeader('Content-Type') == 'ezegymimetipus13':
+                        self.setRequestHeader('Content-Type', 'ezegymimetipus14')
+                        return HTTP_RSP_ACCEPT
+                elif self.getRequestHeader('Content-Type') == 'ezegymimetipus15':
+                        self.setResponseHeader('Content-Type', 'ezegymimetipus16')
+                        return HTTP_RSP_ACCEPT
+                elif self.getResponseHeader('Content-Type') == 'ezegymimetipus05':
+                        return HTTP_RSP_ACCEPT
+                elif self.getResponseHeader('Content-Type') == 'ezegymimetipus07':
+                        return HTTP_RSP_ACCEPT
+                elif self.getResponseHeader('Content-Type') == 'ezegymimetipus17':
+                        return HTTP_RSP_ACCEPT
+                return HTTP_RSP_REJECT
+
+EndPolicy
+
+QUOTE=chr(34)
+
+C2P: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus01\r\n\
+\r\n"
+P2S: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus02\r\n\
+\r\n"
+S2P: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus09\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus10\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+.
+
+C2P: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus03\r\n\
+\r\n"
+P2S: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus03\r\n\
+Kutykurutty: ezegymimetipus04\r\n\
+\r\n"
+S2P: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus11\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus11\r\n\
+Content-Length: 5\r\n\
+Kutyimutyi: ezegymimetipus12\r\n\
+\r\n\
+12345"
+.
+
+C2P: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus05\r\n\
+\r\n"
+P2S: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus05\r\n\
+\r\n"
+S2P: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus05\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus05\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+.
+
+C2P: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus07\r\n\
+\r\n"
+P2S: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus07\r\n\
+\r\n"
+S2P: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus07\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus07\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+.
+
+C2P: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus13\r\n\
+\r\n"
+P2S: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus13\r\n\
+\r\n"
+S2P: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus13\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus13\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+.
+
+C2P: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus15\r\n\
+\r\n"
+P2S: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus15\r\n\
+\r\n"
+S2P: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus17\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus16\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+.

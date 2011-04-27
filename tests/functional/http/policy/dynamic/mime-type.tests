@@ -1,0 +1,61 @@
+
+StartGlobalInfo
+        Tags bug4602
+	Min-Version 3.0
+EndGlobalInfo
+
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+		self.timeout_request=30000
+                self.request["POST"] = (HTTP_REQ_POLICY, self.checkMimeType)
+                self.response["POST", "404"] = (HTTP_RSP_POLICY, self.checkMimeTypeResp)
+
+        def checkMimeType(self, method, url, version):
+                if self.request_mime_type != "ezegymimetipus":
+                        return HTTP_REQ_REJECT
+                return HTTP_REQ_ACCEPT
+
+        def checkMimeTypeResp(self, method, url, version, response):
+                if self.response_mime_type != "ezegymimetipus2":
+                        return HTTP_RSP_REJECT
+                return HTTP_RSP_ACCEPT
+EndPolicy
+
+QUOTE=chr(34)
+
+C2P: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus; charset=" %QUOTE "utf8" %QUOTE "\r\n\
+\r\n"
+P2S: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus; charset=" %QUOTE "utf8" %QUOTE "\r\n\
+\r\n"
+S2P: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus2; charset=" %QUOTE "iso-8859-2" %QUOTE "\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezegymimetipus2; charset=" %QUOTE "iso-8859-2" %QUOTE "\r\n\
+Content-Length: 5\r\n\
+\r\n\
+12345"
+C2P: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus; charset=" %QUOTE "utf8" %QUOTE "\r\n\
+\r\n"
+P2S: "POST /var/wwwhubbabubba/index3.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Type: ezegymimetipus; charset=" %QUOTE "utf8" %QUOTE "\r\n\
+\r\n"
+S2P: "HTTP/1.1 404 OK\r\n\
+Content-Type: ezmasmimetipus; charset=" %QUOTE "iso-8859-2" %QUOTE "\r\n\
+Content-Length: 6\r\n\
+\r\n\
+qwerty"
+P2C: "HTTP/1.0 500 Error encountered\r\nConnection: close\r\n" $NIHIL "</body>\n</html>\n"
+.
+

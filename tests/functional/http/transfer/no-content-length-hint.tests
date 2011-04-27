@@ -1,0 +1,195 @@
+StartGlobalInfo
+        Tags bug18612
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+		self.response_stack["*"] = (HTTP_STK_DATA, "read;/bin/echo -en '0 RESULT\\\\nn[1]Handshake-Id\\\\nn0\\\\nn[2]Status\\\\nnOK\\\\nn\\\\nn0 SETVERDICT\\\\nn[8]Description\\\\nnAccepted\\\\nn[3]Details\\\\nnn/a\\\\nn[8]Verdict\\\\nnZ_ACCEPT\\\\nn\\\\nn'>&3; read alma <&3; /bin/echo -en '124'")
+                HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+
+# close, HTTP/1.0
+
+C2P: "GET /accept.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: close\r\n\r\n"
+
+
+P2S: "GET /accept.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: close\r\n\r\n"
+
+
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+
+
+P2C: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+124"
+.
+
+# close, HTTP/1.1
+
+C2P: "GET /accept.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Connection: close\r\n\r\n"
+
+
+P2S: "GET /accept.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Connection: close\r\n\r\n"
+
+
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+
+
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+3\r\n\
+124\r\n\
+0\r\n\
+\r\n"
+.
+
+# keepalive + GET,  HTTP/1.0
+
+C2P: "GET /accept.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: keep-alive\r\n\r\n"
+
+
+P2S: "GET /accept.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: keep-alive\r\n\r\n"
+
+
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+
+P2C: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+124"
+.
+
+# keepalive + GET, HTTP/1.1
+
+C2P: "GET /accept.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Connection: keep-alive\r\n\r\n"
+
+
+P2S: "GET /accept.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Connection: keep-alive\r\n\r\n"
+
+
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+
+
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: keep-alive\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+3\r\n\
+124\r\n\
+0\r\n\
+\r\n"
+.
+
+StartPolicy
+        def config(self):
+		self.request_stack["*"] = (HTTP_STK_DATA, "read;/bin/echo -en '0 RESULT\\\\nn[1]Handshake-Id\\\\nn0\\\\nn[2]Status\\\\nnOK\\\\nn\\\\nn0 SETVERDICT\\\\nn[8]Description\\\\nnAccepted\\\\nn[3]Details\\\\nnn/a\\\\nn[8]Verdict\\\\nnZ_ACCEPT\\\\nn\\\\nn'>&3; read alma <&3; /bin/echo -en '124'")
+                HttpProxy.config(self)
+                self.timeout_request=30000
+		self.request["*"] = (HTTP_REQ_ACCEPT,)
+EndPolicy
+
+# keepalive + PUT,  HTTP/1.0
+
+C2P: "PUT /accept.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Content-Length: 6\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+123456"
+
+
+
+P2S: "PUT /accept.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: keep-alive\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+3\r\n\
+124\r\n\
+0\r\n\
+\r\n"
+
+
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+.
+
+# keepalive + PUT,  HTTP/1.1
+
+C2P: "PUT /accept.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Content-Length: 6\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+123456"
+
+
+P2S: "PUT /accept.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Connection: keep-alive\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+3\r\n\
+124\r\n\
+0\r\n\
+\r\n"
+
+
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+.

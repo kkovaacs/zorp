@@ -1,0 +1,168 @@
+StartGlobalInfo
+	Tags suppress-data
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+
+# * anything that comes back with 204, 304 never has a data block even if it
+#   has a Content-Length header
+
+# * anything that comes back with 205, does not have a data body unless
+#   explicitly specified via a Content-Length or Content-Transfer-Encoding
+#   headers
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 204 No Content\r\n\
+Connection: close\r\n\
+\r\n\
+ez mar nem lehet itt!"
+P2C: "HTTP/1.1 204 No Content\r\n\
+Connection: close\r\n\
+\r\n"
+.
+
+# HEAD request / entity doesn't present in response
+C2P: "HEAD /pub/var/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+P2S: "HEAD /pub/var/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+entitas teste"
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+\r\n"
+.
+
+# HEAD request / entity doesn't present in response even if it has a content-length header
+C2P: "HEAD /pub/var/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+P2S: "HEAD /pub/var/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+Content-Length: 10\r\n\
+\r\n\
+entitas teste"
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+Content-Length: 10\r\n\
+\r\n"
+.
+
+# HTTP response with 304 code may not present
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 304 Not Modified\r\n\
+Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\
+Etag: gonkyyy;1234\r\n\
+Content-Location: index.html\r\n\
+Vary: negotiate, accept, accept-language\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+Connection: close\r\n\
+\r\n\
+ez sem lesz itt!"
+P2C: "HTTP/1.1 304 Not Modified\r\n\
+Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\
+Etag: gonkyyy;1234\r\n\
+Content-Location: index.html\r\n\
+Vary: negotiate, accept, accept-language\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+Connection: close\r\n\
+\r\n"
+.
+
+# HTTP response with 304 code may not present
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 304 Not Modified\r\n\
+Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\
+Etag: gonkyyy;1234\r\n\
+Content-Location: index.html\r\n\
+Vary: negotiate, accept, accept-language\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+Content-Length: 16\r\n\
+Connection: close\r\n\
+\r\n\
+ez sem lesz itt!"
+P2C: "HTTP/1.1 304 Not Modified\r\n\
+Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\
+Etag: gonkyyy;1234\r\n\
+Content-Location: index.html\r\n\
+Vary: negotiate, accept, accept-language\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+Content-Length: 16\r\n\
+Connection: close\r\n\
+\r\n"
+.
+
+StartInfo
+	Tags bug9500
+EndInfo
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 205 Reset content\r\n\
+Connection: close\r\n\
+Content-Length: 77\r\n\
+\r\n\
+ez itt van annak ellenere, hogy defaultbol a 205-nel nem lehet itt adatresz!"
+P2C: "HTTP/1.1 205 Reset content\r\n\
+Connection: close\r\n\
+Content-Length: 77\r\n\
+\r\n\
+ez itt van annak ellenere, hogy defaultbol a 205-nel nem lehet itt adatresz!"
+.
+
+StartInfo
+	Tags bug9500
+EndInfo
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 205 Reset content\r\n\
+Connection: close\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+15\r\n\
+ez mar nem lehet itt!\r\n\
+0\r\n\r\n"
+P2C: "HTTP/1.1 205 Reset content\r\n\
+Connection: close\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+15\r\n\
+ez mar nem lehet itt!\r\n\
+0\r\n\r\n"
+.

@@ -1,0 +1,50 @@
+
+This is Zorp, welcome.
+----------------------
+
+Zorp is a new generation proxy firewall suite making it possible to finetune
+proxy decisions (with its built in script language), to fully analyze
+complex protocols (like SSH with several forwarded TCP connections), and to
+utilize outband authentication techniques (unlike common practices where
+proxy authentication had to be hacked into the protocol). 
+
+Quickstarting Zorp
+------------------
+
+After installing zorp (described in the file INSTALL), you have to
+come up with a policy.py file, which may not be the easiest thing to
+do at first time. 
+
+A sample policy file is provided named /etc/zorp/policy.py.sample to
+be renamed to /etc/zorp/policy.py after local modifications are
+applied.
+
+You will need to modify the zone declaration (the beginning of the file),
+to fit your network architecture. A zone in Zorp is a IP address range, and
+is the basis of access control. Each zone may define the services which is
+allowed to go into, and out of the zone.
+
+As your policy file is in place, you'll need to add a new entry to your
+$prefix/etc/zorp/instances.conf file, like this:
+
+# excerpt from /etc/zorp/instances.conf
+zorp_plug --policy /usr/local/etc/zorp/policy-plug.py
+
+The first word is the instance name to start, and the rest are the
+parameters to add to the zorp command line.
+
+If you are done, you can now try to start your first Zorp instance using
+zorpctl:
+
+zorpctl start zorp_plug
+
+if you leave the instance name empty, all instances are started. 
+
+Documentation
+-------------
+
+You can find the Zorp Tutorial in doc/zorp-tutorial.html which describes the
+GPLd version of Zorp, and a more comprehensive documentation for the
+commercial version which is available at
+
+http://www.balabit.com/support/documentation/

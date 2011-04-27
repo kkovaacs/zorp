@@ -1,0 +1,74 @@
+StartGlobalInfo
+        Tags bug13705
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+# In case of version 1.0 Zorp should translate
+# unknown Connection header to Connection: close
+C2P: "GET /1.0.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: almafa\r\n\
+\r\n"
+P2S: "GET /1.0.html HTTP/1.0\r\n\
+Host: test1\r\n\
+Connection: close\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+.
+
+# In case of version 1.1 Zorp should (in this version)
+# change unknown Connection header to Connection: keep-alive
+# Client side
+C2P: "GET /1.0.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Connection: almafa\r\n\
+\r\n"
+P2S: "GET /1.0.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+.
+# Server side.
+C2P: "GET /1.0.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET /1.0.html HTTP/1.1\r\n\
+Host: test1\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: almafa\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 5\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+12345"
+.

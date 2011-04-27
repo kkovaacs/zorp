@@ -1,0 +1,104 @@
+StartGlobalInfo
+	Tags bug10795 bug10920 bug10968
+EndGlobalInfo
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+		self.request_stack["*"] = (FTP_STK_DATA, "/bin/cat >/dev/null; /bin/echo -en '0 SETVERDICT\\\\nn[]Verdict\\\\nnZ_REJECT\\\\nn[]Description\\\\nnNem nyert\\\\nn\\\\nn'>&3; read alma <&3")
+EndPolicy
+
+# Some valid scenarios
+
+# testing aborted and reinitiated transfer
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: "PORT " %CLIENT_COMMAIP ",5,25\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+PORT = PORT1*256 + PORT2
+IP = str(IP1)+'.'+str(IP2)+'.'+str(IP3)+'.'+str(IP4)
+S2P: "200 Ok\r\n"
+P2C: "200 Ok\r\n"
+C2P: Listen 1305
+C2P: "RETR egyik\r\n"
+P2S: "RETR egyik\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Connect IP PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+S2P: "226-Ok\r\n226-Meg mindig Ok\r\n226 Itt a vege"
+P2C: "550 Data transfer failed (Nem nyert)\r\n"
+.
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: "PORT " %CLIENT_COMMAIP ",5,21\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+PORT = PORT1*256 + PORT2
+IP = str(IP1)+'.'+str(IP2)+'.'+str(IP3)+'.'+str(IP4)
+S2P: "200 Ok\r\n"
+P2C: "200 Ok\r\n"
+C2P: Listen 1301
+C2P: "RETR egyik\r\n"
+P2S: "RETR egyik\r\n"
+S2P: "150-Data Follow\r\n150-Kakukk\r\n150 Vege\r\n"
+S2P: Connect IP PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150-Data Follow\r\n Kakukk\r\n150 Vege\r\n"
+dP2C: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+S2P: "226-Ok\r\n226 Vege\r\n"
+P2C: "226-Ok\r\n226 Vege\r\n"
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: "PORT " %CLIENT_COMMAIP ",5,22\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+PORT = PORT1*256 + PORT2
+IP = str(IP1)+'.'+str(IP2)+'.'+str(IP3)+'.'+str(IP4)
+S2P: "200 Ok\r\n"
+P2C: "200 Ok\r\n"
+C2P: Listen 1302
+C2P: "RETR egyik\r\n"
+P2S: "RETR egyik\r\n"
+S2P: "150-Data Follow\r\n150-Kakukk\r\n150 Vege\r\n"
+S2P: Connect IP PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150-Data Follow\r\n Kakukk\r\n150 Vege\r\n"
+dP2C: "barmi\r\n"
+C2P: Disconnect
+P2S: Disconnect
+dP2S: Disconnect
+dP2C: Disconnect
+.

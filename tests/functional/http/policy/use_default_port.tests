@@ -1,0 +1,107 @@
+StartGlobalInfo
+	Tags bug6315
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.transparent_mode = TRUE
+		self.target_port_range = '108'
+	def setServerAddress(self, host, port):
+		if host == 'www.kakukk.bu' and port == 80:
+			return HttpProxy.setServerAddress(self, host, port)
+		proxyLog(self, CORE_DEBUG, 0, "incorrect server address; host='%s', port='%d'", (host, port))
+		return None
+EndPolicy
+
+C2P: "GET / HTTP/1.0\r\n\
+Host: www.kakukk.bu:8080\r\n\
+\r\n"
+P2S: "GET / HTTP/1.0\r\n\
+Host: www.kakukk.bu:8080\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+.
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.transparent_mode = TRUE
+		self.use_default_port_in_transparent_mode = FALSE
+		self.target_port_range = '8080'
+
+	def setServerAddress(self, host, port):
+		if host == 'www.kakukk.bu' and port == 8080:
+			return HttpProxy.setServerAddress(self, host, port)
+		proxyLog(self, CORE_DEBUG, 0, "incorrect server address; host='%s', port='%d'", (host, port))
+		return None
+EndPolicy
+
+C2P: "GET / HTTP/1.0\r\n\
+Host: www.kakukk.bu:8080\r\n\
+\r\n"
+P2S: "GET / HTTP/1.0\r\n\
+Host: www.kakukk.bu:8080\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+.
+
+
+C2P: "GET / HTTP/1.0\r\n\
+Host: www.kakukk.bu:80\r\n\
+\r\n"
+P2C: "HTTP/1.0 502 Error encountered\r\n\
+Connection: close\r\n\
+Content-Type: text/html\r\n\
+\r\n\
+<html>\n<head>" $NIHIL "</body>\n</html>\n"
+.
+
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+                self.transparent_mode = TRUE
+		self.parent_proxy = '1'
+		self.parent_proxy_port = 3128
+		self.permit_proxy_requests = TRUE
+
+	def setServerAddress(self, host, port):
+		if host == '1' and port == 3128:
+			return HttpProxy.setServerAddress(self, host, port)
+		proxyLog(self, CORE_DEBUG, 0, "incorrect server address; host='%s', port='%d'", (host, port))
+		return None
+EndPolicy
+
+C2P: "GET http://www.kakukk.bu:8080/ HTTP/1.0\r\n\
+Host: www.kakukk.bu:8080\r\n\
+\r\n"
+P2S: "GET http://www.kakukk.bu:8080/ HTTP/1.0\r\n\
+Host: www.kakukk.bu:8080\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+.
+

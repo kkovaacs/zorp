@@ -1,0 +1,24 @@
+StartGlobalInfo
+        Tags  bug8292
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.require_host_header = FALSE
+                self.permit_http09_responses = TRUE
+EndPolicy
+
+
+#simple HTTP/0.9 request and response
+C2P: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "ent"
+S2P: Disconnect
+P2C: "ent"
+P2C: Disconnect
+.

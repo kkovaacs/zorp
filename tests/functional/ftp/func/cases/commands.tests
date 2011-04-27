@@ -1,0 +1,1543 @@
+#Access control commands
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.request["SMNT"] = (FTP_REQ_ACCEPT)
+		self.request["REIN"] = (FTP_REQ_ACCEPT)
+		AbstractFtpProxy.loadAnswers(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+#USER
+S2P: "220 Service ready for new user\r\n"
+P2C: "220 Service ready for new user\r\n"
+C2P: "USER rossz_username\r\n"
+P2S: "USER rossz_username\r\n"
+S2P: "530 Not logged in\r\n"
+P2C: "530 Not logged in\r\n"
+C2P: "USER jo_username\r\n"
+P2S: "USER jo_username\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+.
+
+S2P: "220 Service ready for new user\r\n"
+P2C: "220 Service ready for new user\r\n"
+C2P: "USER remoteuser@remotehost\r\n"
+P2S: "USER remoteuser@remotehost\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+C2P: "USER remoteuser@remotehost\r\n"
+P2C: "530 Already logged in.\r\n"
+.
+
+# 
+# a '\' nem elfogadott karakter a usernevben.
+#S2P: "220 Service ready for new user\r\n"
+#P2C: "220 Service ready for new user\r\n"
+#C2P: "USER usern\ame\r\n"
+#P2S: "USER usern\ame\r\n"
+#S2P: "230 logged in\r\n"
+#P2C: "230 logged in\r\n"
+#.
+
+S2P: "220 Service ready for new user\r\n"
+P2C: "220 Service ready for new user\r\n"
+C2P: "USER ftp@212.40.96.74\r\n"
+P2S: "USER ftp@212.40.96.74\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+.
+
+#PASS
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "331 User name okay, need password\r\n"
+P2C: "331 User name okay, need password\r\n"
+C2P: "PASS rossz_password\r\n"
+P2S: "PASS rossz_password\r\n"
+S2P: "530 Not logged in\r\n"
+P2C: "530 Not logged in\r\n"
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "332 Need account for login\r\n"
+P2C: "332 Need account for login\r\n"
+C2P: "PASS password\r\n"
+P2C: "503 Login with USER first.\r\n"
+.
+
+#ACCT
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "332 Need account for login\r\n"
+P2C: "332 Need account for login\r\n"
+C2P: "ACCT blurp\r\n"
+P2S: "ACCT blurp\r\n"
+S2P: "530 Not logged in\r\n"
+P2C: "530 Not logged in\r\n"
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "ACCT blurp\r\n"
+P2C: "503 Login with USER first.\r\n"
+.
+
+#CWD
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 User logged in, proceed\r\n"
+P2C: "230 User logged in, proceed\r\n"
+
+C2P: "CwD utvonalacska\r\n"
+P2S: "CWD utvonalacska\r\n"
+S2P: "250 Requested file action okay, completed\r\n"
+P2C: "250 Requested file action okay, completed\r\n"
+
+C2P: "CWD utvona\lacska\r\n"
+P2S: "CWD utvona\lacska\r\n"
+S2P: "501 Syntax error in parameters or arguments\r\n"
+P2C: "501 Syntax error in parameters or arguments\r\n"
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 User logged in, proceed\r\n"
+P2C: "230 User logged in, proceed\r\n"
+
+C2P: "CWD utvonalacska\r\n"
+P2S: "CWD utvonalacska\r\n"
+S2P: "502 Command not implemented\r\n"
+P2C: "502 Command not implemented\r\n"
+
+C2P: "CWD utvonalacska\r\n"
+P2S: "CWD utvonalacska\r\n"
+S2P: "530 Not logged in\r\n"
+P2C: "530 Not logged in\r\n"
+
+C2P: "CWD utvonalacska\r\n"
+P2S: "CWD utvonalacska\r\n"
+S2P: "550 Requested action not taken\r\n"
+P2C: "550 Requested action not taken\r\n"
+
+C2P: "CWD utvonalacska\r\n"
+P2S: "CWD utvonalacska\r\n"
+S2P: "260 barmi\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "CWD utvonalacska\r\n"
+P2S: "CWD utvonalacska\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#CDUP
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "CDUP valami\r\n"
+P2S: "CDUP\r\n"
+S2P: "200 ok\r\n"
+P2C: "200 ok\r\n"
+
+C2P: "CDUP\r\n"
+P2S: "CDUP\r\n"
+S2P: "500 error in command\r\n"
+P2C: "500 error in command\r\n"
+
+C2P: "CDUP\r\n"
+P2S: "CDUP\r\n"
+S2P: "502 \r\n"
+P2C: "502 \r\n"
+
+C2P: "CDUP\r\n"
+P2S: "CDUP\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+C2P: "CDUP\r\n"
+P2S: "CDUP\r\n"
+S2P: "550 \r\n"
+P2C: "550 \r\n"
+C2P: "CDUP\r\n"
+P2S: "CDUP\r\n"
+S2P: "260 barmi\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "CDUP\r\n"
+P2S: "CDUP\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#SMNT / would mount the volume Stranger1 on Server as a guest
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+C2P: "SMNT Stranger1:Server@*\r\n"
+P2S: "SMNT Stranger1:Server@*\r\n"
+S2P: "250 Requested file action okay, completed\r\n"
+P2C: "250 Requested file action okay, completed\r\n"
+.
+
+# would mount the volume Stranger2 on Server which is in the zone MyZone as "fred" with the password "fish"
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+C2P: "SMNT Stranger2:Server@MyZone:fred:fish\r\n"
+P2S: "SMNT Stranger2:Server@MyZone:fred:fish\r\n"
+S2P: "250 Requested file action okay, completed\r\n"
+P2C: "250 Requested file action okay, completed\r\n"
+.
+
+#REIN
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "REIN\r\n"
+P2S: "REIN\r\n"
+S2P: "500 error in command\r\n"
+P2C: "500 error in command\r\n"
+
+C2P: "REiN\r\n"
+P2S: "REIN\r\n"
+S2P: "220 service ready\r\n"
+P2C: "220 service ready\r\n"
+
+C2P: "REIN\r\n"
+P2S: "REIN\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#QUIT
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "QUIT\r\n"
+P2S: "QUIT\r\n"
+S2P: "221 \r\n"
+P2C: "221 \r\n"
+P2C: Disconnect
+.
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "QUIT\r\n"
+P2S: "QUIT\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+P2C: Disconnect
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "QUIT\r\n"
+P2S: "QUIT\r\n"
+S2P: "502 barmi\r\n"
+P2C: "500 " $NIHIL "\r\n"
+.
+
+#Transfer parameters
+
+#PORT
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "PORT 1,1,1,1,1,1\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+
+C2P: "PORT 1,1,1,1,1\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "PORT 1,1,1,1,1,1\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "PORT 1,1,1,1,1,1\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+C2P: "PORT 1,1,1,1,1,1\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+P2C: Disconnect
+.
+
+#PASV
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+S2P: "227 \r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+S2P: "227 valami\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+S2P: "227 (1,1,1,1)\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+S2P: "227 (1,1,1,1,1,1)\r\n"
+P2C: "227 (" $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 ")\r\n"
+
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+S2P: "502 \r\n"
+P2C: "502 \r\n"
+
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+S2P: "260 barmi\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#MODE
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "MODE S\r\n"
+P2S: "MODE S\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+
+C2P: "MODE S\r\n"
+P2S: "MODE S\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "MODE S\r\n"
+P2S: "MODE S\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "MODE S\r\n"
+P2S: "MODE S\r\n"
+S2P: "504 \r\n"
+P2C: "504 \r\n"
+
+C2P: "MODE S\r\n"
+P2S: "MODE S\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+C2P: "MODE s\r\n"
+P2S: "MODE S\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+
+C2P: "MODE B\r\n"
+P2S: "MODE B\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+
+C2P: "MODE C\r\n"
+P2S: "MODE C\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+
+C2P: "MODE S\r\n"
+P2S: "MODE S\r\n"
+S2P: "260 barmi\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "MODE K\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "MODE S\r\n"
+P2S: "MODE S\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#TYPE
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "TYPE A\r\n"
+P2S: "TYPE A\r\n"
+S2P: "200 Representation type is ASCII\r\n"
+P2C: "200 Representation type is ASCII\r\n"
+
+C2P: "TYPE I\r\n"
+P2S: "TYPE I\r\n"
+S2P: "200 Representation type is IMAGE\r\n"
+P2C: "200 Representation type is IMAGE\r\n"
+
+C2P: "TYPE A N\r\n"
+P2S: "TYPE A\r\n"
+S2P: "200 Representation type is ASCII\r\n"
+P2C: "200 Representation type is ASCII\r\n"
+
+C2P: "TYPE E\r\n"
+P2C: "504 Command not implemented for that parameter\r\n"
+.
+
+#STRU
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "STRU F\r\n"
+P2S: "STRU F\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+
+C2P: "STRU F\r\n"
+P2S: "STRU F\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "STRU F\r\n"
+P2S: "STRU F\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "STRU F\r\n"
+P2S: "STRU F\r\n"
+S2P: "504 \r\n"
+P2C: "504 \r\n"
+
+C2P: "STRU F\r\n"
+P2S: "STRU F\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+C2P: "STRU R\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "STRU P\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "STRU barmi\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "STRU F\r\n"
+P2S: "STRU F\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#File action commands
+
+#ALLO size [<SP> R <SP> max-record-size]
+StartInfo
+	Tags kakukk
+EndInfo
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "ALLO 1 R 2\r\n"
+P2S: "ALLO 1 R 2\r\n"
+S2P: "200 Gyuhet\r\n"
+P2C: "200 Gyuhet\r\n"
+
+# Optional argument
+C2P: "ALLO 1\r\n"
+P2S: "ALLO 1\r\n"
+S2P: "200 Gyuhet\r\n"
+P2C: "200 Gyuhet\r\n"
+
+# Arguments must be positiv numbers
+C2P: "ALLO almafa R 2\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO 1 R kortefa\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO cseresznye R almafa\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO ringlo\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO -1\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO 1 R -2\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO 999999999999999999999999999999999999999999999999999999\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO 1 R 999999999999999999999999999999999999999999999999999999\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+# Missing argument
+C2P: "ALLO\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+# Bad separator
+C2P: "ALLO 1 S 3\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO 1 RR 3\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO 1 R  3\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ALLO 1  R 3\r\n"
+P2C: "500 " $NIHIL "\r\n"
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "ALLO 123\r\n"
+P2S: "ALLO 123\r\n"
+S2P: "202 \r\n"
+P2C: "202 \r\n"
+
+C2P: "ALLO 123\r\n"
+P2S: "ALLO 123\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "ALLO 123\r\n"
+P2S: "ALLO 123\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "ALLO 123\r\n"
+P2S: "ALLO 123\r\n"
+S2P: "504 \r\n"
+P2C: "504 \r\n"
+
+C2P: "ALLO 123\r\n"
+P2S: "ALLO 123\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+C2P: "ALLO 123\r\n"
+P2S: "ALLO 123\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+#REST
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+C2P: "REST 1500\r\n"
+P2S: "REST 1500\r\n"
+S2P: "350 \r\n"
+P2C: "350 \r\n"
+
+C2P: "REST 0\r\n"
+P2S: "REST 0\r\n"
+S2P: "350 \r\n"
+P2C: "350 \r\n"
+
+# missing marker
+C2P: "REST\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "REST any_printable_characters\r\n"
+P2S: "REST any_printable_characters\r\n"
+S2P: "350 \r\n"
+P2C: "350 \r\n"
+.
+
+#STOR
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1280
+C2P: "PORT " %CLIENT_COMMAIP ",5,0\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "REST 1500\r\n"
+P2S: "REST 1500\r\n"
+S2P: "350 \r\n"
+P2C: "350 \r\n"
+C2P: "STOR utvonal\r\n"
+P2S: "STOR utvonal\r\n"
+S2P: "150 \r\n"
+P2C: "150 \r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+dP2C: Nothing
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1281
+C2P: "PORT " %CLIENT_COMMAIP ",5,1\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "REST 1500\r\n"
+P2S: "REST 1500\r\n"
+S2P: "350 \r\n"
+P2C: "350 \r\n"
+C2P: "STOR utvonal\r\n"
+P2S: "STOR utvonal\r\n"
+S2P: "150 \r\n"
+P2C: "150 \r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dC2P: "barmi\r\n"
+dP2S: "barmi\r\n"
+dC2P: Disconnect
+dP2S: Disconnect
+S2P: "226 \r\n"
+P2C: "226 \r\n"
+.
+
+#STOU
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1282
+C2P: "PORT " %CLIENT_COMMAIP ",5,2\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "REST 1500\r\n"
+P2S: "REST 1500\r\n"
+S2P: "350 \r\n"
+P2C: "350 \r\n"
+C2P: "STOU\r\n"
+P2S: "STOU\r\n"
+S2P: "150 \r\n"
+P2C: "150 \r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+dP2C: Nothing
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1283
+C2P: "PORT " %CLIENT_COMMAIP ",5,3\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "REST 1500\r\n"
+P2S: "REST 1500\r\n"
+S2P: "350 \r\n"
+P2C: "350 \r\n"
+C2P: "STOU\r\n"
+P2S: "STOU\r\n"
+S2P: "150 \r\n"
+P2C: "150 \r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dC2P: "barmi\r\n"
+dP2S: "barmi\r\n"
+dC2P: Disconnect
+dP2S: Disconnect
+S2P: "226 \r\n"
+P2C: "226 \r\n"
+.
+
+#RETR
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1284
+C2P: "PORT " %CLIENT_COMMAIP ",5,4\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "RETR utvonal\r\n"
+P2S: "RETR utvonal\r\n"
+S2P: "150 \r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150 \r\n"
+dP2C: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+S2P: "226 \r\n"
+P2C: "226 \r\n"
+.
+
+#LIST
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1285
+C2P: "PORT " %CLIENT_COMMAIP ",5,5\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "LIST utvonal\r\n"
+P2S: "LIST utvonal\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1285
+C2P: "PORT " %CLIENT_COMMAIP ",5,5\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "LIST utvonal\r\n"
+P2S: "LIST utvonal\r\n"
+S2P: "150 \r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150 \r\n"
+dP2C: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+S2P: "226 \r\n"
+P2C: "226 \r\n"
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1286
+C2P: "PORT " %CLIENT_COMMAIP ",5,6\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "LIST utvonal\r\n"
+P2S: "LIST utvonal\r\n"
+S2P: "450 \r\n"
+P2C: "450 \r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1286
+C2P: "PORT " %CLIENT_COMMAIP ",5,6\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "LIST utvonal\r\n"
+P2S: "LIST utvonal\r\n"
+S2P: "150 \r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150 \r\n"
+dP2C: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+S2P: "226 \r\n"
+P2C: "226 \r\n"
+.
+
+#NLST
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1287
+C2P: "PORT " %CLIENT_COMMAIP ",5,7\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "NLST utvonal\r\n"
+P2S: "NLST utvonal\r\n"
+S2P: "150 \r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150 \r\n"
+dP2C: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+S2P: "226 \r\n"
+P2C: "226 \r\n"
+.
+
+#APPE
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1288
+C2P: "PORT " %CLIENT_COMMAIP ",5,8\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+C2P: "APPE utvonal\r\n"
+P2S: "APPE utvonal\r\n"
+S2P: "150 \r\n"
+P2C: "150 \r\n"
+FW_IP = str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+FW_PORT = PORT1*256 + PORT2
+S2P: Connect FW_IP FW_PORT
+C2P: Accept
+dC2P: "barmi\r\n"
+dP2S: "barmi\r\n"
+dC2P: Disconnect
+dP2S: Disconnect
+S2P: "226 \r\n"
+P2C: "226 \r\n"
+.
+
+#RNFR / RNTO
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "RNFR barmirol\r\n"
+P2S: "RNFR barmirol\r\n"
+S2P: "350 szoveg szoveg\r\n"
+P2C: "350 szoveg szoveg\r\n"
+C2P: "RNTO barmire\r\n"
+P2S: "RNTO barmire\r\n"
+S2P: "250 valami barmi\r\n"
+P2C: "250 valami barmi\r\n"
+
+C2P: "RNFR barmirol\r\n"
+P2S: "RNFR barmirol\r\n"
+S2P: "100 szoveg szoveg\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "RNFR barmirol\r\n"
+P2S: "RNFR barmirol\r\n"
+S2P: "350 szoveg szoveg\r\n"
+P2C: "350 szoveg szoveg\r\n"
+C2P: "RNTO barmire\r\n"
+P2S: "RNTO barmire\r\n"
+S2P: "150 valami barmi\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "RNFR barmirol\r\n"
+P2S: "RNFR barmirol\r\n"
+S2P: "350 szoveg szoveg\r\n"
+P2C: "350 szoveg szoveg\r\n"
+C2P: "RNTO barmire\r\n"
+P2S: "RNTO barmire\r\n"
+S2P: "502 valami barmi\r\n"
+P2C: "502 valami barmi\r\n"
+.
+
+#missing or invalid RNFR
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "RNFR barmirol\r\n"
+P2S: "RNFR barmirol\r\n"
+S2P: "550 szoveg szoveg\r\n"
+P2C: "550 szoveg szoveg\r\n"
+C2P: "RNTO barmire\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "RNFR barmirol\r\n"
+P2S: "RNFR barmirol\r\n"
+S2P: "550 szoveg szoveg\r\n"
+P2C: "550 szoveg szoveg\r\n"
+C2P: "RNTO barmire\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "RNTO barmire\r\n"
+P2C: "500 " $NIHIL "\r\n"
+.
+
+#DELE
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "DELE utvonalacska\r\n"
+P2S: "DELE utvonalacska\r\n"
+S2P: "250 ok\r\n"
+P2C: "250 ok\r\n"
+
+C2P: "DELE utvonalacska\r\n"
+P2S: "DELE utvonalacska\r\n"
+S2P: "450 not ok\r\n"
+P2C: "450 not ok\r\n"
+
+C2P: "DELE utvonalacska\r\n"
+P2S: "DELE utvonalacska\r\n"
+S2P: "550 not ok\r\n"
+P2C: "550 not ok\r\n"
+
+C2P: "DELE utvonalacska\r\n"
+P2S: "DELE utvonalacska\r\n"
+S2P: "500 se\r\n"
+P2C: "500 se\r\n"
+
+C2P: "DELE utvonalacska\r\n"
+P2S: "DELE utvonalacska\r\n"
+S2P: "501 se\r\n"
+P2C: "501 se\r\n"
+
+C2P: "DELE utvonalacska\r\n"
+P2S: "DELE utvonalacska\r\n"
+S2P: "502 cni\r\n"
+P2C: "502 cni\r\n"
+
+C2P: "DELE utvonalacska\r\n"
+P2S: "DELE utvonalacska\r\n"
+S2P: "530 nli\r\n"
+P2C: "530 nli\r\n"
+
+C2P: "DELE utvonalacska\r\n"
+P2S: "DELE utvonalacska\r\n"
+S2P: "563 nli\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "DELE utvonalacska\r\n"
+P2S: "DELE utvonalacska\r\n"
+S2P: "421 sd\r\n"
+P2C: "421 Logoff\r\n"
+P2C: Disconnect
+.
+
+#RMD
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "RMD barmi\r\n"
+P2S: "RMD barmi\r\n"
+S2P: "250 \r\n"
+P2C: "250 \r\n"
+
+C2P: "RMD barmi\r\n"
+P2S: "RMD barmi\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "RMD barmi\r\n"
+P2S: "RMD barmi\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "RMD barmi\r\n"
+P2S: "RMD barmi\r\n"
+S2P: "502 \r\n"
+P2C: "502 \r\n"
+
+C2P: "RMD barmi\r\n"
+P2S: "RMD barmi\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+C2P: "RMD barmi\r\n"
+P2S: "RMD barmi\r\n"
+S2P: "550 \r\n"
+P2C: "550 \r\n"
+
+C2P: "RMD barmi\r\n"
+P2S: "RMD barmi\r\n"
+S2P: "551 \r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "RMD barmi\r\n"
+P2S: "RMD barmi\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#MKD
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "MKD barmi\r\n"
+P2S: "MKD barmi\r\n"
+S2P: "257 \r\n"
+P2C: "257 \r\n"
+
+C2P: "MKD barmi\r\n"
+P2S: "MKD barmi\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "MKD barmi\r\n"
+P2S: "MKD barmi\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "MKD barmi\r\n"
+P2S: "MKD barmi\r\n"
+S2P: "502 \r\n"
+P2C: "502 \r\n"
+
+C2P: "MKD barmi\r\n"
+P2S: "MKD barmi\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+C2P: "MKD barmi\r\n"
+P2S: "MKD barmi\r\n"
+S2P: "550 \r\n"
+P2C: "550 \r\n"
+
+C2P: "MKD barmi\r\n"
+P2S: "MKD barmi\r\n"
+S2P: "551 \r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "MKD barmi\r\n"
+P2S: "MKD barmi\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#PWD
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "PWD barmi\r\n"
+P2S: "PWD\r\n"
+S2P: "257 \r\n"
+P2C: "257 \r\n"
+
+C2P: "PWD\r\n"
+P2S: "PWD\r\n"
+S2P: "257 \r\n"
+P2C: "257 \r\n"
+
+C2P: "PWD barmi\r\n"
+P2S: "PWD\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "PWD barmi\r\n"
+P2S: "PWD\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "PWD barmi\r\n"
+P2S: "PWD\r\n"
+S2P: "502 \r\n"
+P2C: "502 \r\n"
+
+C2P: "PWD barmi\r\n"
+P2S: "PWD\r\n"
+S2P: "550 \r\n"
+P2C: "550 \r\n"
+
+C2P: "PWD barmi\r\n"
+P2S: "PWD\r\n"
+S2P: "551 \r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "PWD barmi\r\n"
+P2S: "PWD\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+URG = chr(255)+chr(244)+chr(242)
+#ABOR
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "ABOR\r\n"
+P2S: %URG "ABOR\r\n"
+S2P: "225 \r\n"
+P2C: "225 \r\n"
+
+C2P: "ABOR\r\n"
+P2S: %URG "ABOR\r\n"
+S2P: "226 \r\n"
+P2C: "226 \r\n"
+
+C2P: "ABOR\r\n"
+P2S: %URG "ABOR\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "ABOR\r\n"
+P2S: %URG "ABOR\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "ABOR\r\n"
+P2S: %URG "ABOR\r\n"
+S2P: "502 \r\n"
+P2C: "502 \r\n"
+
+C2P: "ABOR\r\n"
+P2S: %URG "ABOR\r\n"
+S2P: "227 \r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "ABOR\r\n"
+P2S: %URG "ABOR\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+P2C: Disconnect
+.
+
+#Informational commands
+
+#SYST
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "SYST\r\n"
+P2S: "SYST\r\n"
+S2P: "215 \r\n"
+P2C: "215 \r\n"
+
+C2P: "SYST\r\n"
+P2S: "SYST\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "SYST\r\n"
+P2S: "SYST\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "SYST\r\n"
+P2S: "SYST\r\n"
+S2P: "502 \r\n"
+P2C: "502 \r\n"
+
+C2P: "SYST\r\n"
+P2S: "SYST\r\n"
+S2P: "216 \r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "SYST\r\n"
+P2S: "SYST\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#STAT
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "211 \r\n"
+P2C: "211 \r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "212 \r\n"
+P2C: "212 \r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "213 \r\n"
+P2C: "213 \r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "450 \r\n"
+P2C: "450 \r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "502 \r\n"
+P2C: "502 \r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "216 \r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "STAT\r\n"
+P2S: "STAT\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.request["HELP"] = (FTP_REQ_ACCEPT)
+                self.request["SITE"] = (FTP_REQ_ACCEPT)
+                self.request["EPRT"] = (FTP_REQ_ACCEPT)
+                self.request["EPSV"] = (FTP_REQ_ACCEPT)
+		AbstractFtpProxy.loadAnswers(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+
+#HELP and multi-line help reply
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "HELP\r\n"
+P2S: "HELP\r\n"
+S2P: "214-First line\r\n\
+Second line\r\n\
+ 234 A line beginning with numbers\r\n\
+214 The last line\r\n"
+P2C: "214-First line\r\n\
+ Second line\r\n\
+  234 A line beginning with numbers\r\n\
+214 The last line\r\n"
+
+C2P: "HELP USER\r\n"
+P2S: "HELP USER\r\n"
+S2P: "214 \r\n"
+P2C: "214 \r\n"
+
+C2P: "HELP user\r\n"
+P2S: "HELP user\r\n"
+S2P: "214 \r\n"
+P2C: "214 \r\n"
+
+C2P: "HELP barmi\r\n"
+P2S: "HELP barmi\r\n"
+S2P: "211 \r\n"
+P2C: "211 \r\n"
+
+C2P: "HELP USER\r\n"
+P2S: "HELP USER\r\n"
+S2P: "502 \r\n"
+P2C: "502 \r\n"
+
+C2P: "HELP USER\r\n"
+P2S: "HELP USER\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+#Miscellaneous commands
+
+#SITE
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "SITE HELP\r\n"
+P2S: "SITE HELP\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+
+C2P: "SITE LISTUSER\r\n"
+P2S: "SITE LISTUSER\r\n"
+S2P: "202 \r\n"
+P2C: "202 \r\n"
+
+C2P: "SITE akarmi\r\n"
+P2S: "SITE akarmi\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+
+C2P: "SITE 123\r\n"
+P2S: "SITE 123\r\n"
+S2P: "530 \r\n"
+P2C: "530 \r\n"
+
+#C2P: "SITE\r\n"
+#P2C: "500 " $NIHIL "\r\n"
+.
+
+#NOOP
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "NOOP\r\n"
+P2S: "NOOP\r\n"
+S2P: "200 \r\n"
+P2C: "200 \r\n"
+
+C2P: "NOOP\r\n"
+P2S: "NOOP\r\n"
+S2P: "500 \r\n"
+P2C: "500 \r\n"
+
+C2P: "NOOP\r\n"
+P2S: "NOOP\r\n"
+S2P: "504 \r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "NOOP\r\n"
+P2S: "NOOP\r\n"
+S2P: "421 \r\n"
+P2C: "421 Logoff\r\n"
+.
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+                self.data_port_min = 40500
+                self.data_port_max = 40500
+                self.request["EPSV"] = (FTP_REQ_ACCEPT)
+                self.request["EPRT"] = (FTP_REQ_ACCEPT)
+		AbstractFtpProxy.loadAnswers(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+#EPSV
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "EPSV 1\r\n"
+P2S: "EPSV\r\n"
+S2P: "229 Entering Extended Passive Mode (|||40500|)\r\n"
+P2C: "229 Entering Extended Passive Mode (|||40500|)\r\n"
+
+C2P: "EPSV\r\n"
+P2S: "EPSV\r\n"
+S2P: "229 Entering Extended Passive Mode (|||40500|)\r\n"
+P2C: "229 Entering Extended Passive Mode (|||40500|)\r\n"
+
+C2P: "EPSV ALL\r\n"
+P2S: "EPSV\r\n"
+S2P: "229 \r\n"
+P2C: "229 \r\n"
+
+C2P: "EPSV 2\r\n"
+P2S: "EPSV\r\n"
+S2P: "501 \r\n"
+P2C: "501 \r\n"
+.
+
+#EPRT
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "EPRT |1|10.2.3.6|40500|\r\n"
+P2S: "EPRT |1|127.0.0.1|40500|\r\n"
+S2P: "200 Command OK_1\r\n"
+P2C: "200 Command OK_1\r\n"
+
+C2P: "EPRT |1|w3.org|40500|\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "EPRT |||40500|\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "EPRT |2|1080::8:800:200C:417A|40500|\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "EPRT |1080::8:800:200C:417A|40500|\r\n"
+P2C: "500 " $NIHIL "\r\n"
+
+C2P: "EPRT\r\n"
+P2C: "500 " $NIHIL "\r\n"
+.

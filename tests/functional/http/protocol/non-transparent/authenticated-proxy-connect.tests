@@ -1,0 +1,64 @@
+StartGlobalInfo
+        Tags bug5763
+	Min-Version 3.0
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+		self.parent_proxy = '1'
+                self.transparent_mode = FALSE
+		self.request["CONNECT"] = (HTTP_REQ_ACCEPT,)
+                self.target_port_range = "80-2000"
+EndPolicy
+
+C2P: "CONNECT " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT " HTTP/1.1\r\n\
+Host: " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "\r\n\
+\r\n"
+P2S: "CONNECT " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT " HTTP/1.1\r\n\
+Host: " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 Connection established\r\n\
+\r\n"
+P2C: "HTTP/1.1 200 Connection established\r\n\
+\r\n"
+C2P: "blablabla"
+S2P: "bliblibli"
+P2C: "bliblibli"
+P2S: "blablabla"
+.
+
+C2P: "CONNECT " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT " HTTP/1.1\r\n\
+Host: " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "\r\n\
+\r\n"
+P2S: "CONNECT " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT " HTTP/1.1\r\n\
+Host: " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "\r\n\
+\r\n"
+S2P: "HTTP/1.1 407 Authentication required\r\n\
+\r\n\
+12345"
+P2C: "HTTP/1.1 407 Authentication required\r\n\
+Proxy-Connection: close\r\n\
+\r\n\
+12345"
+.
+
+C2P: "CONNECT " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT " HTTP/1.1\r\n\
+Host: " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "\r\n\
+Proxy-Authenticate: Basic 889t98hgetuogihtg948hg49hpg\r\n\
+\r\n"
+P2S: "CONNECT " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT " HTTP/1.1\r\n\
+Host: " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "\r\n\
+Proxy-Authenticate: Basic 889t98hgetuogihtg948hg49hpg\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 Connection established\r\n\
+\r\n"
+P2C: "HTTP/1.1 200 Connection established\r\n\
+\r\n"
+C2P: "blablabla"
+S2P: "bliblibli"
+P2C: "bliblibli"
+P2S: "blablabla"
+.
+

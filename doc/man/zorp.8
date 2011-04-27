@@ -1,0 +1,194 @@
+'\" t
+.\"     Title: zorp
+.\"    Author: [see the "Author" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 02/16/2011
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "ZORP" "8" "02/16/2011" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+zorp_ \- Zorp Firewall Suite
+.SH "SYNOPSIS"
+.HP \w'\fBzorp\fR\ 'u
+\fBzorp\fR [options]
+.SH "DESCRIPTION"
+.PP
+The
+\fBzorp\fR
+command is the main entry point for a Zorp instance, and as such it is generally called by
+zorpctl(8)
+with command line parameters specified in
+instances\&.conf(5)\&.
+.SH "OPTIONS"
+.PP
+\fB\-\-version\fR or \fB\-V\fR
+.RS 4
+Display version number and compilation information\&.
+.RE
+.PP
+\fB\-\-as <name>\fR or \fB\-a <name>\fR
+.RS 4
+Set instance name to <name>\&. Instance names may consist of the characters [a\-zA\-Z0\-9_] and must begin with a letter\&. Log messages of this instance are prefixed with this name\&.
+.RE
+.PP
+\fB\-\-also\-as <name>\fR or \fB\-A <name>\fR
+.RS 4
+Add a secondary instance named <name>\&. Secondary instances share the same Zorp process but they have a separate section in the configuration file\&.
+.RE
+.PP
+\fB\-\-policy <name>\fR or \fB\-p <name>\fR
+.RS 4
+Use the file called <name> as policy\&. This file must be a valid policy file\&.
+.RE
+.PP
+\fB\-\-verbose <verbosity>\fR or \fB\-v <verbosity>\fR
+.RS 4
+Set verbosity level to <verbosity>, or if <verbosity> is omitted increment it by one\&. Default the verbosity level is 3; possible values are 0\-10\&.
+.RE
+.PP
+\fB\-\-pidfile <pidfile>\fR or \fB\-P <pidfile>\fR
+.RS 4
+Set path to the PID file where the pid of the main process is stored\&.
+.RE
+.PP
+\fB\-\-foreground\fR or \fB\-F\fR
+.RS 4
+Do not daemonize, run in the foreground\&.
+.RE
+.PP
+\fB\-\-process\-mode <mode>\fR
+.RS 4
+Set processing mode to one of background, safe\-background or foreground\&.
+.RE
+.PP
+\fB\-\-no\-syslog\fR or \fB\-l\fR
+.RS 4
+Send log messages to the standard output instead of syslog\&.
+.RE
+.PP
+\fB\-\-log\-tags\fR or \fB\-T\fR
+.RS 4
+Prepend log category and log level to each message\&.
+.RE
+.PP
+\fB\-\-log\-escape\fR
+.RS 4
+Escape non\-printable characters to avoid binary log files\&. Each character less than 0x20 and greater than 0x7F are escaped in the form <XX>\&.
+.RE
+.PP
+\fB\-\-log\-spec <spec>\fR or \fB\-s <spec>\fR
+.RS 4
+Set verbosity mask on a per category basis\&. Each log message has an assigned multi\-level category, where levels are separated by a dot\&. For example, HTTP requests are logged under
+\fIhttp\&.request\fR\&.
+\fB<spec>\fR
+is a comma separated list of log specifications\&. A single log specification consists of a wildcard matching log category, a colon, and a number specifying the verbosity level of that given category\&. Categories match from left to right\&. E\&.g\&.:
+\fB\-\-logspec \*(Aqhttp\&.*:5,core:3\*(Aq\fR\&. The last matching entry will be used as the verbosity of the given category\&. If no match is found the default verbosity specified with
+\fB\-\-verbose\fR
+is used\&.
+.RE
+.PP
+\fB\-\-threads <num>\fR or \fB\-t <num>\fR
+.RS 4
+Set the maximum number of threads that can be used in parallel by this Zorp instance\&.
+.RE
+.PP
+\fB\-\-idle\-threads <num>\fR or \fB\-I\fR
+.RS 4
+Set the maximum number of idle threads; this option has effect only if threadpools are enabled (see the option
+\fB\-\-threadpools\fR)\&.
+.RE
+.PP
+\fB\-\-threadpools\fR or \fB\-O\fR
+.RS 4
+Enable the use of threadpools, which means that threads associated with sessions are not automatically freed, only if the maximum number of idle threads is exceeded\&.
+.RE
+.PP
+\fB\-\-user <user>\fR or \fB\-u <user>\fR
+.RS 4
+Switch to the supplied user after starting up\&.
+.RE
+.PP
+\fB\-\-group <group>\fR or \fB\-g <group>\fR
+.RS 4
+Switch to the supplied group after starting up\&.
+.RE
+.PP
+\fB\-\-chroot <dir>\fR or \fB\-R <dir>\fR
+.RS 4
+Change root to the specified directory before reading the configuration file\&. The directory must be set up accordingly\&.
+.RE
+.PP
+\fB\-\-caps <caps>\fR or \fB\-C <caps>\fR
+.RS 4
+Switch to the supplied set of capabilities after starting up\&. This should contain the required capabilities in the permitted set\&. For the syntax of capability description see the man page
+cap_from_text(3)\&.
+.RE
+.PP
+\fB\-\-no\-caps\fR or \fB\-N\fR
+.RS 4
+Do not change capabilities at all\&.
+.RE
+.PP
+\fB\-\-tproxy <id>\fR or \fB\-Y <id>\fR
+.RS 4
+Override the automatically proxy implementation\&. <id> can be one of the following:
+\fInetfilter\fR
+(TPROXY patch for netfilter),
+\fIlinux22\fR
+(standard Linux 2\&.2 transparent proxying),
+\fIipf\fR
+(patched for transparent proxying)\&.
+.RE
+.PP
+\fB\-\-autobind\-ip <IP address>\fR or \fB\-B <IP address>\fR
+.RS 4
+The autobind parameter as required by the TPROXY support for the kernel\&. It must be an IP address of a local interface and should not clash with any real\-world IP address\&. It is recommended to use a dummy interface\&.
+.RE
+.PP
+\fB\-\-crypto\-engine <engine>\fR or \fB\-E <engine>\fR
+.RS 4
+Set the OpenSSL crypto engine to be used for hardware accelerated crypto support\&.
+.RE
+.PP
+\fB\-\-stack\-size <size>\fR or \fB\-S <size>\fR
+.RS 4
+Set the maximum stack size used by threads\&. Note that the maximum number of parallel threads is influenced by the size specified here\&. The default size (256k) is enough for about 4000 parallel threads\&.
+.RE
+.SH "FILES"
+.PP
+
+/etc/zorp/
+.PP
+
+/etc/zorp/policy\&.py
+.PP
+
+/etc/zorp/instances\&.conf
+.SH "AUTHOR"
+.PP
+This manual page was written by the BalaBit Documentation Team <documentation@balabit\&.com>\&.
+.SH "COPYRIGHT"
+.PP
+Copyright \(co 2006 BalaBit IT Security Ltd\&. All rights reserved\&. For more information about the legal status of this document please read:
+\m[blue]\fBhttp://www\&.balabit\&.com/products/zorp/docs/legal_notice\&.bbq\fR\m[]

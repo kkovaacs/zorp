@@ -1,0 +1,17 @@
+StartGlobalInfo
+	Tags bug12286
+EndGlobalInfo
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+S2P: "220-first\r\n220-second\r\n220 \r\n"
+P2C: "220-first\r\n second\r\n220 \r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+.

@@ -1,0 +1,65 @@
+##
+# Test HTTP/0.9 fallback when client requests HTTP/0.9
+# Tests: bug 3320
+#
+
+StartGlobalInfo
+        Tags  bug3320 http09
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.require_host_header = FALSE
+                self.permit_http09_responses = TRUE
+EndPolicy
+
+#simple HTTP/0.9 request and response
+C2P: "GET /foo.html\r\n"
+P2S: "GET /foo.html\r\n"
+S2P: "entity body\r\n"
+P2C: "entity body\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+#HTTP 1.0 request and HTTP 0.9 response
+C2P: "GET /foo.html HTTP/1.0\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET /foo.html HTTP/1.0\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "This is a simple response without headers.\r\n"
+P2C: "This is a simple response without headers.\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.require_host_header = FALSE
+                self.permit_http09_responses = TRUE
+		self.keep_persistent = TRUE
+EndPolicy
+
+StartInfo
+	Tags bug9360
+EndInfo
+
+C2P: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+P2S: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+Connection: keep-alive\r\n\
+\r\n"
+S2P: "This is a simple response without headers.\r\n"
+P2C: "This is a simple response without headers.\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.

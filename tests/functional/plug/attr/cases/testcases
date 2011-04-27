@@ -1,0 +1,66 @@
+
+StartPolicy
+	def config(self):
+		self.copy_to_server=FALSE
+EndPolicy
+
+C2P: "Nem_megy_at"
+S2P: "Atmegy"
+P2C: "Atmegy"
+.
+
+StartPolicy
+	def config(self):
+		self.copy_to_client=FALSE
+EndPolicy
+
+C2P: "Atmegy"
+P2S: "Atmegy"
+S2P: "Nem_megy_at"
+.
+
+StartPolicy
+	def config(self):
+		self.timeout = 2000
+EndPolicy
+
+C2P: "Atmegy"
+P2S: "Atmegy"
+A= time.sleep(3)
+P2C: Disconnect
+P2S: Disconnect
+.
+
+StartPolicy
+	def config(self):
+		self.packet_stats_interval_packet = 5
+
+	def packetStats(self, client_bytes, client_pkts, server_bytes, server_pkts):
+		return Z_ACCEPT
+EndPolicy
+
+C2P: "C1"
+P2S: "C1"
+S2P: "S1"
+P2C: "S1"
+C2P: "C2"
+P2S: "C2"
+S2P: "S2"
+P2C: "S2"
+C2P: "C3"
+P2S: "C3"
+S2P: "S3"
+P2C: "S3"
+C2P: "C4"
+P2S: "C4"
+S2P: "S4"
+P2C: "S4"
+C2P: "C5"
+P2S: "C5"
+S2P: "S5"
+P2C: "S5"
+C2P: "C6"
+P2S: "C6"
+S2P: "S6"
+P2C: "S6"
+.

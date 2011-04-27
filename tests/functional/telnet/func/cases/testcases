@@ -1,0 +1,397 @@
+
+#### StartPolicy ###############################################################
+
+StartPolicy
+	def config(self):
+		TelnetProxyStrict.config(self)
+EndPolicy
+
+#Option negotiation testing
+#	- in which states are options allowed to pass
+#
+#Suboption negotiation testing
+#	- null suboption sequence
+#	- too long suboption sequence
+#	- suboption sequence for not accepted option
+#
+#Policy logic testing
+#	- DENY, ACCEPT, ABORT
+#	- POLICY
+
+IAC=255
+SE=240
+SB=250
+WILL=251
+WONT=252
+DO=253
+DONT=254
+
+SEND=1
+IS=0
+INFO=2
+
+VAR=0
+VALUE=1
+ESC=2
+USERVAR=3
+
+# ------------------
+# general checks
+# ------------------
+
+# escaped bytes
+
+C2P: "alma" IAC IAC DO 1 "korte"
+P2S: "alma" IAC IAC DO 1 "korte"
+S2P: "korte" IAC IAC WILL 1 "korte"
+P2C: "korte" IAC IAC WILL 1 "korte"
+C2P: "alma" IAC SB 1 "a" IAC SE "korte"
+P2S: "alma" "korte"
+S2P: "alma" IAC SB 1 "a" IAC SE "korte"
+P2C: "alma" "korte"
+.
+# ------------------
+# overflow checks
+# ------------------
+
+# too long suboption negotiation
+C2P: IAC DO 1
+P2S: IAC DO 1
+S2P: IAC WILL 1
+P2C: IAC WILL 1
+C2P: "alma" IAC SB 1 "a"x8192 IAC SE "korte"
+P2S: "alma"
+P2C: Disconnect
+.
+# ------------------
+# options
+# ------------------
+
+C2P: "alma" IAC 1 "korte"
+P2S: "alma" "korte"
+.
+#C2P: IAC DO 1
+#P2S: IAC DO 1
+#S2P: IAC WILL 1
+#P2C: IAC WILL 1
+#C2P: "alma" IAC SB 1 "aa" IAC SE "korte"
+#P2S: "alma" IAC SB 1 "aa" IAC SE "korte"
+#
+#C2P: IAC DO 1
+#P2S: IAC DO 1
+#S2P: IAC WONT 1
+#P2C: IAC WONT 1
+#C2P: "alma" IAC SB 1 "aa" IAC SE "korte"
+#P2S: "alma" "korte"
+#
+#C2P: IAC DO 1
+#P2S: IAC DO 1
+#C2P: "alma" IAC SB 1 "aa" IAC SE "korte"
+#P2S: "alma" "korte"
+
+# ------------------
+# suboption negotiation
+# ------------------
+
+# new environment option
+# ------------------
+C2P: IAC DO 39
+P2S: IAC DO 39
+S2P: IAC WILL 39
+P2C: IAC WILL 39
+C2P: "alma" IAC SB 39 SEND VAR "USER" VAR "ACCT" IAC SE "korte"
+P2S: "alma" IAC SB 39 SEND VAR "USER" VAR "ACCT" IAC SE "korte"
+S2P: "korte" IAC SB 39 IS VAR "USER" VALUE "joe" VAR "ACCT" VALUE "kernel" IAC SE "alma"
+P2C: "korte" IAC SB 39 IS VAR "USER" VALUE "joe" VAR "ACCT" VALUE "kernel" IAC SE "alma"
+.
+C2P: IAC DO 39
+P2S: IAC DO 39
+S2P: IAC WILL 39
+P2C: IAC WILL 39
+C2P: "alma" IAC SB 39 8 VAR "USER" VAR "ACCT" IAC SE "korte"
+P2S: "alma" "korte"
+.
+C2P: IAC DO 39
+P2S: IAC DO 39
+S2P: IAC WILL 39
+P2C: IAC WILL 39
+C2P: "alma" IAC SB 39 IS VAR "USER" VALUE "joe" IAC SE "korte"
+P2S: "alma" "korte"
+.
+# which side may send IS or SEND
+C2P: IAC DO 39
+P2S: IAC DO 39
+S2P: IAC WILL 39
+P2C: IAC WILL 39
+C2P: "alma" IAC SB 39 IS VAR "USER" VALUE "joe" IAC SE "korte"
+P2S: "alma" "korte"
+S2P: "alma" IAC SB 39 SEND IAC SE "korte"
+P2C: "alma" "korte"
+.
+C2P: IAC DO 39
+P2S: IAC DO 39
+S2P: IAC WILL 39
+P2C: IAC WILL 39
+C2P: "alma" IAC SB 39 SEND VAR "USER" VAR "ACCT" IAC SE "korte"
+P2S: "alma" IAC SB 39 SEND VAR "USER" VAR "ACCT" IAC SE "korte"
+S2P: "alma" IAC SB 39 IS VAR "USER" VALUE "joe" VALUE "err" IAC SE "korte"
+P2C: "alma" IAC SB 39 IS VAR "USER" VALUE "joe" IAC SE "korte"
+.
+# terminal type option
+# ------------------
+C2P: IAC WILL 24
+P2S: IAC WILL 24
+S2P: IAC DO 24
+P2C: IAC DO 24
+S2P: "alma" IAC SB 24 SEND IAC SE "korte"
+P2C: "alma" IAC SB 24 SEND IAC SE "korte"
+C2P: "alma" IAC SB 24 IS "xterm" IAC SE "korte"
+P2S: "alma" IAC SB 24 IS "xterm" IAC SE "korte"
+.
+C2P: IAC WILL 24
+P2S: IAC WILL 24
+S2P: IAC DO 24
+P2C: IAC DO 24
+S2P: "alma" IAC SB 24 8 IAC SE "korte"
+P2C: "alma" "korte"
+.
+C2P: IAC WILL 24
+P2S: IAC WILL 24
+S2P: IAC DO 24
+P2C: IAC DO 24
+S2P: "alma" IAC SB 24 SEND IAC SE "korte"
+P2C: "alma" IAC SB 24 SEND IAC SE "korte"
+C2P: "alma" IAC SB 24 IS "//" IAC SE "korte"
+P2S: "alma" "korte"
+.
+# which side may send IS or SEND
+C2P: IAC WILL 24
+P2S: IAC WILL 24
+S2P: IAC DO 24
+P2C: IAC DO 24
+S2P: "alma" IAC SB 24 IS "xterm" IAC SE "korte"
+P2C: "alma" "korte"
+C2P: "alma" IAC SB 24 SEND IAC SE "korte"
+P2S: "alma" "korte"
+.
+C2P: IAC WILL 24
+P2S: IAC WILL 24
+S2P: IAC DO 24
+P2C: IAC DO 24
+S2P: "alma" IAC SB 24 SEND IAC SE "korte"
+P2C: "alma" IAC SB 24 SEND IAC SE "korte"
+C2P: "alma" IAC SB 24 IS IAC SE "korte"
+P2S: "alma" IAC SB 24 IS IAC SE "korte"
+.
+# terminal speed
+# ------------------
+C2P: IAC WILL 32
+P2S: IAC WILL 32
+S2P: IAC DO 32
+P2C: IAC DO 32
+S2P: "alma" IAC SB 32 SEND IAC SE "korte"
+P2C: "alma" IAC SB 32 SEND IAC SE "korte"
+C2P: "alma" IAC SB 32 IS "1200,1200" IAC SE "korte"
+P2S: "alma" IAC SB 32 IS "1200,1200" IAC SE "korte"
+.
+C2P: IAC WILL 32
+P2S: IAC WILL 32
+S2P: IAC DO 32
+P2C: IAC DO 32
+S2P: "alma" IAC SB 32 8 IAC SE "korte"
+P2C: "alma" "korte"
+.
+C2P: IAC WILL 32
+P2S: IAC WILL 32
+S2P: IAC DO 32
+P2C: IAC DO 32
+S2P: "alma" IAC SB 32 SEND IAC SE "korte"
+P2C: "alma" IAC SB 32 SEND IAC SE "korte"
+C2P: "alma" IAC SB 32 IS "aa" IAC SE "korte"
+P2S: "alma" "korte"
+.
+# which side may send IS or SEND
+C2P: IAC WILL 32
+P2S: IAC WILL 32
+S2P: IAC DO 32
+P2C: IAC DO 32
+S2P: "alma" IAC SB 32 IS "1300,1300" IAC SE "korte"
+P2C: "alma" "korte"
+C2P: "alma" IAC SB 32 SEND IAC SE "korte"
+P2S: "alma" "korte"
+.
+C2P: IAC WILL 32
+P2S: IAC WILL 32
+S2P: IAC DO 32
+P2C: IAC DO 32
+S2P: "alma" IAC SB 32 SEND IAC SE "korte"
+P2C: "alma" IAC SB 32 SEND IAC SE "korte"
+C2P: "alma" IAC SB 32 IS IAC SE "korte"
+P2S: "alma" IAC SB 32 IS IAC SE "korte"
+.
+# X display location
+# ------------------
+C2P: IAC WILL 35
+P2S: IAC WILL 35
+S2P: IAC DO 35
+P2C: IAC DO 35
+S2P: "alma" IAC SB 35 SEND IAC SE "korte"
+P2C: "alma" IAC SB 35 SEND IAC SE "korte"
+C2P: "alma" IAC SB 35 IS "thorin:0" IAC SE "korte"
+P2S: "alma" IAC SB 35 IS "thorin:0" IAC SE "korte"
+.
+C2P: IAC WILL 35
+P2S: IAC WILL 35
+S2P: IAC DO 35
+P2C: IAC DO 35
+S2P: "alma" IAC SB 32 8 IAC SE "korte"
+P2C: "alma" "korte"
+.
+C2P: IAC WILL 35
+P2S: IAC WILL 35
+S2P: IAC DO 35
+P2C: IAC DO 35
+S2P: "alma" IAC SB 35 SEND IAC SE "korte"
+P2C: "alma" IAC SB 35 SEND IAC SE "korte"
+C2P: "alma" IAC SB 35 IS "!dead" IAC SE "korte"
+P2S: "alma" "korte"
+.
+# which side may send IS or SEND
+C2P: IAC WILL 35
+P2S: IAC WILL 35
+S2P: IAC DO 35
+P2C: IAC DO 35
+S2P: "alma" IAC SB 35 IS "thorin:0" IAC SE "korte"
+P2C: "alma" "korte"
+C2P: "alma" IAC SB 35 SEND IAC SE "korte"
+P2S: "alma" "korte"
+.
+C2P: IAC WILL 35
+P2S: IAC WILL 35
+S2P: IAC DO 35
+P2C: IAC DO 35
+S2P: "alma" IAC SB 35 SEND IAC SE "korte"
+P2C: "alma" IAC SB 35 SEND IAC SE "korte"
+C2P: "alma" IAC SB 35 IS IAC SE "korte"
+P2S: "alma" IAC SB 35 IS IAC SE "korte"
+.
+# NAWS
+# ------------------
+C2P: IAC WILL 31
+P2S: IAC WILL 31
+S2P: IAC DO 31
+P2C: IAC DO 31
+C2P: "alma" IAC SB 31 00 80 00 25 IAC SE "korte"
+P2S: "alma" IAC SB 31 00 80 00 25 IAC SE "korte"
+.
+C2P: IAC WILL 31
+P2S: IAC WILL 31
+S2P: IAC DO 31
+P2C: IAC DO 31
+C2P: "alma" IAC SB 31 00 255 255 00 25 IAC SE "korte"
+P2S: "alma" IAC SB 31 00 255 255 00 25 IAC SE "korte"
+.
+C2P: IAC WILL 31
+P2S: IAC WILL 31
+S2P: IAC DO 31
+P2C: IAC DO 31
+C2P: "alma" IAC SB 31 12 34 IAC SE "korte"
+P2S: "alma" "korte"
+.
+# which side may send IS or SEND
+C2P: IAC WILL 31
+P2S: IAC WILL 31
+S2P: IAC DO 31
+P2C: IAC DO 31
+S2P: "alma" IAC SB 31 00 80 00 25 IAC SE "korte"
+P2C: "alma" "korte"
+.
+# ------------------
+# policy
+# ------------------
+# these testcases should be run using the following policy
+#	class MyTelnetProxy(TelnetProxy):
+
+#### StartPolicy ###############################################################
+
+StartPolicy
+	def config(self):
+		self.option[TELNET_ENVIRONMENT, TELNET_SB_IS] = (TELNET_OPT_POLICY, self.rewriteVar)
+		self.option[TELNET_ENVIRONMENT, TELNET_SB_SEND] = TELNET_OPT_ACCEPT
+		self.option[TELNET_TERMINAL_TYPE]  = TELNET_OPT_ABORT
+		self.option[TELNET_TERMINAL_SPEED] = TELNET_OPT_DROP
+		self.option[TELNET_ENVIRONMENT]    = TELNET_OPT_ACCEPT
+		self.option["101"] = TELNET_OPT_ACCEPT
+		self.option["101", "*"] = TELNET_OPT_DROP
+		self.option["101", "1"] = TELNET_OPT_ACCEPT
+		self.option["101", "2"] = TELNET_OPT_ABORT
+		self.option["102"] = TELNET_OPT_REJECT
+
+	def rewriteVar(self, option, name, value):
+		if name == "DISPLAY":
+			self.current_var_value = "rewritten:0"
+		return TELNET_OPT_ACCEPT
+EndPolicy
+
+# policy accept
+C2P: IAC DO 101
+P2S: IAC DO 101
+S2P: IAC WILL 101
+P2C: IAC WILL 101
+C2P: "korte" IAC SB 101 1 "Nessa" IAC SE "alma"
+P2S: "korte" IAC SB 101 1 "Nessa" IAC SE "alma"
+S2P: "korte" IAC SB 101 1 "Nienna" IAC SE "alma"
+P2C: "korte" IAC SB 101 1 "Nienna" IAC SE "alma"
+#policy SB DENY
+C2P: "korte" IAC SB 101 "Nessa" IAC SE "alma"
+P2S: "korte" "alma"
+S2P: "korte" IAC SB 101 "Nienna" IAC SE "alma"
+P2C: "korte" "alma"
+.
+#policy SB REJECT
+C2P: IAC DO 102
+P2C: IAC WONT 102
+P2S: IAC DONT 102
+S2P: IAC WILL 102
+P2S: IAC DONT 102
+P2C: IAC WONT 102
+.
+# policy deny
+C2P: IAC WILL 32
+S2P: IAC DO 32
+.
+# policy abort (these should abort the session)
+C2P: IAC WILL 24
+P2C: Disconnect
+.
+S2P: IAC WILL 24
+P2S: Disconnect
+.
+C2P: IAC WONT 24
+P2C: Disconnect
+.
+S2P: IAC WONT 24
+P2S: Disconnect
+.
+C2P: IAC DO 24
+P2C: Disconnect
+.
+S2P: IAC DO 24
+P2S: Disconnect
+.
+C2P: IAC DONT 24
+P2C: Disconnect
+.
+S2P: IAC DONT 24
+P2S: Disconnect
+.
+# policy rewrite
+C2P: IAC DO 39
+P2S: IAC DO 39
+S2P: IAC WILL 39
+P2C: IAC WILL 39
+C2P: IAC SB 39 SEND VAR "DISPLAY" IAC SE
+P2S: IAC SB 39 SEND VAR "DISPLAY" IAC SE
+S2P: IAC SB 39 IS VAR "DISPLAY" VALUE "durin:0" IAC SE
+P2C: IAC SB 39 IS VAR "DISPLAY" VALUE "rewritten:0" IAC SE
+.

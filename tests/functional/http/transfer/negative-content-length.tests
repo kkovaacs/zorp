@@ -1,0 +1,27 @@
+StartGlobalInfo
+	Tags bug8820
+EndGlobalInfo
+
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+EndPolicy
+
+# fix length -> chunked conversion
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: -2\r\n\
+\r\n\
+1234567890"
+S2P: Disconnect
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+1234567890"
+.

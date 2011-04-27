@@ -1,0 +1,3550 @@
+2008-10-26  Balazs Scheidler <bazsi@balabit.hu>
+
+	* configure.in.in: require version 0 from libwbclient as samba
+	  advertises it as such
+
+	* modules/rdp/rdp_credssp.c: fixed wbclient.h include path
+
+	* modules/rdp/Makefile.am: use WBCLIENT_LIBS and WBCLIENT_CFLAGS
+	  to reference wbclient include/lib paths
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.c: partially changed max. line length to 120 (fixes #nobug)
+
+	*  modules/ssh/ssh.c: removed empty line (fixes #nobug)
+
+	*  modules/ssh/sshspecialuserauth.c,
+	*  modules/ssh/sshagentforward.c: changed line length to 120, changed format to gnu (fixes #nobug)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshagentforward.c (ssh_agent_resync_global_request): parsing MSG_REQUEST_SUCCESS msg (fixes #16182)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.c (ssh_connection_process_channel_open_msg):
+	update channel id within packet (fixes #16181)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshauthkbdint.c (ssh_uam_kbd_int_process_userauth_info_response_msg):
+	implement functionality of g_hash_table_remove_all of glib-2.12 (fixes #15526)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.c,
+	   modules/ssh/sshuserauth.c,
+           modules/ssh/sshtransport.c,
+           modules/ssh/sshtransport.h,
+	   modules/ssh/sshagentforward.c: removed unnecessary agent states,
+	   free transport layer's members related to agent forwarding
+	   and tl's pkey_auth_blob is renamed to pubkey_auth_blob (fixes #15526)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshauthkbdint.c (ssh_uam_kbd_int_process_userauth_info_response):
+	set to NULL unrefed packets of special userauth (fixes #14961)
+
+	*  modules/ssh/ssh.c (ssh_proxy_free): free non-null variables of special userauth (fixes #14961)
+
+	*  modules/ssh/sshspecialuserauth.h (_SshSpecialUserauthInfo): removed unused member,
+	local_passwd (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshauthkbdint.c (ssh_uam_kbd_int_process_userauth_info_response): removed code for SSH_SUA_AUTH_PUBKEY state
+	(it happens later now) (fixes #14961)
+
+	*  modules/ssh/sshauthpubkey.c (ssh_uam_pubkey_request,
+	ssh_uam_pubkey_process_userauth_pubkey_ok_msg): added support for special userauth (fixes #14961 and #15526),
+	format changes (fixes #nobug)
+
+	*  modules/ssh/sshuserauth.c (ssh_userauth_process_userauth_request_msg): updated to handle
+	both specialuserauth and agent fwd (fixes #14961 and #15526)
+
+	*  modules/ssh/sshtransport.c: code cleanup: format changes (fixes #nobug)
+	(ssh_tl_process_packet): doesn't check current agent fwd state (fixes #14961 and #15526)
+
+	*  modules/ssh/sshtransport.h (SshTranportLayer): comment changes (fixes #15526)
+
+	*  modules/ssh/sshspecialuserauth.c (ssh_special_userauth_pubkey_request):
+	handling agent forwarding parts (fixes #14961 and #15526)
+
+	*  modules/ssh/sshspecialuserauth.h (SshSpecUserAuthState): added SSH_SUA_STATE_PUBKEY_RESP_SIGNED state (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.c,
+	   modules/ssh/sshalgo.h,
+	   modules/ssh/sshagentforward.c,
+	   modules/ssh/sshagentforward.h: cleanups,
+	   freeing up memory, validating packets (fixes #15526)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.c,
+	   modules/ssh/sshauthpubkey.c,
+	   modules/ssh/sshtransport.c,
+	   modules/ssh/sshalgo.h,
+           modules/ssh/sshtransport.h,
+           modules/ssh/sshspecialuserauth.c,
+ 	   modules/ssh/sshagentforward.c,
+           modules/ssh/sshagentforward.h: rewritten resyncing when agent forwarding is enabled.
+	   Added ssh_tl_resync_forward().
+	   pubkey_blob to SshKey is happens by ssh_key_from_blob.
+	   Lots of cleanup, syntax style changes (fixes #15526)
+
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.c,
+	   modules/ssh/sshconnection.h,
+	   modules/ssh/sshagentforward.c,
+	   modules/ssh/sshagentforward.h: replaying packets after 'session' request is rewritten,
+	   lots of changes (fixes #15526)
+
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshauthpubkey.c,
+	  modules/ssh/sshtransport.h,
+	  modules/ssh/sshagentforward.c: added body for ssh_agent_resync_pubkey_authentication()
+	ssh_agent_send(), ssh_agent_fetch(): allowing oversized data (splitted to multiple packets)
+	ssh_agent_resync_exchange_public_key(): signing key, too (fixes #15526)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshagentforward.c,
+	   modules/ssh/sshagentforward.h: comminicating with ssh auth agent at resyncing (fixes #15526)
+
+	*  modules/ssh/sshconnection.c: agent-related functions are moved into sshagentforward.c (fixes #15526)
+
+	*  modules/ssh/Makefile.am: added sshagentforward.[ch] (fixes #15526)
+
+	*  modules/ssh/ssh.c: format changes (fixes #nobug)
+
+	*  modules/ssh/sshtransport.h: ssh_get_message_type() has const parameter (fixes #nobug)
+
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshtransport.h,
+	   modules/ssh/sshconnection.c (ssh_connection_process_channel_data_msg,
+	   ssh_connection_process_channel_close_msg): new states to keep information
+	where the ssh stays at the current packet. Implemented till exchanging pubkey
+	with ssh auth agent (fixes #1556)
+
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.c: rewrites recipient/sender channel ids
+	in forwarded packets (fixes #15526 (#nobug))
+
+	*  modules/ssh/sshtransport.c: added ssh_tl_prepend_resync_task() (fixes #15526)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.c,
+	   modules/ssh/sshalgo.c,
+	   modules/ssh/sshformat.c,
+	   modules/ssh/sshauthpubkey.c,
+	   modules/ssh/sshuserauth.c,
+	   modules/ssh/sshchantcpip.c,
+	   modules/ssh/sshchanx11.c,
+	   modules/ssh/sshtransport.c,
+	   modules/ssh/sshparse.c,
+	   modules/ssh/sshkex.c,
+	   modules/ssh/sshkex.h,
+	   modules/ssh/sshspecialuserauth.c: code cleanup, no more warnings appear with gcc-4.2.3 (fixes #nobug)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.h,
+	   modules/ssh/sshconnection.c: ssh_connection_find_channel uses channel's channel_id member instead of channel_ids[side] (fixes #15526)
+
+	*  modules/ssh/sshauthpubkey.c: keep pubkey blob for agent fwd (fixes #15526)
+
+	*  modules/ssh/sshtransport.c: ssh_tl_perform_resync() is now non-static (fixes #15526)
+
+	*  modules/ssh/sshtransport.h: added new states; added pubkey_blob member for transport layer (fixes #15526)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshconnection.c: added resync callbacks,
+	using this when agent request arrives or another packet arrives from the client;
+	(ssh_connection_process_global_request_msg,ssh_connection_process_channel_open_msg,
+	ssh_connection_process_channel_request_msg): checking for agent forwarding (fixes #15526)
+
+	*  modules/ssh/sshauthpubkey.c (ssh_uam_pubkey_request_agent_fwd,
+	ssh_uam_pubkey_process_userauth_pubkey_ok_msg): new state is SSH_AG_ST_SESSION_REQ (fixes #15526)
+
+	*  modules/ssh/sshspecialuserauth.c,
+	   modules/ssh/ssh.c: whitespace cleanup (fixes #nobug)
+
+	*  modules/ssh/sshtransport.c (ssh_tl_process_packet): checks for agent_state (fixes #1556)
+
+	*  modules/ssh/sshtransport.h: removed start_time, max_time (fixes #15526)
+
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	* ssh_uam_pubkey_request() splitted into 3 similar function, based on the proxy state ( agent fwd and special userauth)
+	* proxy has a new attribute, enable_agent_forwarding
+	* The transport layer keeps actual state of the agent forwarding authentication
+
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshalgo.c (ssh_key_verify_x509): Log the server key type and its signature type (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshchansession.c,
+	   modules/ssh/sshconnection.c,
+	   modules/ssh/sshconnection.h,
+	   modules/ssh/sshformat.c,
+	   modules/ssh/sshauthpubkey.c,
+	   modules/ssh/sshsftp.c,
+	   modules/ssh/sshpolicy.c,
+	   modules/ssh/sshpolicy.h,
+	   modules/ssh/sshuserauth.c,
+	   modules/ssh/sshkexdh.c,
+	   modules/ssh/sshkexdh.h,
+	   modules/ssh/sshsubproto.h,
+	   modules/ssh/sshglobals.h,
+	   modules/ssh/sshchantcpip.c,
+	   modules/ssh/sshchanx11.c,
+	   modules/ssh/Ssh.py,
+	   modules/ssh/sshtransport.c,
+	   modules/ssh/sshnames.c,
+	   modules/ssh/sshparse.c,
+	   modules/ssh/sshkex.c,
+	   modules/ssh/sshformat.h,
+	   modules/ssh/sshkex.h,
+	   modules/ssh/sshnames.h,
+	   modules/ssh/sshtransport.h: whitespace changes, removed trailing whitespaces, unnecessary empty lines (fixes #nobug)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshspecialuserauth.c (ssh_special_userauth_pubkey_validate): added missing z_policy_unlock (fixes #14961)
+
+	*  modules/ssh/Ssh.py: removed debug lines (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshauthkbdint.c: fixed typo (fixes #14961)
+
+	*  modules/ssh/sshauthpubkey.c (ssh_uam_pubkey_request): if pubkey spec. auth fails,
+	sends an SSH_MSG_USERAUTH_FAILURE, whith none as method list (fixes #14961)
+
+	*  modules/ssh/Ssh.py: added specialUserAuthPubkey() with test code (fixes #14961)
+
+	*  modules/ssh/sshspecialuserauth.c (ssh_special_userauth_pubkey_validate):
+	added username parameter for the python callback (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshauthkbdint.c: set owner->quit to TRUE on error  (fixes #14961)
+
+	*  modules/ssh/sshauthpubkey.c: checkinf for special user auth-pubkey auth (fixes #14961)
+
+	*  modules/ssh/sshchanagent.c,
+	   modules/ssh/sshauthpassword.c,
+	   modules/ssh/sshauthnone.c: whitespace change (fixes #nobug)
+
+	*  modules/ssh/sshuserauth.c (ssh_special_userauth_pubkey_validate): added callback
+	(ssh_special_userauth_parse_request): first 2 item may be the luser and lpasswd (fixes #14961)
+
+	*  modules/ssh/Ssh.py: M
+
+	*  modules/ssh/ssh.c (ssh_main): checks for succesful spec. userauth request parsing (fixes #14961)
+
+	*  modules/ssh/sshspecialuserauth.h,
+	  modules/ssh/sshspecialuserauth.c (ssh_special_userauth_pubkey_validate): added callback
+	(ssh_special_userauth_parse_request): first 2 item may be the luser and lpasswd (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshauthkbdint.c (ssh_uam_kbd_int_process_userauth_info_resonse):
+	if spec.userauth failed it is restarted when it is the first or second attempt.
+	If it succeded, checks for pubkey auth (fixes #14961)
+
+	*  modules/ssh/sshalgo.c (ssh_key_verify_x509): enabled dss1raw for DSA keys (fixes #14012)
+
+	*  modules/ssh/sshauthpubkey.c (ssh_uam_pubkey_request): checks for pubkey auth in spec. userauth (fixes #14961)
+
+	*  modules/ssh/sshuserauth.c: auth_on_request is checked when spec. userauth is unused (fixes #1461)
+
+	*  modules/ssh/Ssh.py: added spec.userauth type constants; inband auth enabled. (fixes #14961)
+
+	*  modules/ssh/ssh.c: changes in python interface: special_userauth_request,
+	special_userauth_type local_user are related to spec.userauth and nothing else
+	(ssh_main): checks for self->auth and modify things repectively (fixes #14961)
+
+	*  modules/ssh/sshspecialuserauth.c: (ssh_special_userauth_parse_username): only the first packet's username is parsed,
+	added passwd auth (fixes #14961)
+	(ssh_special_userauth_add_response): request list may empty, local user/passwd are handled specially (fixes #14961)
+
+	*  modules/ssh/sshspecialuserauth.h: more types and states for extended spec. userauth,
+	the 3rd failure drops connection, and pubkey auth added - partially (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshalgo.c: added EVP_dss1raw();
+	(ssh_key_sign_x509): signer MD is SHA-1 for RSA, DSS1-RAW for DSA keys (fixes #14012)
+
+	*  modules/ssh/ssh.c: frees SpecialUserauth-related data (fixes #14961)
+
+	*  modules/ssh/sshalgo.h: added EVP_dss1raw() (fixes #14012)
+
+	*  modules/ssh/sshspecialuserauth.c(: replaces old response data (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshspecialuserauth.c: added definition of username parser function (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshauthkbdint.c (ssh_uam_kbd_int_process_userauth_info_response):
+	Doesn't forward the saved packet (the actual user auth method sends it) (fixes #14961)
+
+	*  modules/ssh/sshalgo.c (ssh_key_verify_x509): added log msg (fixes #nogbug)
+
+	*  modules/ssh/sshuserauth.c (ssh_userauth_process_userauth_request_ms): added kbdint_method_list global variable,
+	saves current method's  ID (fixes #14961)
+
+	*  modules/ssh/Ssh.py: specialUserAuth() returns TRUE (fixes #14961)
+
+	*  modules/ssh/ssh.c (ssh_config_set_defaults): sua_info.{request,request_policy} is
+	initialized by NULL value (fixes #14961)
+
+	*  modules/ssh/sshspecialuserauth.c: Several fixes - function names; sets num of prompt
+	for SSH_USERAUTH_INFO_REQUEST, etc. (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshspecialuserauth.c,
+	*  modules/ssh/sshspecialuserauth.h,
+	*  modules/ssh/sshauthkbdint.c,
+	*  modules/ssh/sshuserauth.c
+	*  modules/ssh/sshuserauth.h: lots of changes with code (type) cleanups to pass required information to each functions;
+	(ssh_special_userauth_parse_request, ssh_special_userauth_format_packet): added definition (fixes #14961)
+
+	*  modules/ssh/ssh.c (ssh_register_vars): removed specialuserauth_response,
+	added specialuserauth_local_{username,password}_required to python interface
+	(ssh_main): calls ssh_special_userauth_parse_request (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshspecialuserauth.c,
+	*  modules/ssh/sshspecialuserauth.h: SpecialUsername-related functions
+	and types are moved to here (fixes #14961)
+
+	*  modules/ssh/sshauthkbdint.c: updated to use reogranized sshproxy (fixes #14961)
+
+	*  modules/ssh/sshpolicy.c: removed ssh_policy_special_userauth_validate() (fixes #14961)
+
+	*  modules/ssh/sshuserauth.c: removed specialusername-related functions (fixes #14961)
+
+	*  modules/ssh/Makefile.am: added sshspecialuserauth.c sshspecialuserauth.h
+
+	*  modules/ssh/ssh.c (ssh_config_set_defaults): hash tables uses g_str_{hash,equal}
+	(ssh_register_vars): name changes (specialusername_*)
+	Whitespace changes (fixes #14961)
+
+	*  modules/ssh/ssh.h: SpecialUsername-related types and members are moved
+	to sshspecialuserauth.h. It is now SshProxy.sua_info (fixes #14961)
+
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshauthkbdint.c (ssh_uam_kbd_int_process_userauth_info_response):
+	parse packet for specialusername if necessary
+	(ssh_uam_kbd_int_request): send USERAUTH_INFO_REQUEST packet for specialusername (fixes #14644)
+
+	*  modules/ssh/sshalgo.c (ssh_key_sign_x509): sign with SHA-1 theX509V3_SIGN_RSA keys
+	(ssh_key_set_certificate_blob): free the private key (fixes #14012)
+
+	*  modules/ssh/sshpolicy.c (ssh_policy_special_userauth_validate): added this skeleton (fixes #14961)
+
+	*  modules/ssh/sshuserauth.c: added several function skeleton (ssh_userauth_parse_special_username,
+	ssh_userauth_special_need_kbd_info, ssh_userauth_special_validate_full, ssh_userauth_special_add_response,
+	ssh_userauth_special_format_packet)
+	(ssh_userauth_process_userauth_request_msg): parsing username
+	for specialusername-related settings (fixes #14961)
+
+	*  modules/ssh/sshuserauth.h: added functions for specialusername (fixes #14644)
+
+	*  modules/ssh/Ssh.py: added specialUserAuth() function
+
+	*  modules/ssh/ssh.c,
+	*  modules/ssh/ssh.h (SshProxy: added members for SpecialUsername (fixes #14961)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshkexdh.c (ssh_kex_dh_send_kexdh_reply_msg): create the host key (fixes #14012)
+
+	*  modules/ssh/Ssh.py (SshProxy postconfig): updated x509 support due to renamed variables (fixes #14012)
+
+	*  modules/ssh/ssh.c (ssh_config_set_defaults): renamed/new x509 hostkey and cert variables
+	(ssh_get_hostkey): removed hostkey variable checkings
+	(ssh_register_vars): register new variables
+	(ssh_init_key and ssh_init_key): not necessary
+	(ssh_main): removed call of ssh_init_keys (fixes #14012)
+
+	*  modules/ssh/ssh.h (SshProxy): removed hostkeys[] member;
+	added individual private keys for X.509 keys (fixes #14012)
+
+	*  modules/ssh/sshkex.c (ssh_kex_setup_proposal): check whether
+	variables for X.509 host keys are empty or not (fixes #14012)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/Ssh.py (SshProxy): fixed errors related to new variables,
+	host_key_*_keypair (fixes #14012)
+
+	*  modules/ssh/ssh.c (ssh_proxy_free): freeing up host keys (fixes #14012)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshalgo.c,
+	modules/ssh/sshalgo.h (ssh_key_set_from_blob): wrapper of ssh_key_set_*_blob (fixes #14012)
+
+	*  modules/ssh/sshkexdh.c (ssh_kex_dh_send_kexdh_reply_msg): do not free up hostkey (fixes #14012)
+
+	*  modules/ssh/Ssh.py (SshProxy): added host_key_rsa_keypair and host_key_dss_keypair tuples
+	(private key, certificate) (fixes #14012)
+
+	*  modules/ssh/ssh.c (ssh_config_set_defaults): set hostkey algos to x509v3-sign*,ssh-*,
+	so the default is the first with X.509
+	(ssh_get_hostkey): added support of x509v3-sign* and check the result of ssh_key_set_openssh_privfile_cert
+	(ssh_init_key, ssh_init_keys): new functions to load all available host keys for the client side
+	(ssh_main): call of ssh_init_keys and if it fails, return immediately (fixes #14012)
+
+	*  modules/ssh/ssh.h (SshProxy): new members for host keys and certificates (fixes #14012)
+
+	*  modules/ssh/sshkex.c (ssh_kex_check_algos, ssh_kex_select_kex_algo, ssh_kex_select_kex_hostkey_algo):
+	checking algos for kex and hostkey
+	(ssh_kex_choose_algorithms): check the algos for kex and hostkey and if it was unsuccessful,
+	it is an error (fixes #14012)
+
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshalgo.c: added 'static' keyword for most
+	functions with documentation (ssh_key_{verify,sign}_*) (fixes #14012)
+
+	*  modules/ssh/sshkexdh.c: replaced functions with
+	ssh_key_{verify,sign} (fixes #14012)
+
+	*  modules/ssh/sshauthpubkey.c,
+	modules/ssh/ssh.c: removed unnecessary blank lines (fixes #14012)
+
+	*  modules/ssh/sshalgo.h: removed non-public functions
+	(ssh_key_{verify,sign}_*) (fixes #14012)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshalgo.c (ssh_key_sign_finish) and (ssh_key_sign_finish):
+	don't free the ctx (fixes #14012)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshalgo.c: (ssh_cipher_evp_map): became const
+	Added ssh_key_verify{,rsa_dss,x509} functions and use only
+	ssh_key_verify from anywhere (fixes #14012)
+
+	*  modules/ssh/sshauthpubkey.c (ssh_uam_pubkey_request): freeing
+	up created packet (fixes #nobug)
+
+	*  modules/ssh/sshauthpubkey.c (ssh_uam_pubkey_request): using
+	ssh_key_verify function for every type of keys (fixes #14012)
+
+	*  modules/ssh/ssh.c: whitespace changes (fixes #nobug)
+
+	*  modules/ssh/sshalgo.h: added ssh_key_verify (fixes #14012)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshalgo.c: added wrapper functions for ssh-dsa, ssh-rsa and x509v3-sign-* signing
+	(ssh_key_set_openssh_privfile_cert): set X.509 certificates
+	(ssh_key_set_certificate_blob): removed unused parameter
+	(ssh_key_set_certificate_blob): added X.509 validation stub
+	(ssh_key_get_pubkey_blob): added x509v3-sign* types (fixes #14010)
+
+	*  modules/ssh/sshauthpubkey.c (ssh_uam_pubkey_request): doesn't verify incoming
+	keys and certificates, temporarily. Signing both old pubkeys and certificates (fixes #14010)
+
+	*  modules/ssh/ssh.c (ssh_config_set_defaults): different host key algs
+	(ssh_map_userkey): code cleanup (fixes #14010)
+
+	*  modules/ssh/sshalgo.h: added ssh_key_sign wrapper function (fixes #14010)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshalgo.c (ssh_key_set_type, ssh_key_free): added X509V3_SIGN* names
+	ssh_key_set_openssh_privfile renamed to ssh_key_set_openssh_privfile_cert and supports X509V3_SIGN*
+	(ssh_key_set_certificate_blob): freeing previously allocated RSA/DSA keys (fixes #14010)
+
+	*  modules/ssh/sshauthpubkey.c (ssh_uam_pubkey_request):
+	SSH_NAME_X509V3_SIGN* name changes (fixes #14010)
+
+	*  modules/ssh/ssh.c (ssh_map_userkey): implemented support of X.509 certifcates (fixes #14010)
+
+	*  modules/ssh/sshnames.txt: removed x509v3-sign, x509v3-sign-*-sha1 (fixes #14010)
+
+	*  modules/ssh/sshalgo.h: ssh_key_set_openssh_privfile is a wrapper
+	of ssh_key_set_openssh_privfile_cert (fixes #14010)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/ssh.c (ssh_map_userkey): Creating PEM format from the X.509 certificate
+	of the userkey (fixes #14010)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshalgo.c: added ssh_key_set_certificate_blob to parse received
+	certificate blob (fixes #14010)
+
+	*  modules/ssh/sshauthpubkey.c (ssh_uam_pubkey_request): added support of X.509 pubkeys
+	(ssh_map_userkey): added stub for x509 certificates(fixes #14010)
+
+	*  modules/ssh/ssh.c (ssh_config_set_defaults): added X.509 host keyalgorithms
+	but commented out (fixes #14010)
+
+	*  modules/ssh/sshnames.txt: changed order of x509v3-sign* (fixes #14010)
+
+	*  modules/ssh/sshalgo.h (_SshKey): added X509 member
+	Added ssh_key_set_certificate_blob (fixes #14010)
+
+2008-10-25  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/ssh/sshnames.txt: Added x509v3-sign* names (fixes #14012)
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/*: enabled crypt types made configurable (fixes: #13235)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_mangle.c: leftover junk code removed (fixes: #13235)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp.c: mem leak fixed (fixes: #13667)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_crypt.c, rdp_data.c, rdp_iso.c, rdp_rdp4.c,
+        rdp_licence.c: missing checks on inclusive length fields added
+        (fixes: #13833)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/*: enabled crypt types made configurable (fixes: #13235)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_mangle.c: leftover junk code removed (fixes: #13235)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_crypt.c, rdp_data.c, rdp_iso.c, rdp_rdp4.c,
+        rdp_licence.c: missing checks on inclusive length fields added
+        (fixes: #13833)
+
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_mangle.c: reset requests on unknown devices allowed
+        to pass through (fixes: #15399)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_iso.[hc], rdp_mangle.c: crypt type 'credssp' added (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_credssp.[hc]: credssp packet support started (fixes: #12762)
+
+        * modules/rdp/rdp.[hc]: credssp parsing integrated into the existing
+        processing sequence (fixes: #12762)
+
+        * modules/rdp/rdp_common.[hc]: ber class and tag numbers joined,
+        misnamed 'ber_result' renamed to 'ber_enum', 'ber_mcs_domain_params' to
+        'ber_sequence', definition for standard ber tags added (fixes: #12762)
+
+        * modules/rdp/rdp_initreq.[hc], rdp_initrsp.[hc]: changes required by
+        new ber parsing code done (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_credssp.[hc]: ntlm_challenge and ntlm_authenticate
+        added (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp.c: (rdp_deinit_stream) typo fixed (fixes: #12762)
+
+        * modules/rdp/rdp_credssp.[hc]: parsing of ntlm_restrictions and
+        av_pair added, preserving of ntlm_challenge and ntlm_authenticate made
+        conditionally configurable (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp.c: credssp mangling added (fixes: #12762)
+
+	* modules/rdp/rdp_drawing.c: logging of bitmap data moved to log
+        level 9 (fixes: #12762)
+
+	* modules/rdp/rdp_iso.[hc]: crcc proto 'credssp_or_ssl' added, double
+        logging of fastpath data commented out (fixes: #12762)
+
+	* modules/rdp/rdp_mangle.[hc]: starting and stopping of credssp phase
+        fixed (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/*: credssp man-in-the-middle started (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_credssp.c: mitm faking of cssp pubkeyauth packets fixed (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp.[hc], rdp_credssp.h: mitm state variable added
+        (fixes: #12762)
+
+        * modules/rdp/rdp_initrsp.[hc]: RC4_NONE support of mcs_init_rsp_crypt
+        fixed (fixes: #12762)
+
+        * modules/rdp/rdp_mangle.c: cssp mitm client-side implemented
+        (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp.[hc]: two additional proxy domain attributes
+        propagated to policy level, top-level processing loop restructured
+        in order to support substitution of regular iso packets by cssp
+        ones (fixes: #12762)
+
+        * modules/rdp/rdp_credssp.c: support for partial cssp packets
+        added (fixes: #12762)
+
+        * moduesl/rdp/rdp_mangle.c: cssp mitm server-side started (fixes: #12762)
+        
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp.[hc]: original server ssl certificate obtained (fixes: #12762)
+
+        * modules/rdp/rdp_data.c: log format of rdp5 logon info password
+        fixed (fixes: #12762)
+
+        * modules/rdp/rdp_mangle.c: generating of fake server-side ntlm
+        authenticate message added (fixes: #12762)
+
+        * modules/rdp/rdp_credssp.[hc]: processing of AuthInfo blocks started,
+        threadsafeness of some constant logging functions fixed (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp.[hc]: storing of server ssl pubkey added,
+        variable nomenclature unified, conditionals moved to the
+        common header (fixes: #12762)
+
+        * modules/rdp/rdp_data.c: logging of passwords conditionally
+        removed (fixes: #12762)
+
+        * modules/rdp/rdp_credssp.[hc]: log levels fine-tuned, handling of
+        cssp_credentials and cssp_password_creds added, unneeded MITM
+        levels removed (fixes: #12762)
+
+        * modules/rdp/rdp_mangle.c: unneeded MITM code removed, reset of
+        unknown rdpdr device is now tolerated, another MS bug at x509 cert
+        algo fixed, server-side cssp MITM completed (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/Rdp.py: attributes 'proxy_netbios_name' and
+        'proxy_dns_name' propagated to policy level (fixes: #12762)
+
+        * modules/rdp/rdp.[hc]: obsolete comments, unused variables and
+        unneeded log messages removed, memory leaks eliminated (fixes: #12762)
+
+        * modules/rdp/rdp_crypt.c: comment added for leak-suspicious
+        assignment (fixes: #12762)
+
+        * modules/rdp/rdp_mangle.c: processing of RDP4_DATA_SET_ERROR
+        fixed, obsoleted code snippets removed, ms bad x509 algo workaround
+        improved, error handling improved (fixes: #12762)
+
+        * modules/rdp/rdp_rdp4.[hc]: type rdp4_data_disconnect renamed to
+        rdp4_data_set_error, missing rdp4 capability type constants added
+        (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_credssp.c: freeing of wbcAuthUserInfo implemented here (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_credssp.c: reference to the location of the wbclient header fixed (fixes: #12762)
+
+2008-10-25  Pal Tamas <folti@balabit.hu>
+
+	* configure.in.in: Added pkg_check for wbclient.
+
+	* debian/control.in-pro: Added libsmbclient-dev as build-dependency
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_common.[hc]: empty licence cert bug fixed (fixes: #14910)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_credssp.c: winbind header location fixed (fixes: #12762)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_mangle.c: empty licence cert bug fixed (fixes: #14910)
+
+2008-10-25  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_rdpdr.c: typo fixed in rdpdr devices available rDAD
+        processing code (fixes: #15399)
+
+2008-10-20  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/audit.c, lib/ifmonitor.c, lib/pyaudit.c, lib/timestamp.c:
+	  fixed some gcc4 warnings
+
+	* lib/audit.c (z_audit_trail_write_record): don't memset the memory
+	  pointed to by the sign_priv_key pointer, it belongs to a Python
+	  string object
+
+2008-10-20  Balazs Scheidler <bazsi@balabit.hu>
+
+	* zorp/audit/audit.h (ZAuditSessionParams): changed
+	  constructor/destructor functions to indicate that they do not
+	  allocate/free the instance itself (e.g. rename them to _init,
+	  _deinit)
+
+	* lib/proxy.c (z_proxy_policy_start_audit_method): adapted to
+	  ZAuditSessionParams changed
+
+	* lib/pyaudit.c (z_policy_audit_parse_global_params): new function,
+          code mostly moved out of z_read_global_params to parse global
+	  audit related parameters,
+          (z_policy_audit_parse_session_params): new function, parses
+          startAudit Python argument list into a ZAuditSessionParams
+          structure
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/timestamp.c (timestamp_thread): removed unnecessary *free() calls, which were caused sigsegvs (fixes #15444)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/vnc/vnc.c (vnc_policy_get_audit_stream): set self->enable_audit
+	if the audit stream is created (fixes #15364)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/vnc/vnc.c (vnc_main): fixed log msg (fixes #15363)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/vnc/vnc.c (vnc_main): checks for return value of vnc_init_audit(),
+	shuts down proxy if it is FALSE (fixes #15363)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_main_loop): checks for successful audit system startup (fixes #15921)
+
+	*  lib/audit.c,
+	   lib/zorp/audit.h: z_audit_init has gboolean return value, TRUE means successful startup (fixes #15921)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c: removed z_audit_log_ssl_error(); log OpenSSL error messages when an error occured (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/proxy.c (z_proxy_policy_start_audit_method): removed "digest_" prefix from sign_* (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_init): Fixed typo in log msg (fixes #15280)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_write_digest_record): readded ! to EVP_SignFinal() (fixes #15267)
+
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	* lib/audit.c: added z_audit_log_ssl_error(); for RSA keys the digest message algorithm is the SHA-1, for DSA, it is DSS-1 (fixes #15267)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_write_digest_record): rsa_pkt changed to sign_pkt (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c: replaced nullc/onec by unset/set (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  configure.in.in: removed check for openssl/ssl.h; fixed typo (fixes #14644)
+
+	*  lib/audit.c (z_audit_trail_write_timestamp),
+	   lib/timestamp.c: added notifications (fixes #14644)
+
+	* lib/audit.c (z_audit_trail_write_header): checks the certificate against the private key (fixes #15260)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_new): close fd only if it is already opened (fixes #15201)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/proxy.c (z_proxy_policy_start_audit_method): code cleanup (fixes #14644
+
+	*  lib/audit.c (z_audit_session_params_free): doesn't memset the private key (fixes #15201)
+
+	*  lib/audit.c (z_audit_trail_free): writes record only when the audit trail file is opened (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_new): If an error occured,
+	unlinks the current audit trail file and sets fd to -1 (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_write_header):
+	log if certificate is not set, and set trail's error member on errors (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c,
+	  lib/timestamp.c: gurl.h -> zurlparse.h (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (_ZAuditEncInfo): added BIO* array for DER-formatted certificates
+	Added z_audit_trail_get_x509_der() to create X509 and BIO object
+	from a PEM-formatted string of certificate (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c: writes the HMAC key length to the encryption info header;
+	keeps it as a member of ZAuditTrail (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_read_private_key): encrypted private keys are handled as an error, Zorp won't ask the passphrase,
+	(z_audit_trail_new): log msg changes; logs if the trail is signed/timestamped (fixes #14644, #15100, #15095)
+
+	*  modules/vnc/Vnc.py: Removed startAudit and stopAudit Python functions (fixes #14644)
+
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp/proxy.h,
+	*  lib/proxy.c: passing kw_args to get_audit_stream proxy function (fixes #14644)
+
+	*  modules/telnet/telnet.c,
+	*  modules/telnet/telnet.h: implemented get_audit_stream(), removed startAudit()
+	and audit_session for this proxy, in favour of ZProxy's;
+	added "version" info to the z_audit_stream_init(fixes #14644)
+
+	*  lib/audit.c (z_audit_trail_write_digest_record): continue the digest (fixes #14644)
+
+	*  modules/ssh/ssh.c: added kw_args to ssh_policy_get_audit_stream (fixes #14644)
+
+	*  modules/rdp/rdp.c: M
+	   modules/rdp/rdp_audit.c,
+	   modules/rdp/rdp_audit.h,
+	   modules/rdp/rdp_policy.c,
+	   modules/rdp/rdp_policy.h: modified code for using ZProxy's startAudit() method (fixes #14644)
+
+	*  modules/vnc/vnc.c: implemented functions for startAudit/startSession python functions (fixes #14644)
+
+	*  modules/vnc/vnc.h: removed cert_list_obj member (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c,
+	   pylib/Zorp/Config.py: added config.audit.timestamp_length (fixes #14644)
+
+	*  lib/zorp/proxy.h: added get_audit_stream function to proxy functions (fixes #14644)
+
+	*  lib/proxy.c: Implemented startAudit() function (fixes #14644)
+
+	*  lib/zorp/audit.h,
+	   lib/audit.c,
+	   modules/ssh/sshconnection.c.
+ 	   modules/ssh/sshconnection.h: ZAuditTrailInitInfo is renamed to ZAuditSessionParams (fixes #14644)
+
+	*  modules/ssh/ssh.c: implemented get_audit_stream() function (fixes #14644)
+
+	*  lib/zorp/pyaudit.h,
+	   lib/pyaudit.c: removed z_policy_audit_stream_init (fixes #14644)
+
+	*  lib/timestamp.c,
+	   lib/zorp/timestamp.h: functions got z_ prefix; GAtomicCounter is replaced by ZRefCount (fixes #14644)
+
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): renamed members of audit_params;
+	audit_params.timestamp_length is changed here (fixes #14644)
+
+	*  lib/proxy.c (z_proxy_free_method),
+	   lib/zorp/proxy.h (ZProxy): removed audit_params-related members (fixes #14644)
+
+	*  pylib/Zorp/Zorp.py,
+	   pylib/Zorp/Config.py: renamed config.audit.*sign* (fixes #14644)
+
+	*  lib/zorp/audit.h: renamed/removed members of audit_params related to signature;
+	removed *initinfo_{ref,unref}, session's info member (fixes #14644)
+
+	*  lib/audit.c: hmac_keys and private keys are temporarily in the memory,
+	if they are used once, memset'd. The audit trail's RSA/DSA signing key is passed
+	as an EVP_PKEY pointer instead of its low-level version.
+	The *InitInfo is passed from z_audit_stream_init to the corresponding functions
+	as function parameter. It can be null anywhere. (fixes #14644)
+
+	*  lib/zorp/pyaudit.h,
+	   lib/pyaudit.c: ZAuditTrailInitInfo is passed via callback parameter instead of
+	   the proxy itself (fixes #14644)
+
+
+	*  modules/ssh/sshconnection.c (ssh_connection_process_channel_open_msg),
+	   modules/ssh/ssh.c (ssh_policy_start_audit_method_cb): updated as of the current implementation
+	   of the audit system (fixes #14644)
+
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c,
+	   lib/zorp/audit.h,
+	   lib/pyaudit.c: whitespace changes (fixes #nobug)
+
+	*  modules/vnc/vnc.c (vnc_ready): changed for the new z_audit_stream_init() (fixes #14644)
+
+
+2008-10-20  Simon Gabor <fules@balabit.hu>
+
+	* modules/vnc/vnc.[hc]: audit trail cert list made configurable (fixes: #14288)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c: z_audit_read_digest_sign_private_key's code is moved
+	to z_audit_read_private_key which is also used by the z_audit_trail_new
+	to support RSA/DSA signing keys specified as startAudit parameters
+	(_ZAuditTrail): copied signing-related audit parameters
+	Using audit_parameter.* if it is not optional (e.g compress, but encrypt may
+	differs based on startAudit parameters) (fixes #14644)
+
+	*  lib/zorp.c,
+	   lib/zorp/proxy.h,
+	   lib/proxy.c,
+	   modules/ssh/sshconnection.c,
+	   modules/ssh/sshconnection.h,
+	   modules/telnet/telnet.c,
+	   lib/audit.c,
+	   lib/zorp/audit.h,
+	   modules/ssh/ssh.c,
+           lib/pyaudit.c,
+	   modules/rdp/rdp_audit.c: ZProxy's certs member is replaced by audit_info,
+	   which contains certificate lists, key and cert of the digital signature in digest records.
+	   It is a reference-counted type, however, ZAuditStream has a borrowed reference (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  pylib/Zorp/Config.py,
+	  lib/zorp/audit.h: audit_params.rsa_sign renamed to digest_sign
+
+	*  lib/audit.c (z_audit_stream_init): 2 new params for digest key and certificate;
+	log the changes in audit_param.* if it is really changed (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  configure.in.in: removed PKG_CHECK_MODULES, and constants related to libzaudit (fixes #14644)
+
+	*  debian/control.in-pro: removed libzaudit dependency (fixes #14644)
+
+	*  lib/zorp/audit.h: copied definitions from "zorp/audit/libzaudit.h" (fixes #14644)
+
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): function name changes (fixes #14644)
+
+	*  lib/zorp/proxy.h: added digest_sign_private_key, digest_sign_certificate (fixes #14644)
+
+	*  lib/proxy.c (z_proxy_free_method): freeing up new members (fixes #14644)
+
+	*  modules/rdp/rdp_policy.h,
+	   modules/ssh/ssh.c,
+	   modules/telnet/telnet.c,
+	   modules/rdp/rdp_policy.c: changed layout of the start_audit_methods and callbacks.
+	   Using kw_args. (fixes #14644)
+
+	*  lib/pydict.c (z_policy_method_call): uses all parameters (fixe #14644)
+
+	*  modules/ssh/sshconnection.c (ssh_connection_start_channel_audit): proxy.cert
+	   is not set here (fixes #14644)
+
+	*  lib/zorp/pyaudit.h,
+	   lib/pyaudit.c (z_policy_audit_stream_init): parsing keywords; sets audit stream
+	   as parameter - cleanups (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/proxy.c (z_proxy_free_method): frees up certificate list (fixes #14644)
+
+	*  lib/audit.c,
+	  lib/zorp/audit.h: added z_audit_certs_free.
+
+	*  lib/zorp/pyaudit.h,
+	*  lib/pyaudit.c: added z_py_audit_stream_init as a wrapper for startAudit function calls.
+	The differences are handled via a callback, z_py_audit_stream_get_stream_cb (fixes #14644)
+
+	*  modules/ssh/ssh.c,
+	   modules/rdp/rdp_policy.c,
+	   modules/telnet/telnet.c: uses new functions (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c: whitespace changes (fixes #nobug)
+
+	*  lib/timestamp.c: whitespace changes;
+	(timestamp_thread): freeing up TS-related vars (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c: added FIXED_TIMESTAMP_LENGTH define and timestamp_length,
+	currently the gap for the timestamp has a fixed length, 3 kiB, it enables this,
+	otherwise it would come via Config.py, which is not yet implemented
+	(_ZAuditTrailTimestamp): added max_length, to hold actual gap size,
+	which won't be changed on policy reloading...
+	(z_audit_trail_write_timestamp, z_audit_trail_create_timestamp): ... uses it
+	(z_audit_trail_write_header): writes gap size if timestamping is enabled (fixes #14644)
+
+	*  lib/timestamp.c: removed debug code (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): fixed typo (fixes #14644)
+
+	*  lib/timestamp.c,
+	   lib/zorp/timestamp.h: starting a separate thread for each timestamp request,
+	   currently at most 30 parallel. The code is almost the same as in the syslog-ng-pe-3.0 (fixes #14644)
+
+	*  lib/zorp/Makefile.am,
+
+	   lib/Makefile.am: added timestamp.[ch] (fixes #14644)
+
+	*  lib/audit.c: removed the code which talked with the timestamp request, added a placeholder
+	for the timestamp data, which is initialized with a lots of zero
+	(z_audit_trail_create_timestamp): initializes data for the timestamping thread
+	(z_audit_trail_write_timestamp): writes the timestamp to its final place if it is large enough
+	(z_audit_trail_write_digest_record): writes the timestamp gap to the end of the record
+	(z_audit_trail_flush, z_audit_trail_write_encryption_info): updateing trail->file_ofs
+	(z_audit_init): initializing timestamping (fixes #14644)
+
+	*  lib/zorp/audit.h (_ZAuditParams): added timestamp_length to indicate the length of
+	the largest possible timestamp response which is still supported (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  configure.in.in: ZORP_LIBS contains $OPENSSL_LIBS;
+	removed unnecessary subst of OPENSSL_CPPFLAGS
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): read config.audit.timestamp_url (fixes #14644)
+
+	*  pylib/Zorp/Config.py: added config.audit.timestamp_url (fixes #14644)
+
+	*  lib/audit.c: added functions for timestamping (fixes #14644)
+
+	*  lib/zorp/audit.h: added timestamp_url to the the audit params (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  configure.in.in: Cleanup in the OpenSSL checkings;
+	min. version is 0.9.8; checks for the openssl/ts.h (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_write_header): close file on error
+	(z_audit_trail_encrypt_key_by_pubkey): unused, removed
+	(z_audit_trail_init_encryption_list): initializing all variables,
+	and encrypt the HMAC key by RSA_public_encrypt function;
+	unnecessary g_free-s are removed (fixes #14644)
+
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params),
+	   pylib/Zorp/Zorp.py,
+	   pylib/Zorp/Config.py,
+	   lib/zorp/audit.h (_ZAuditParams): the private and public key used for signing the digest record is renamed, they are called now as digest_private_key and digest_certificate, respectively, because both RSA and DSA signing is available (fixes #14644)
+
+	*  lib/audit.c (audit_params, z_audit_trail_write_header, z_audit_read_digest_rsa_private_key): using the new names for digest private key and certificate
+	(z_audit_trail_write_digest_record): signing the digest, not the packet
+	(z_audit_trail_encrypt_key_by_pubkey): removed unused var, dsa (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_write_header): use ZA_FF_SIGN; write certificate of the signature
+	(z_audit_trail_write_digest_record,
+	z_audit_trail_encrypt_key_by_pubkey,
+	z_audit_read_digest_rsa_private_key): added code DSA signature
+	(z_audit_trail_init_encryption_list): added memory cleanup code (fixes #14644)
+
+	*  lib/zorp/audit.h (_ZAuditParams): added members for DSA signature
+
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): read parameters for RSA signature
+	and timestamping (fixes #14644)
+
+	*  pylib/Zorp/Zorp.py: read RSA private/public key for the RSA signature
+	of the digest record (fixes #14644)
+
+	*  pylib/Zorp/Config.py: added parameters for RSA signature and timestamping (fixes #14644)
+
+	*  lib/audit.c (_ZAuditTrailHash): hmac_key is guchar;
+	(_ZAuditEncInfo): added variables for hmac computing
+	Removed AUDIT_TRAIL_HEADER_LEN constant
+	(z_audit_trail_write_header): HMAC/SHA1 init is removed; added
+	 code for writing out RSA pubkey/certificate
+	Added z_audit_trail_init_signature() to initialize the HMAC/SHA1 digest algos
+	(z_audit_trail_write_digest_record): write record type, file and strim ids, relative
+	 timestamps as in normal records; the record length is added to the file length.
+	 Extra param for forcing the timestamping/signing
+	(z_audit_trail_write_encryption_info): write mac key as encrypted keys, encrypted by
+	 the pubkey (certificate). Enc. info doesn't apper in the digest
+	Added z_audit_trail_encrypt_key_by_pubkey() to encrypt hmac by a certificate
+	(z_audit_trail_init_encryption_list): initialize encrypted hmac keys
+	(z_audit_trail_new): initialize signature/digest
+	(z_audit_read_digest_rsa_private_key): loads the private key and fill digest_rsa audit parameter.
+	It disables rsa_sign param on failure (fixes #14644)
+
+	*  lib/zorp/audit.h (ZAuditParams): added params for RSA-signed digest record (fixes #14644)
+
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): reads the filename and
+	loads its content for RSA signing (fixes #14644)
+
+	*  lib/audit.c (z_audit_trail_write_digest_record): writes the RSA signature
+	added z_audit_read_digest_rsa_private_key_file() to init the RSA type for signing the record
+	(fixes #14644)
+
+	*  lib/zorp/audit.h (_ZAuditParams): added digest_rsa,
+	digest_rsa_private_key_file (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): read config.audit.digest_rsa_private_key_filename (fixes #14644)
+
+	*  pylib/Zorp/Config.py: added config.audit.digest_rsa_private_key_filename (fixes #14644)
+
+	*  lib/audit.c (_ZAuditTrail): packing holes (fixes #nobug)
+	(z_audit_trail_write_digest_record): implemented without timestamp and RSA sign (fixes #14644)
+
+	*  lib/zorp/audit.h (_ZAuditParams): packing holes (fixes #nobug)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c,
+	   lib/zorp/audit.h: whitespace cleanup: trailing spaces are removed, and unnedded extra lines (fixes #nobug)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): Added write_digest_time_diff (fixes #14644)
+
+	*  pylib/Zorp/Config.py: added config.audit.write_digest_time_diff,
+	seconds between two timestamps are written (fixes #14644)
+
+	*  lib/audit.c: added functions and types for the DigitallySignedTrail:
+	struct ZAuditTrailHash, z_audit_trail_digest_record, z_audit_trail_write_digest_record.
+	(z_audit_trail_write_header): initializes the digest algos
+	(z_timeval_subtract): changed implementation (originally: timeval_subtract)
+	The digest contains all plaintext data, trail header, encryption info and the actual
+	diretion's  record header and data (fixes #14644)
+
+	*  lib/zorp/audit.h (ZAuditParams): added write_digest_time_diff for timestamping/digitally
+	signed trail (fixes #14644)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  modules/telnet/telnet.c (telnet_collect_meta): remove ';'
+	after the if command (ret becomes FALSE if and only if the condition is true) (fixes #14075)
+
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_init): If compression is enabled,
+	compression level has to be in range 1..9 (fixes #14022)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/pyaudit.c (z_py_audit_read_certificate_list):
+	doesn't increase certs->cert_list_num, if no cert list is available (fixes #13566)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_stream_init): if the certs parameter contains at least one certificate,
+	encryption is enabled (fixes #14007)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_write_encryption_info,
+	z_audit_trail_new): fixed mistakes caused by refresh (fixes #14010)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_write_record): removed line that writes record length + 8
+	into the packet buffer (fixes #13994)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp/audit.h (ZAuditParams): reopen_time_threshold is guint64 (fixes #nobug)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (ZAuditTrail): removed gz and cipher members
+	(z_audit_trail_write_record): self->gzs[index] is used (fixes #13972)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c: ZAuditEncInfo: all_cert_lens and all_cert_num are unsigned;
+	(z_audit_trail_write_record): padding_buf and ol is unsigned char;
+	(z_audit_trail_write_encryption_info): guint j;
+	(z_audit_trail_write_encryption_info) info[i] is not a pointer,
+	using '.' for accessing memembers (fixes #13566)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  pylib/Zorp/Zorp.py (init): fixed typo when loading certificates (fixes #13566)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): added config.audit.directions (fixes #13566)
+
+	*  pylib/Zorp/Zorp.py: If config.audit.encrypt_certificate is set and the ..._list
+	variable is not used, the certificate cames from config.audit.encrypt_certificate
+	and the directions are limited to 1 (fixes #13566)
+
+	*  modules/telnet/telnet.c (telnet_connection_start_channel_audit): added support of
+	certificate lists (fixes #13566)
+
+	*  lib/audit.c:
+	(z_audit_trail_write_record): the audit trail file contains unencrypted data length
+	instead of encrypted due to fixed block sizes. Using explicit cipher padding.
+	(z_audit_trail_write_encryption_info): fixing pointer derefence problem. Changed order
+	of info members
+	(z_audit_trail_init_encryption_list): added memory-freeing code
+	(z_audit_trail_init_encryption): freeing up unused memory
+	(z_audit_trail_free): using internal count of lists
+	(z_audit_stream_init): if required count of lists is missing, it is
+	an error(fixes #13566)
+
+	*  lib/zorp/audit.h: removed direction specific enums, they are moved
+	into libzaudit (fixes #13566)
+
+	*  modules/ssh/ssh.c: M
+
+	*  lib/pyaudit.c (z_py_audit_read_certificate_list): the list count is
+	increased by one even if the list is empty (fixes #13566)
+
+	*  modules/rdp/rdp_audit.c (rdp_channel_start_audit):
+	using certificate lists (fixes #13566)
+
+	*  modules/rdp/rdp_policy.c (rdp_policy_set_audit_method):
+	reading certificate lists from python code (fixes #13566)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/audit.c (z_audit_trail_write_record): added cipher padding
+	(z_audit_trail_write_encryption_info):_writing encription info in a different order
+	(z_audit_trail_init_encryption_list): set header_len correctly
+	(z_audit_trail_init_encryption): check if optional certificate list is a null pointer
+
+	*  lib/zorp/pyaudit.h,
+	   lib/pyaudit.c: renaming parameters
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c: removed audit.h include.
+	(z_read_global_params): read config.audit.encrypt as Integer (fixes #nobug)
+
+	*  lib/audit.c (z_audit_stream_commit_meta): removed asasertatioin.
+	(z_audit_init): checking audit_params.certs.cert_list_lens[0] to enable/disable
+	audit encryption (fixes #13566)
+
+	*  lib/pyaudit.c (z_py_audit_read_certificate_list{,s}): using PyList_GET_ITEM
+	instead of PyList_GetItem (fixes #13566)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c (z_read_global_params): moved reading of certificate lists to pyaudit.c
+	(z_py_audit_read_certificate_lists) (fixes #13566)
+
+	*  lib/zorp/Makefile.am: added pyaudit.h (fixes #13566)
+
+	*  lib/zorp/proxy.h (ZProxy): Added member (certs) for optional certificate lists (fixes #13566)
+
+	*  lib/Makefile.am: added pyaudit.c (fixes #13566)
+
+	*  modules/ssh/sshconnection.c,
+	   modules/ssh/sshconnection.h (ssh_connection_start_channel_audit):
+	   added parameter for cert. lists (Fixes #13566)
+
+	*  lib/audit.c: using ZAuditCertList type instead of multiple parameters (fixes #13566)
+
+	*  lib/zorp/audit.h: new type, ZAuditCertList (fixes #13566)
+
+	*  modules/ssh/ssh.c (ssh_policy_start_audit_method): reading certificate lists (fixes#13566)
+
+	*  lib/pyaudit.h,
+	*  lib/pyaudit.c: pyhton interface for reading certificate lists:
+	z_py_audit_read_certificate_lists (fixes #13566)
+
+2008-10-20  Laszlo Attila Toth <panther@balabit.hu>
+
+	*  lib/zorp.c:
+	(z_read_global_params) Reading encryption list. New functions:
+	z_read_global_certificate_lists, z_read_global_certificate_list (fixes #13566)
+
+	*  pylib/Zorp/Zorp.py: Reading encryption list from files (fixes #13566)
+
+	*  modules/ssh/sshpolicy.c (ssh_dump_meta),
+	   modules/ssh/ssh.c (ssh_policy_start_audit_method),
+	   modules/telnet/telnet.c (telnet_collect_meta, telnet_policy_start_audit_method),
+	   modules/ssh/sshconnection.c (ssh_connection_start_channel_audit):
+	replaceing z_audit_stream_commit_meta() with
+	z_audit_stream_commit_meta_recv_sent() (fixes #13566)
+
+	*  pylib/Zorp/Config.py: new vairables for the certificate lists
+
+	*  lib/audit.c: New format of the audit trails. The session object
+	contains extra certificates coming through startAudit function.
+	Several changes in the parameter lists and extra functions if necessary. (fixes #13566)
+
+	*  lib/zorp/audit.h: Audit stream no longer contains last_record_stamp.
+	Constants for the directions of the trail.
+	New wrapper function, z_audit_stream_commit_meta_recv_sent to commit meta both
+	SEND and RECV directions (fixes #13566)
+
+
+	*  modules/rdp/rdp_audit.c (rdp_audit_desktop),
+	   modules/rdp/rdp_policy.c (rdp_policy_set_audit_method):
+	only  RECV direction is used for commit_meta (fixes #13566)
+
+
+2008-10-18  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/pypolicy.h (z_proxy_session_get_policy): removed this function
+	as the prototype is inherently racy
+
+	* lib/proxy.c (z_proxy_set_authorization_verdict): new function,
+	combined the code of the earlier z_proxy_session_get_policy and
+	z_policy_authorize into a single function to avoid races (fixes; #13850)
+
+	* zorpctl/main.c: make "authorize -l" produce similar output to
+	gui-status
+
+	* pylib/Zorp/Zorp.py: moved external_auth_{accept,reject} to this
+	file from Zorp.Auth
+
+2008-10-18  Laszlo Attila Toth <panther@balabit.hu>
+
+        *  pylib/Zorp/Auth.py (ExternalAuthorization.isAuthorized): removed conversion of session_id to string (fixes #13850)
+
+        *  zorpctl/main.c: added functions for listing pending sessions, necessary data comes as
+        "zorpctl szig -r zorp.authorization.pending" (fixes #13850)
+
+        *  zorpctl/szig.c,
+        *  zorpctl/szig.h: removed function z_szig_authorize_list_pending (fixes #13850)
+
+        *  lib/szig.c (z_szig_handle_command): removed handler of AUTHORIZE_LIST command (fixes #13850)
+
+2008-10-18  Laszlo Attila Toth <panther@balabit.hu>
+
+        *  pylib/Zorp/Session.py (MasterSession.setServiceInstance):
+        introducing master_session_id member, such as svc:/svc:0 (fixes #13850)
+
+        *  pylib/Zorp/Auth.py: typo fixes;
+        (ExternalAuthorizatin.isAuthorized): using session's master_session_id; storing
+        current timestamp as floating point number (fixes #13850)
+
+        *  lib/zorp/proxy.h,
+           lib/proxy.c: added z_proxy_session_get_policy (fixes #13850)
+
+        *  lib/zorp/policy.h,
+           lib/pypolicy.c added z_policy_authorize to wrap Pyhton functions
+        for calling from the C code (fixes #13850)
+
+        *  lib/szig.c (z_szig_handle_command): implementing AUTHORIZE command
+        (z_szig_init): added BEGIN/END mark(fixes #13850)
+
+2008-10-18  Laszlo Attila Toth <panther@balabit.hu>
+
+        *  pylib/Zorp/Auth.py: new class, ExternalAuthorization;
+        new functions: external_auth_authorize and external_auth_reject
+        to be used from C code (fixes #13850)
+
+        *  pylib/Zorp/Globals.py: added variables for external authorization (fixes #13850)
+
+        *  pylib/Zorp/Proxy.py: fixing typos (fixes #nobug)
+
+        *  zorpctl/main.c (z_cmd_authorize): if no parameters are specified, fall back to listing (fixes #13850)
+
+        *  zorpctl/szig.c (z_szig_authorize_list_pending): using one command for authorize list (fixes #13850)
+
+        *  lib/szig.c: removed previously added z_szig_agr_auth_pending*
+        (z_szig_handle_command): added dummy implementation for AUTHORIZE* commands
+        (z_szig_init): changed handlers for AUTH_PENDING events(fixes #13850)
+
+2008-10-18  Laszlo Attila Toth <panther@balabit.hu>
+
+        *  pylib/Zorp/Auth.py (AuthorizationPolicy.performAuthorization):
+        raise AAException when self.authorization.isAuthorized fails (fixes: nobug)
+
+        *  pylib/Zorp/Proxy.py (Proxy.userAuthenticated): catch raised exceptions
+        of performAuthorization (fixes #nobug)
+
+2008-10-17  Laszlo Attila Toth <panther@balabit.hu>
+
+        *  lib/zorp/szig.h: Z_SZIG_AUTH_PENDING_* values indicating
+        waiting for authorization (fixes #13850)
+
+        *  zorpctl/main.c: new function, z_process_authorize_list and
+        z_cmd_authorize for "authorize" (fixes #13850)
+
+        *  lib/szig.c: added event handlers for authorization (fixes #13850)
+
+        *  zorpctl/szig.c,
+        zorpctl/szig.h: new functions for authorize (fixes #13850
+
+2008-10-17  Laszlo Attila Toth <panther@balabit.hu>
+
+        *  zorpctl/main.c: added z_process_authorize
+        (z_cmd_authorize): added call of z_process_authorize* (fixes #13850)
+
+
+        *  zorpctl/szig.c:
+        (z_szig_authorize_list_pending): removed unused variable
+        (z_szig_authorize): added description to szig command (fixes #13850)
+
+        *  zorpctl/szig.h: added description parameter to z_szig_authorize (fixes #13850)
+
+2008-10-17  Laszlo Attila Toth <panther@balabit.hu>
+
+        *  zorpctl/main.c (z_cmd_authorize): if the instance parameter is set,
+        lists pending authorizations only in this proxy instance (fixes #13850)
+
+2008-10-17  Laszlo Attila Toth <panther@balabit.hu>
+
+        *  pylib/Zorp/Auth.py (AuthorizationPolicy.performAuthorization):
+        raise AAException when self.authorization.isAuthorized fails (fixes #nobug)
+
+        *  pylib/Zorp/Proxy.py (Proxy.userAuthenticated): catch raised exceptions
+        of performAuthorization (fixes #nobug)
+
+2009-03-12  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to 3.3.2.4
+
+2008-10-22  Czilly Gergely <mincer@balabit.hu>
+
+	* configure.in.in: don't specify bogus default value for gperf
+	path; produce error if no gperf was found. (fixes: #12242)
+
+	* modules/pssl2/Pssl.py (X509KeyBridge.getKeypair): Use "DSA-SHA1"
+	hash algorithm if the keypair is for DSA. (fixes: #14380)
+
+	* tests/functional/ftp/func/cases/bug13633.tests: Added test cases
+	for NLST-ing an empty directory and getting a 150/226 or 226
+	answer. (fixes: #13633)
+
+	* modules/ftp/ftp.c (ftp_data_server_connected): Don't consider
+	being unable to build the data connection fatal (that is, don't
+	end the FTP session if it happens). (fixes: #13633)
+
+	* modules/ftp/ftpcmd.c (ftp_command_answer_path): Clean up any
+	active data connection on a 2xx answer if there was no 150 answer
+	before it. (fixes: #13633)
+
+2008-10-22  Szalay Attila  <sasa@mochrul.balabit>
+
+	* lib/ifmonitor.c (z_ifmon_parse_ifinfo): Clearing if_name and
+	if_group before looking for them in the message so that no garbage
+	will be returned there. (fixes: #14303)
+
+	* lib/attach.c, lib/pyattach.c, lib/zorp/attach.h,
+	pylib/Zorp/Chainer.py, pylib/Zorp/Router.py: Implement and
+	document local port randomization. (fixes: 15718)
+
+	* modules/ftp/ftpcmd.c (ftp_parse_nums) Reject empty parameter
+	because it's not a valid number list. (fixes: #12342)
+
+	* tests/functional/ftp/func/cases/bug12342.tests: Added
+	testcase. (fixes: #12342)
+
+	* modules/ftp/ftpcmd.c (ftp_parse_nums, ftp_command_parse_PORT):
+	Added documentation. (fixes: #nobug)
+
+2008-10-21  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/rdp_audit.[hc]: keyboard information sent as a
+	dedicated record (fixes: #15018)
+
+	* modules/rdp/rdp.h, rdp_audit.c, rdp_initreq.[hc], rdp_mangle.c:
+	keyboard details added to audit trail (fixes: #15018)
+
+	* modules/msrpc/msrpc.c: raw packet data logged at debug/8 (fixes:
+	#14301)
+
+	* modules/msrpc/msrpcparse.c: array freeing bugs fixed, missing
+	z_enter added (fixes: #14301)
+
+	* modules/msrpc/msrpcforward.c: forwarder race fixed (fixes:
+	#14301)
+
+	* modules/vnc/*.[hc]: type and function names transcribed
+	according to the coding policy, threadsafeness bugs fixed in
+	'xxx_name()', 'error' attributes renamed to 'error_str', argument
+	cloning bugs fixed in create_set_pixel_format() and
+	create_set_encoding() (fixes: #14289)
+
+2008-10-20  SZALAY Attila  <sasa@sasa.home>
+
+	* configure.in.in: Remove unused --enable-conntrack configure
+	option. (fixes: #nobug)
+
+2008-10-20  Balazs Scheidler <bazsi@balabit.hu>
+
+	* modules/anypy/anypy.c (anypy_set_verdict): new function,
+	exported to Python to set a verdict (fixes: #13874), various other
+	changes (fixes: #13874)
+
+	* lib/pystream.c (z_policy_stream_readline): new function, adds a
+	readline method if the stream is a ZStreamLine, added
+	nul_nonfatal, split attributes to ZPolicyStreams, added GIOStatus
+	to the returned values
+
+2008-10-19  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/proxy.c (z_proxy_query_stream): new function, returns
+	client_stream & server_stream attributes,
+	(z_proxy_config_method): added client_stream & server_stream
+	attribute registrations,
+	(z_proxy_destroy_method): destroy py_endpoints
+
+	* debian/control.in-gpl: added python-dns dependency
+
+	* debian/zorp.files: added Notification.py
+
+2008-10-19  MOLDVAI Dezso E. <mde@balabit.hu>
+
+	* scripts/xmlparts/pfilter.xml: Removed obsolete OUTPUT chain from
+	tproxy table (fixes: #13127)
+
+2008-10-19  Viktor Hercinger <herczy@balabit.hu>
+
+	* modules/telnet/telnet.c (telnet_stream_write): Record all data
+	in both directions (fixes: #15066)
+
+	* modules/telnet/telnet.c (telnet_process_buf): Remove data-only
+	audit recording (fixes: #15066)
+
+	* modules/telnet/telnet.c (telnet_write_audit_record): Added
+	function to record telnet data to audit. (fixes: #15066)
+
+2008-10-19  Simon Gabor <fules@balabit.hu>
+
+	* pylib/Zorp/Dispatch.py, Session.py, Zone.py, Config.py: cache
+	threshold options moved to 'config.options.' (fixes: #11855)
+
+2008-10-19  Laszlo Attila Toth <panther@balabit.hu>
+
+	* modules/rdp/rdp.c (rdp_main): added z_proxy_loop_iteration to
+	the main loop (fixes #13855)
+
+2008-10-19  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/pypolicy.c: fixed gcc4 warnings
+
+	* lib/szig.c: -"-
+
+	* lib/plugsession.c: -"-
+
+	* lib/proxy.c: -"-
+
+	* lib/tpsocket.c: -"-
+
+	* lib/audit.c: -"-
+
+	* lib/pybalance.c: -"-
+
+	* modules/pssl2/*.c: -"-
+
+	* lib/zorp/policy.h, lib/pypolicy.c: added signed/unsigned
+	variants of var_parse functions
+
+	* lib/zorp/audit.h (ZAuditParams): changed some members to signed
+	  types to avoid warnings in zorp.c
+
+
+	* pycore.c (z_py_szig_event): fixed the type of the PyDict_Next
+	position argument, it used to be an "int" but that PyDict_Next
+	expects a size_t, I wonder why this has not crashed on 64 bit
+	platforms.
+
+	* fixed some suspicious warnings in several modules
+
+2008-10-14  SZALAY Attila  <sasa@sasa.home>
+
+	* VERSION: Bumped to 3.3.2b
+
+2008-10-07  Szalay Attila  <sasa@mochrul.balabit>
+
+	* modules/imap/imapauth.c (imap_auth_login_line): Removed password
+	from string from log messages when the password is too
+	long. (fixes: #15965)
+
+	* modules/ftp/ftpcmd.c (ftp_command_parse_PASS): Removed password
+	string from log messages when the password is too long. (fixes:
+	#15965)
+
+2008-10-06  Szalay Attila  <sasa@mochrul.balabit>
+
+	* Forward-ported patches from v3.1 (712-712)
+
+2008-10-03  Szalay Attila  <sasa@mochrul.balabit>
+
+	* lib/plugsession.c (z_plug_session_destroy): Moved
+	z_plug_session_unref into the if because this function may called
+	when self is NULL. (fixes: #15906)
+
+2008-10-02  Szalay Attila  <sasa@mochrul.balabit>
+
+	* pylib/Zorp/Chainer.py (ConnectChainer.establishConnection):
+	Fixed a typo. (fixes: #nobug)
+	(SideStackChainer.chainParent): Start the chained proxy and return
+	with the client stream. (fixes: #nobug)
+
+	* lib/plugsession.c (struct _ZPlugSession): Added reference
+	counting. (fixes: #15906)
+	(z_plug_copy_data): Checked if plug session is still
+	alive. (fixes: #15906)
+	(z_plug_session_init_streams,
+	z_plug_session_init_stacked_streams): Changed stream callbacks to
+	use reference counting. (fixes: #15906)
+	(z_plug_session_ref, z_plug_session_unref): New function to handle
+	reference counting. (fixes: #15906)
+	(z_plug_session_destroy): Renamed z_plug_session_free to follow
+	semantic changes. (fixes: #15906)
+
+	* modules/msrpc/msrpcforward.c, modules/plug/plug.c,
+	modules/pssl/pssl.c: Changed z_plug_session_free calls. (fixes:
+	#15906)
+
+	* configure.in.in: Explicitly set -O0 when compiling in debug
+	mode. (fixes: #nobug)
+
+	* lib/pyproxy.c (z_policy_proxy_init_instance): Log if instance
+	start called with wrong parameters. (fixes: #nobug)
+
+2008-09-18  Szalay Attila  <sasa@mochrul.balabit>
+
+	* pylib/Zorp/Proxy.py (Proxy.connectServer): Removed codes from
+	here. (Moved to Chainer.py) (fixes: #15560)
+
+	* pylib/Zorp/Chainer.py (ConnectChainer.establishConnection):
+	Moved szig event linked to successfull server connection
+	here. (fixes: #15560) Moved notify event linked to unsuccessfull
+	server connection here. (fixes: #15560)
+
+2008-09-16  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to version 3.3.2a
+
+2008-09-12  Szalay Attila  <sasa@mochrul.balabit>
+
+	* modules/rdp/rdp_mangle.c (rdpdr_mangle): Fixed device reset
+	problem. (fixes: #nobug)
+
+2008-08-08  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to 3.3.2
+
+2008-07-31  Szalay Attila  <sasa@mochrul.balabit>
+
+	* modules/vnc/Vnc.py (AbstractVncProxy): Added default
+	values. (fixes: #nobug)
+
+	* modules/rdp/Rdp.py (AbstractRdpProxy): Added new attribute
+	host_keypair_rsa_file to be able to add rsa key and cert from
+	GUI. (fixes: #nobug)
+	(AbstractRdpProxy): Reverted host_key_cert_file and
+	host_key_rsa_file types to string. (fixes: #nobug)
+	(AbstractRdpProxy.__post_config__): If host_keypair_rsa_file
+	exists set host_key_cert_file and host_key_rsa_file from
+	it. (fixes: #nobug)
+
+2008-07-30  Szalay Attila  <sasa@mochrul.balabit>
+
+	* modules/rdp/Rdp.py: Fixed cert and key file type. (fixes:
+	#14487)
+
+	* modules/pssl2/Pssl.py: Removed duplicate documentation. (fixes:
+	#14488)
+
+2008-07-23  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to 3.3.1.2
+
+2008-07-23  Laszlo Attila Toth <panther@balabit.hu>
+
+	* lib/pydispatch.c (z_policy_dispatch_bind_new_instance_iface):
+	reads from /etc/iproute2/rt_ifgroup (fixes #14317)
+
+2008-07-22  SZALAY Attila  <sasa@sasa.home>
+
+	* VERSION: Bumped to 3.3.1.1
+
+2008-07-20  SZALAY Attila  <sasa@sasa.home>
+
+	* modules/msrpc/msrpcforward.c, modules/rsh/rsh.c: Added tproxy
+	marking to socket options. (fixes: #14029)
+
+2008-07-20  Fekete Robert <frobert@balabit.hu>
+
+	* Minor corrections in the proxy documentations
+
+	* Corrections and updates in the Chainer docs
+
+	* Corrections and updates in the Dispatcher docs, obsoleted
+	listener and receiver
+
+	* Corrections and updates in the NAT docs
+
+	* Corrections and updates in the Sevice docs
+
+	* Corrections and updates in the Sockaddr docs
+
+	* Corrections and updates in the Stream docs
+
+	* Corrections and updates in the Stack docs
+
+	* Corrections and updates in the zone docs
+
+	* Corrections and updates in the notification docs
+
+	* Corrections and updates in the Config.py
+
+	* Added a HTTP->HTTPS redirection example to the refguide
+
+	* Corrected a typo in the msrpc doc, fixes bug13826
+
+	* created a man page for kzorp
+
+	* Final updates for the release of ZOrp refguide 3.3.0
+
+	* Typo fix for bug 13893
+
+	* Removed BalanceNAT fixmes (related to bug 13305)
+
+	* Fixed XML syntax errors
+
+2008-07-20  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/proxy.c (z_proxy_free_method): added log message at
+	  core.debug(7) to inform the system log that a given ZProxy
+	  instance was freed. This is useful to diagnose memory leaks
+	  (fixes: #nobug)
+
+2008-07-16  Simon Gabor <fules@balabit.hu>
+
+	* modules/vnc/vnc.[hc], Vnc.py: display size limitation feature
+	removed (fixes: #13712)
+
+2008-07-15  Szalay Attila  <sasa@mochrul.balabit>
+
+	* Forward-ported patches from 3.1 (688-704)
+
+	* modules/vnc/vnc.c (vnc_ready): Fixed compilation problem in
+	mainline. (fixes: #nobug)
+
+2008-07-15  Simon Gabor <fules@balabit.hu>
+
+	* /modules/vnc/vnc.c: argument list for z_audit_stream_init fixed,
+	missing designators of structure initaliser for 'vnc_proxy_funcs'
+	added (fixes: #14220)
+
+	* modules/imap/imapparse.c: (imap_parse_number) erroneous calls to
+	'z_proxy_return' fixed (fixes: nobug)
+
+	* modules/rdp/rdp.c: missing designators added to structure
+	initialiser for 'rdp_proxy_funcs' (fixes: nobug)
+
+	* modules/vnc/*: vnc proxy forward-ported from branch
+	feature-vnc--3.1 (fixes: #12416)
+
+2008-07-15  Laszlo Attila Toth <panther@balabit.hu>
+
+	* lib/zorp/nfconnmark-kernel.h: deleted (fixes #13102)
+
+	* lib/zorp/Makefile.am: removed nfconnmark-kernel.h (fixes #13102)
+
+2008-07-15  SZALAY Attila <sasa@pheniscidae.tvnetwork.hu>
+
+	* scripts/gen-xml-database.py, scripts/gen-zms_database.sh:
+	Removed references to VBuster proxy. (fixes: #13461)
+
+	* scripts/xmlparts/servicetnull.xml: Removed VBuster plugin
+	minimal config because it is not used. (fixes: #13461)
+
+	* debian/rules.in-pro, lib/pypolicy.c, zorp/logtags.txt: Removed
+	vbuster name. (fixes: #13461)
+
+	* debian/rules.in-pro: Removed zorp-pro-modules-rdp cration
+	chunks. (fixes: #nobug)
+
+2008-07-07  Balazs Scheidler <bazsi@balabit.hu>
+
+	* Added source marks to mark non-GPL code. Zorp GPL 3.3 features
+	  program stacking, but remote stacking is still not released.
+
+2008-06-23  Balazs Scheidler <bazsi@balabit.hu>
+
+	* zorp/main.c: added "VirusBuster Antivirus Gateway" as accepted
+	product name (fixes: #13558)
+
+2008-06-19  SZALAY Attila  <sasa@sasa.home>
+
+	* lib/proxystack.c (z_proxy_stack_remote_handshake): Check if
+	z_stream_connector_new return with NULL. (fixes: #14077)
+
+2008-06-11  Laszlo Attila Toth <panther@balabit.hu>
+
+	* lib/dispatch.c (z_dispatch_new_listener): sets ZSF_TRANSPARENT
+	socket flag if the listener is transparent (fixes #14029)
+
+	* lib/tpsocket.c: removed duplicated #define of IP_FREBIND
+	(z_do_tp40_bind): sets ZSF_TRANSPARENT if the listener is
+	transparent (fixes #14029)
+
+2008-06-10  Szalay Attila  <sasa@mochrul.balabit>
+
+	* zorp/main.c (main): Fixed Shell Control Box license
+	version. (fixes: #nobug)
+
+2008-05-19  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/proxy.c: removed public declaration of
+	  z_proxy_propagate_channel_props, moved functions up and down to
+	  avoid forward declarations, this fixes a compilation error
+
+	* libproxy/transfer2.c: use z_proxy_loop_iteration instead of
+	  z_proxy_propagate_channel_props,
+
+	* modules/sqlnet/sqlnet.c (sqlnet_main): -"-
+
+	* modules/nntp/nntp.c (nntp_main): fixed negated call to
+	  z_proxy_loop_iteration
+
+
+2008-05-07  Szalay Attila  <sasa@mochrul.balabit>
+
+	* lib/proxygroup.c (z_proxy_group_iteration): Changed if statement
+	to match the z_proxy_group_thread_func statement. (fixes: #13685)
+	(z_proxy_group_orphan): Wake up the proxygroup poll if the python
+	part is exited. (fixes: #13685)
+
+2008-04-28  Szalay Attila  <sasa@mochrul.balabit>
+
+	* lib/proxygroup.c (z_proxy_group_iteration): Check for alive
+	sessions because it is possible that the only proxy in this group
+	is stopped above cause an infinite waiting. (fixes: #13685)
+
+2008-04-24  Balazs Scheidler <bazsi@balabit.hu>
+
+	* pylib/Zorp/Domain.py: fixed address parsing in case there's no
+	mask value, reasons are too difficult to explain here, see the
+	bugreport (fixes: #13694)
+
+2008-04-17  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/proxy.c (proxy_hash): renamed from proxy_list,
+	(z_proxy_loop_iteration): renamed from z_proxy_update_info,
+	(z_proxy_wakeup_method, z_proxy_wakeup): new virtual function,
+	wakes up a proxy from an external thread
+
+	* modules/ssh/ssh.c (ssh_wakeup): new function, implements the
+	z_proxy_wakeup virtual function to wake up the proxy
+
+2008-04-17  Laszlo Attila Toth <panther@balabit.hu>
+
+
+        * lib/zorp/proxy.h, lib/zorp.c: Added functions for tracks proxy
+	sessions (threads) in the hash map Added
+	z_proxy_update_info(ZProxy*). It calls
+	z_proxy_propagate_channel_props then checks for the stop reqeuest
+	flag, and logs the stop request. (fixes #13564)
+
+        * zorp/main.c (main): initializes/deinitializes the proxy session
+	list subsystem (fixes #13564)
+
+        * zorpctl/main.c: new parameters: stop-session
+	zorp_instance/proxy_session_id and its functions:
+	z_process_stop_session and z_pcmd_stop_session (fixes #13564)
+        
+        * zorpctl/szig.c, zorpctl/szig.h: new function:
+	z_szig_stop_session (fixes #13564)
+
+        * lib/szig.c (z_szig_handle_command): added new command,
+	STOPSESSION (fixes #13564)
+
+        * modules/nntp/nntp.c, modules/lp/lp.c, modules/ldap/ldap.c,
+	  modules/ftp/ftp.c, modules/http/http.c, modules/imap/imap.c,
+	  modules/finger/finger.c, modules/pssl2/pssl.c,
+	  modules/smtp/smtp.c, modules/sqlnet/sqlnet.c,
+	  modules/telnet/telnet.c, modules/whois/whois.c,
+	  modules/pop3/pop3.c, modules/rsh/rsh.c, modules/tftp/tftp.c,
+	  modules/pssl/pssl.c, modules/ssh/ssh.c, modules/msrpc/msrpc.c:
+	  the proxy's main function calls z_proxy_update_info instead of
+	  z_proxy_propagate_channel_props and if it returns FALSE,
+	  terminates the proxy (fixes #13564)
+
+2008-04-16  Laszlo Attila Toth <panther@balabit.hu>
+
+        * lib/pyattach.c, lib/pydispatch.c, lib/pysatyr.c, lib/pystream.c,
+	  lib/pyzasauth.c, modules/pssl2/psslpolicy.c, lib/pydict.c,
+	  lib/pystruct.c: Replacing PyMem_DEL, PyObject_DEL with
+	  PyObject_Del, and PyObject_NEW with PyObject_New, also it works
+	  with Python 2.5
+
+2008-04-10  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to version 3.3.1a
+
+	* lib/pybalance.c, lib/pypolicy.c, /modules/rdp/rdp_policy.c:
+	Fixed some compilation warning and error. (fixes: #13579)
+
+	* Forward ported patches from version 3.1 (694-694)
+
+2008-03-26  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to 3.3.1
+
+2008-03-21  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to 3.3.0.3
+
+	* Forward-ported patches from version 3.1 (678-687)
+
+2008-03-12  Laszlo Attila Toth <panther@balabit.hu>
+
+	* lib/pystruct.c (z_policy_struct_module_init): copy
+	z_policy_struct_types[Z_PST_NONE] on the first run, when no policy
+	loaded yet. On policy reload it is called again but it won't
+	refill the structure with default values (fixes #13383)
+
+2008-03-12  Szalay Attila <sasa@balabit.hu>
+
+	* modules/pssl2/pssl.c (pssl_proxy_free): Freed plugsession to
+	avoid leaks. (fixes: #13340)
+
+	* lib/proxygroup.c (z_proxy_group_thread_func,
+	z_proxy_group_start_thread): Removed thread syncronization between
+	proxy group thread and starter thread. (fixes: #13241)
+	(z_proxy_group_start_session): Added checking of poll existance
+	because of not syncronized startup. (fixes: #13241)
+
+	* makeconfig.sh: removed vbuster proxy from local
+	installs. (fixes: #13273)
+
+	*
+	tests/functional/http/transfer/mime-stacked-content-length.tests:
+	Removed testcases which used VBuster proxy. (fixes: #13273)
+
+	* tests/functional/mime/transfer/mimevirus.tests: Changed stacked
+	proxy from VBuster to Plug. (fixes: #13273)
+
+2008-03-06  Pal Tamas <folti@balabit.hu>
+
+	* debian/zorp-pro.postinst.in: shell script no longer dies, when
+	licenseinstaller script returns non-0.
+
+2008-03-06  Szalay Attila  <sasa@mochrul.balabit>
+
+	* Forward-ported patches from version 3.1 (641-677)
+
+2008-02-28  Szalay Attila  <sasa@mochrul.balabit>
+
+	* pylib/Zorp/NAT.py (class BalanceNAT): Fixed typos in
+	documentation. (fixes: #nobug)
+
+2008-02-25  Szalay Attila  <sasa@mochrul.balabit>
+
+	* tests/functional/sqlnet/redirect.tests: Follow
+	target_address_inband name changes. (fixes: #13252)
+
+2008-02-20  Szalay Attila  <sasa@mochrul.balabit>
+
+	* modules/pssl2/pssl.c (pssl_main): Do not try to check server
+	side certificate if server side not need ssl. (fixes: #13212)
+
+	* zorp/main.c (main): Only try to setuid to zorp when run as
+	root. (fixes: #nobug)
+
+2008-02-18  Laszlo Attila Toth <panther@balabit.hu>
+
+	* lib/pycore.c: z_py_set_connmark is independent from TProxy since
+	it only raises an exception.  z_py_set_mark uses the correct value
+	of SO_MARK
+
+	* lib/pycore.c: New function: z_py_set_mark which is setMark() in
+	Python code. It sets SO_MARK on the socket to the value specified
+	by the second parameter.
+
+	* lib/zorp/Makefile.am: added linebalance.h
+
+	* zorpaddr/ifcfg.c: replacing g_hash_table_remove_all since it is
+	unsupported prior to glib-2.12
+
+	* zorpaddr/cfg.h, zorpaddr/stats.h, lib/zorp/linebalance.h:
+	instead of glib.h the required headers included from the glib
+	directory.
+
+	* zorpaddr/ifcfg.c (z_ifcfg_clear_cb): parameters marked as unused
+
+2008-02-18  Szalay Attila <sasa@balabit.hu>
+
+	* lib/pysockaddr.c (z_policy_sockaddr_inet_new_instance): Fixed
+	python error handling. (fixes: #7174)
+
+	* pylib/Zorp/NAT.py: Fixed some typos prevented python code to
+	compile or run. (fixes: #7174)
+
+2008-02-18  Laszlo Attila Toth <panther@balabit.hu>
+
+	* pylib/Zorp/NAT.py: fixing imports.
+
+	* debian/zorp-pro.files.in: added zorpaddr to the list.
+
+	* zorpaddr/zshmem.c (z_shmem_validate): always set shmem size;
+	fixing typo.
+
+	* zorpaddr/main.c: using same parameter scheme as in zorp
+
+	* lib/zorp/linebalance.h: using guint32 for
+	_ZorpBalancePolicyInterface.ip addr as in the kernel, and it is
+	big (network) endian.
+
+	* lib/pybalance.c (z_py_zorp_balance_get_chances): convert ip
+	address to host endian.
+
+	* pylib/Zorp/NAT.py (BalanceNAT): a break statement was missing
+
+	* zorpaddr/cfg.c (z_cfg_parse_iface): The function can get empty
+	interface name which is valid.
+
+	* zorpaddr/main.c (z_zorpaddr_main_loop): initialize pointer to
+	null
+
+	* pylib/Zorp/NAT.py: add import random.SystemRandom
+
+	* pylib/Zorp/NAT.py: If keep_sessions is on, store the correct
+	address.
+
+	* pylib/Zorp/NAT.py (BalanceNAT): remove end of old line in
+	previous patch
+
+	* lib/ifmonitor.c: struct ZIfaceInfo.flags is guint32 as in the
+	kernel. Added z_ifmon_get_iface_flags() to get this flag of an
+	interface specified by ifindex.
+
+	* lib/zorp/ifmonitor.h: Added z_ifmon_get_iface_flags()
+
+	* zorpaddr/cfg.c, zorpaddr/main.c, zorpaddr/zorpaddr.h,
+	zorpaddr/zshmem.c: code cleanup. Remove empty lines.  Remove
+	spaces from end of lines. Change tabs to spaces.
+
+	* zorpaddr/ifcfg.c: New functions
+	z_ifcfg_update_group_preferences(),
+	z_ifcfg_update_group_preference() to calculate the real preference
+	used by z_stats_update(). Code cleanup.
+
+	* zorpaddr/ifcfg.h: Added Z_IFCFG_UP status (iface is up and has
+	an IP address), and Z_IFCFG_LIVE for later usage.  struct
+	_ZorpIfaceData has 3 different preference (percent) values.  Code
+	cleanup.
+
+	* zorpaddr/stats.c: z_stats_update_prefs() using real_pref member
+	of struct _ZorpIfaceData.  Code cleanup.
+
+	* zorpaddr/stats.c (z_stats_update): multiply the calculated
+	preference with the interface count of the current group.  The sum
+	of prefs is nearly 100% in every case.
+
+	* zorpaddr/ping.c: pinging thread's main function and
+	communication with the main thread of the program (fixes #6647)
+
+	* zorpaddr/ping.h: Ping thread init/destroy functions and data
+	type for communication (fixes #6647)
+
+	* zorpaddr/cfg.c: added host parsing - used by pinging thread; new
+	function: z_cfg_parse_hosts (fixes #6647)
+
+	* zorpaddr/ifcfg.c: cleanup and using info specified by pinging
+	thread.
+
+	* zorpaddr/ifcfg.h: added host list for ZorpAddrGroup, status for
+	ZorpIfaceData. (fixes #6647) code cleanup and comments.
+
+	* zorpaddr/main.c: Managing pinging thread (fixes #6647).  code
+	cleanup.
+
+	* zorpaddr/stats.c: code cleanup.
+
+	* zorpaddr/zshmem.c: code cleanup.
+
+	* zorpaddr/Makefile.am: added ping.c and ping.h (fixes #6647)
+
+	* zorpaddr/zorpaddr.xml.sample: added optional host element to the
+	groups (fixes #6647)
+
+	* lib/zorp/linebalance.h: cleanup: modified "constant" names
+	(added Z_LB_ prefix)
+
+	* lib/pybalance.c: cleanup: using the new constants
+
+	* zorpaddr/zorpaddr.xml.sample: renamed to
+	zorpaddr/zorpaddr.cfg.sample
+
+	* zorpaddr/Makefile.am: changed config file name
+
+	* zorpaddr/cfg.c (z_cfg_parse_iface): If a group contains the same
+	interface more than once, the preference added each time.
+
+	* zorpaddr/ifcfg.c: z_ifcfg_iface_watch: updatedata hasn't got
+	index member any more. Indentation changes.
+	(z_ifcfg_add_and_get_iface_data, z_ifcfg_update_group_preference):
+	guint is used for loop variables as in ZorpAddrData.
+
+	* zorpaddr/ifcfg.h: enum zifcfgstatus got another member,
+	Z_IFCFG_PING which is used if a raw socket can be set up for
+	pinging.
+	(ZorpAddrInterface, ZorpIfaceData): removed ping_index member
+	(ZorpAddrInterface): type guint32 is used for *_num members.
+
+	* zorpaddr/main.c: zorpaddr.cfg is the config file's default name.
+	z_zorpaddr_main_loop, main: z_ping_destroy_and_wait renamed to
+	z_ping_destroy as in ping.c.
+
+	* zorpaddr/zshmem.c (z_shmem_copy_data): using guint32 for loop
+	variables.
+
+	* zorpaddr/ping.c: z_ping_destroy_and_wait became z_ping_destroy
+	and z_ping_destroy is z_ping_destroy_and_nowait.  Comments
+	added. The global variables are at one place.  Functions for ping
+	sending, receiving; updating statics.  If a host doesn't send an
+	ICMP echo reply packet within 10 seconds, the thread assumes it is
+	down. If all hosts are inaccessible, the interface is virtually
+	down (its status' Z_IFCFG_LIVE bit is unset.
+
+	* zorpaddr/ping.h (struct ZPingUpdataData): removed index member.
+
+	* zorpaddr/stats.c (z_stats_update_prefs): using guint32 for loop
+	variables.
+
+	* zorpaddr/stats.c (z_stats_update_prefs): only speed of available
+	interfaces (marked as Z_IFCFG_LIVE) are used at preference
+	calculation
+
+	* zorpaddr/ping.c: diff_time remove infinite loop.
+	(z_ping_update_stats): parameter is not needed, more logs.  The
+	status of the config's ZorpIfaceData members is modified.
+	z_ping_thread_main_func: always updating statistics .
+
+	* zorpaddr/ping.c (z_ping_update_stats): modified
+	logging. Interface changes logged only if they really changed.
+	(z_ping_thread_main_func): more unambigous logging.  poll()
+	timeout is now 0.1 second.
+
+	* zorpaddr/ifcfg.c, zorpaddr/ifcfg.h, zorpaddr/stats.c: renaming
+	Z_IFCFG_LIVE to Z_IFCFG_ALIVE
+
+	* zorpaddr/ping.c: renaming Z_IFCFG_LIVE to Z_IFCFG_ALIVE;
+	(z_ping_update_stats): more obvious variable names; logging only
+	if pingable hosts' count change: 0 <-> !0
+
+	* zorpaddr/main.c (main): change default loglevel to 3 as in
+	zorp/main.c.
+
+	* zorpaddr/ping.c (z_ping_update_stats): if the current group's
+	host_num is 0, also there is no host to ping, skip remaining code.
+	(z_ping_event_add): changed ZorpIfaceData.status: if there is a
+	pinger socket, the interface in the group is not alive but can
+	send ping. If the socket bind() failed, on the contrary: the
+	status' ALIVE bit is set and PING is unset.
+	(z_ping_init): thread name changed to 'pinger_thread'
+
+	* zorpaddr/stats.c (z_stats_update_prefs): logging the preference
+	in shared memory (group, iface, pref).
+
+	* zorpaddr/cfg.c: checking the configuration file during loading.
+	Check-only mode added when the actual configuration is not
+	modified.  Removed GError ** parameters.
+
+	* zorpaddr/cfg.h: removing GError parameters from fhe functions.
+	Added: z_cfg_check(cfg file).
+
+	* zorpaddr/ifcfg.c: added: z_ifcfg_update_all_group_preferences to
+	update preferences at once
+
+	* zorpaddr/main.c: The code of the config reloading is commented
+	out.
+
+	* zorpaddr/stats.c: Modified stats calculation.
+
+	* zorpaddr/cfg.c (struct ZCfgOpts): added comments.
+	(z_cfg_parser_cb): clears and frees opts->iface_names to prevent
+	memory leak.
+	(z_cfg_reload): simplier reloading mechanism + comments.  Code
+	cleanup (remove unecessary empty lines and trailing spaces).
+
+	* zorpaddr/ifcfg.c: mutex is removed.  Added tmp_interfaces to
+	hold previous interfaces and their statistics.
+	(z_ifcfg_get_iface): at config reloading also check
+	tmp_interfaces, and if an interface is also used in the new
+	config, move it to the new interfaces hash table.  New functions:
+	z_ifcfg_reload_{start,finish}() used at config reload.  Removed:
+	z_ifcfg_reload()
+
+	* zorpaddr/ifcfg.h: new functions: z_ifcfg_reload_{start,finish}
+	used at config reload.
+
+	* zorpaddr/main.c (z_zorpaddr_main_loop): uncomment config
+	reloading code.
+
+	* zorpaddr/stats.c (z_stats_update_prefs): if there are no active
+	interfaces, pref_speed_sum may be 0. Checking it.  Code cleanup
+	(remove unecessary empty lines and trailing spaces).
+
+	* zorpaddr/zshmem.c (z_shmem_reload): clears shared memory.  Code
+	cleanup (remove unecessary empty lines and trailing spaces).
+
+	* zorpaddr/ping.c: removed unnecessary lines.
+
+	* zorpaddr/cfg.{c,h}: Removed parameters of z_cfg_reload()
+
+	* zorpaddr/ifcfg.c: (z_ifcfg_update_cb): added extra check for
+	null pointer.  Added z_ifcfg_reload_cb() to iterate through all
+	interfaces and send an 'ADD' event to the pinger thread if the
+	interface is up and has an IP addess.  This code is called from
+	z_ifcfg_reload_finish() if its parameter is TRUE
+
+	* zorpaddr/ifcfg.h (z_ifcfg_reload_finish): a boolean parameter is
+	added
+
+	* zorpaddr/main.c (z_zorpaddr_main_loop): call of z_ifcfg_update()
+	is allways successful, its check is removed.
+
+	* pylib/Zorp/NAT.py (BalanceNAT.performTranslation): If all
+	preference is zero, raise a LimitException
+
+	* zorpaddr/cfg.c (z_cfg_parse_hosts): ignore empty host names
+
+	* zorpaddr/ifcfg.c (z_ifcfg_update_cb): If the interface is valid
+	and has an IPv4 address, add it to the pinger thread
+	(z_ifcfg_reload_start): don't free key of the hash table
+	(z_ifcfg_reload_finish): before destroying tmp_interfaces, set it
+	to null (and using temporal variable)
+
+	* zorpaddr/main.c (z_zorpaddr_main_loop): update ifcfg after
+	pinger thread initialized.
+
+	* zorpaddr/ping.c (z_ping_update_stats): if the interface is down,
+	log it only once
+
+	* zorpaddr/Makefile.am: added header files as sources.
+
+	* lib/ifmonitor.c (z_ifmon_change_iface_addr): primary IP address
+	is always the first in the list (in4_addresses[0]).
+
+	* Makefile.am: compiling zorpaddr
+
+	* zorpaddr/ifcfg.c (z_ifcfg_iface_watch): set address if the
+	interface index is already set
+	(z_ifcfg_grp_add_iface): ifindex, primary address is unnecessary
+	here
+	(z_ifcfg_set_ip_address): validating shmem structure because IP
+	address update is rare.  z_ifcfg_update: new function to set
+	interface indices
+
+	* zorpaddr/ifcfg.h (ZorpAddrInterface): addedd status member to
+	indicate if the if_index member is set or yet unset.
+
+	* zorpaddr/main.c (z_zorpaddr_main_loop): calls z_ifcfg_update if
+	an inteface index is not yet set.
+
+	* lib/ifmonitor.c and lib/zorp/ifmonitor.h: added functions for
+	get primary address (currently IPv4 only) and index of an
+	interface.
+
+	* zorpaddr/ifcfg.c: using the new functions.
+
+	* zorpaddr/ifcfg.h (ZorpAddrInterface): added if_index (interface
+	index)
+
+	* zorpaddr/main.c: removed unnecessary blank lines. The daemon
+	goes to background.
+
+	* zoraddr/zshmem.c (z_shmem_destroy): invalidating shared memory
+	data
+
+	* zorpadrr directory: Implementation of Line Balancer Daemon,
+	ZorpAddr
+
+	* lib/zorp/linebalance.h: structures and constants
+
+	* lib/zorp/policy.h: removed duplicated define line
+
+	* lib/pybalance.c: using new, fixed structure
+	(ZorpBalanceShmemData) It is the representation of the used shared
+	memory
+
+2008-02-18  Szalay Attila <sasa@balabit.hu>
+ 
+	* lib/Makefile.am: Fixed compilation problem caused by an invalid
+	separator.
+
+	* lib/pypolicy.c (z_policy_boot): Added balancer
+	initialization. (fixes: #7174)
+
+	* lib/pysockaddr.c (z_policy_sockaddr_inet_new_instance): Added
+	the pocibility to create SockAddr from ip number. Used by
+	BalanceNAT. (fixes: #7174)
+
+	* pylib/Zorp/NAT.py (class BalanceNAT): Added new class which
+	implement lineBalance NAT. (fixes: #7174)
+
+	* lib/pybalance.c : New file to implement LineBalance C
+	part. (fixes: #7174)
+
+2008-02-08  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to 3.3.0.2
+
+2008-02-04  Szalay Attila <sasa@balabit.hu>
+
+	* debian/zorp-pro.postinst.in: Added the possibility to install
+	license. (fixes: #13056)
+
+2008-02-01  Szalay Attila  <sasa@mochrul.balabit>
+
+	* tests/python/test_authorization.py: Fixed unit test to follow
+	changes in code. (fixes: #nobug)
+
+	* tests/unit/Makefile.am: Removed test_base64, test_codegzip and
+	test_codecipher tests, because the tested code has been moved to
+	zorp-lib. (fixes: #nobug)
+
+2008-01-31  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to version 3.3.0.1
+
+2008-01-24  Simon Gabor <fules@balabit.hu>
+
+	* modules/rdp/Rdp.py: declaration comment of host_key_rsa_file in
+	the internal python doc fixed (fixes: #12902)
+
+2008-01-24  Szalay Attila <sasa@balabit.hu>
+
+	* modules/telnet/Telnet.py (class AbstractTelnetProxy): Added
+	enable_audit documentation. (fixes: #12920)
+
+	* lib/code.c, lib/code_base64.c, lib/code_cipher.c,
+	lib/code_gzip.c, lib/zorp/code.h, lib/zorp/code_base64.h,
+	lib/zorp/code_cipher.h, lib/zorp/code_gzip.h: Moved this file into
+	libzorpll. (fixes: #12253)
+
+2008-01-24  Szalay Attila  <sasa@mochrul.balabit>
+
+	* modules/rdp/debian/Makefile.am (EXTRA_DIST): Follow the
+	zorp-pro-module-rdp.files file rename. (fixes: #12957)
+
+2008-01-20  SZALAY Attila  <sasa@sasa.home>
+
+	* Forward-ported patches from version 3.1 (594-640)
+
+2008-01-19  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/notification.c (z_notify_proxy_context_add_params): use
+	z_proxy_get_addresses_locked,
+	(z_notify_event_send): removed locking, it is provided by caller
+	functions, fixed reference leak on notify_fn,
+	(z_notify_event_policy): added an additional mutex to protect
+	notification_thread (fixes: #12746)
+	(z_notify_event_va): -"-
+
+	* lib/proxy.c (z_proxy_get_addresses_locked): renamed from
+	z_proxy_get_addresses, removed locking,
+	(z_proxy_get_addresses): new function, a locking wrapper around
+	z_proxy_get_addresses_locked
+
+
+2008-01-10  Szalay Attila  <sasa@mochrul.balabit>
+
+	* debian/control.in-pro: Removed zorp-pro-module-rdp
+	package. (fixes: #12957)
+
+	* modules/rdp/debian/zorp-pro-modules.files: Renamed from
+	zorp-pro-module-rdp.files to merge rdp into zorp-pro-modules
+	package. (fixes: #12957)
+
+2008-01-03  Simon Gabor <fules@balabit.hu>
+
+	* modules/telnet/telnet.[hc]: typo fixed at log facility name
+	'telnet.violation' (fixes: #11662)
+
+2007-12-19  Szalay Attila <sasa@balabit.hu>
+
+	* modules/mime/mimedata.c (mime_transfer_dst_shutdown): Fixed a
+	compilation problem. (fixes: #8787)
+
+2007-12-19  Szalay Attila <sasa@balabit.hu>
+
+	* modules/mime/mimedata.c (mime_transfer_dst_shutdown): Drop
+	rejected attachment if silent_drop is true. (fixes: #8787)
+
+2007-12-19  Szalay Attila <sasa@balabit.hu>
+
+	* modules/mime/mime.c (mime_config_set_defaults): Changed default
+	value of silent_drop to FALSE. (fixes: #8787)
+
+	* modules/mime/Mime.py (class AbstractMimeProxy): Changed
+	silent_drop documentation. (fixes: #8787)
+
+2007-12-19  Fekete Robert <frobert@balabit.hu>
+
+	* *.*py: Added some type definitions. (fixes: #12504)
+
+2007-12-09  Balazs Scheidler <bazsi@balabit.hu>
+
+	* modules/pssl2/pssl.c (pssl_config_set_defaults): set
+	server_check_subject to TRUE by default (fixes: #12692)
+
+2007-12-09  Szalay Attila <sasa@balabit.hu>
+
+	* modules/pop3/pop3.c, modules/pop3/pop3.h,
+	modules/pop3/pop3cmd.c: Changed log message about reply messages
+	from pop3.reply to pop3.response. (fixes: #11667)
+
+2007-12-09  Pal Tamas <folti@balabit.hu>
+
+	* debian/control.in-pro: python2.3-pyopenssl dependency changed to
+	python-pyopenssl. (fixes: #12820)
+
+2007-12-09  Simon Gabor <fules@balabit.hu>
+
+	* modules/telnet/telnet.c, modules/rdp/rdp.c: leftover references
+	to z_policy_dict_free fixed (fixes: #12502)
+
+2007-12-09  olek <olek@balabit.hu>
+
+	* configure.in.in : change PYTHON_MIN_VERSION from 2.3 to 2.4
+
+	* debian/control.in-pro : change depend zorp-pro, from python2.3
+	to python2.4
+
+2007-11-13  Simon Gabor <fules@balabit.hu>
+
+	* modules/nntp/nntp.[hc], nntpcmd.c: NNTP_REPLY renamed to
+	NNTP_RESPONSE, duplicate defines removed (fixes: #11666)
+
+	* modules/imap/imap.[hc], imapcmd.c: IMAP_REPLY renamed to
+	IMAP_RESPONSE (fixes: #11665)
+
+2007-11-13  Szalay Attila <sasa@balabit.hu>
+
+	* modules/ftp/ftp.h: Changed reply log message to
+	response. (fixes: #11664)
+
+	* modules/ftp/ftp.c (ftp_answer_parse): Changed reply log message
+	to response. (fixes: #11664)
+
+2007-11-13  Pal Tamas <folti@balabit.hu>
+
+	* debian/control.in-pro: Added proper python-kzorp virtual package
+	support.
+
+2007-11-13  Szalay Attila <sasa@balabit.hu>
+
+	* lib/audit.c (z_audit_trail_new): Changed audit trail file name
+	to .zat. (fixes: #12457)
+
+2007-10-08  Szalay Attila  <sasa@mochrul.balabit>
+
+	* debian/control.in-pro, debian/rules.in-pro: Fixed python-kzorp
+	package name when building with binary-branch. (fixes: #nobug)
+
+2007-10-02  Szalay Attila  <sasa@mochrul.balabit>
+
+	* modules/ssh/sshsftp.c (ZProxyFuncs ssh_sftp_proxy_funcs): Fixed
+	compilation problemcaused by the previous patch. (fixes: #nobug)
+
+	* lib/pyproxy.c (struct _ZPolicyProxy,
+	z_policy_proxy_bind_implementation): Fixed compilation problems
+	caused by the previous patch. (fixes: #nobug)
+
+2007-09-29  SZALAY Attila  <sasa@sasa.home>
+
+	* Forward-ported patches from version 3.1 (538-593)
+
+2007-09-29  Szalay Attila <sasa@balabit.hu>
+
+	* modules/pssl2/pssl.c: Changed to text representation of side in
+	log messages. (fixes: #12321)
+
+	* configure.in.in, lib/audit.c, lib/proxy.c, lib/pycore.c,
+	lib/pyproxy.c, lib/pysatyr.c, lib/pyzasauth.c, lib/zorp.c,
+	modules/imap/imap.c, modules/ldap/ldap.c, modules/lp/lp.c,
+	modules/mime/mime.c, modules/msrpc/msrpc.c, modules/nntp/nntp.c,
+	modules/pop3/pop3.c, modules/pssl2/pssl.c,
+	modules/radius/radius.c, modules/rdp/rdp.c, modules/rsh/rsh.c,
+	modules/sip/sip.c, modules/smtp/smtp.c, modules/sqlnet/sqlnet.c,
+	modules/ssh/ssh.c, modules/tftp/tftp.c,
+	modules/vbuster4/vbuster.c, zorp/main.c: Adapted to the changes in
+	zorp-lib-license. (fixes: #11634)
+
+2007-09-28  Balazs Scheidler  <bazsi@balabit.hu>
+
+	* lib/tpsocket.c (z_do_tp40_bind): added support for
+	  IP_TRANSPARENT while falling back to IP_FREEBIND if the first is
+	  not defined
+
+2007-07-11  Szalay Attila  <sasa@mochrul.balabit>
+
+	* debian/control.in-pro: Fixed some build dependency
+	problem. (fixes: #nobug)
+
+2007-07-09  Szalay Attila  <sasa@mochrul.balabit>
+
+	* VERSION: Bumped to 3.3alpha0.1
+
+2007-07-02  MOLDVAI Dezso E. <mde@balabit.hu>
+
+	* pylib/Zorp/Chainer.py: XML documentation validity fixes
+	(fixes: #nobug)
+
+2007-07-02  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/kznf/kznf/kznfnetlink.py: add new message and attribute
+	type constants
+	(create_query-msg): new function to construct a query message
+	(fixes: #nobug)
+
+2007-07-02  Balazs Scheidler <bazsi@balabit.hu>
+ 
+	* zorp/main.c: enable log-tags by default
+
+2007-07-02  Balazs Scheidler  <bazsi@balabit.hu>
+
+	* Forward-ported patches (528-537) from 3.1
+
+2007-06-18  Szalay Attila  <sasa@mochrul.balabit>
+
+	* Forward-ported patches (513-527) from 3.1
+
+	* Forward-ported patches (501-512) from 3.1.
+
+	* Forward-ported patches (487-500) from 3.1.
+
+2007-03-28  Pfeiffer Szilard  <coroner@balabit.hu>
+
+	* VERSION: Initial version number change. (fixes: #nobug)
+
+	* configure.in.in: Fixed library version checking. (fixes: #nobug)
+
+2007-02-22  Szalay Attila  <sasa@mochrul.balabit>
+
+	* Forward-ported patches (440-486) from 3.1. (fixes: #nobug)
+
+2007-02-22  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/Zone.py (InetZone.buildKZorpMessage): fix
+	KZF_ZONE_UMBRELLA reference, it's in the kznf.kznfnetlink
+	namespace (fixes: #11068)
+
+	* modules/ssh/sshpolicy.c (ssh_policy_query_channel_specific): use
+	z_policy_dict_destroy() instead of _dict_free() that does not
+	exist in 3.2 (fixes: #nobug)
+
+	* lib/proxy.h (ZProxy): add channel_props_set[EP_MAX] array,
+	channel_props_set[side] is TRUE if the channel properties have
+	been actually set on the fd (fixes: #10935)
+
+	* lib/proxy.c (z_proxy_connect_server): make sure to propagate
+	channel properties before and after connecting (fixes: #10935)
+	(z_proxy_user_authenticated): remove mismerged
+	z_proxy__propagete_channel_props() call (fixes: #10935)
+
+	(z_proxy_propagate_channel_props): separate propagating the ToS
+	value and setting the fd ToS, props[side].tos[IN] is now
+	propagated to OUT of the other side, do not return TRUE as this
+	function is declared void (fixes: #10935)
+
+2007-01-08  Balazs Scheidler  <bazsi@bzorp.balabit>
+
+	* pylib/Zorp/KZorp.py: added missing 'socket' import
+
+	* modules/http/http.c (http_handle_connect): removed uninitialized
+	use of the rc variable, which is not needed anyway, fixes a
+	possible ABORT on the processing of CONNECT request
+
+2007-01-08  Balazs Scheidler <bazsi@balabit.hu>
+
+	* VERSION: bumped to 3.2.3
+
+	* pylib/Zorp/KZorp.py (startTransaction): handle ECONNREFUSED as
+	it might also indicate missing KZorp and causes Zorp to start up
+	slowly (which caused problems in ZTS)
+
+	* lib/proxy.c (z_proxy_set_priority): new function, sets proxy
+	priority,
+	(z_proxy_propagate_channel_props): added DSCP mapping and
+	setSessionPriority callback support (fixes: #10643)
+
+2006-12-18  Krisztian Kovacs <hidden@balabit.hu>
+
+	* VERSION: bumped to 3.2.2
+
+	* lib/pypolicy.c (z_policy_cleanup): new function, called when
+	shutting down Zorp, calls Zorp.cleanup with the NET_ADMIN
+	capability held (fixes: #10265)
+
+	* lib/zorp.c (z_main_loop): call policy deinit and cleanup when
+	shutting down (fixes: #10265)
+
+	* pylib/Zorp/KZorp.py: move helper functions up one level,
+	necessary to implement flushKZorpConfig() (fixes: #10265)
+	(flushKZorpConfig): flush KZorp dispatchers and services (fixes:
+	#10265)
+
+	* pylib/Zorp/Zorp.py (cleanup): new callback called when shutting
+	down Zorp, cleans up the in-kernel KZorp objects of the instance
+	(fixes: #10265)
+
+
+	* lib/proxygroup.c (z_proxy_group_unref): free the poll object
+	  allocated in z_proxy_group_thread_func (fixes: #nobug)
+
+2006-12-18  Pal Tamas <folti@balabit.hu>
+
+	* pylib/kznf/Makefile.am: local install of kznfnetlink now honors
+	configure's --with-python option, instead of runnig with the
+	default python binary.
+
+	* debian/rules.in-pro: Builder builds python-kzorp with the
+	minimal required python binary.
+
+	* debian/control.in-pro: Source package now Build-Depends on the
+	proper python@PYTHON_MIN_VERSION@-dev.
+
+2006-12-18  Balazs Scheidler  <bazsi@bzorp.balabit>
+
+	* forward ported patches from 3.1, synced to zorp 3.1.8
+
+2006-11-17  Balazs Scheidler  <bazsi@bzorp.balabit>
+
+	* lib/pyproxy.c (z_policy_proxy_bind_implementation): don't start
+	a new ZProxy instance if self->proxy is already set (might happen
+	when a z_proxy_group_start_session fails) (fixes: #10554)
+
+2006-10-30  SZALAY Attila  <sasa@balabit.hu>
+
+	* VERSION: Bumped to 3.2.1
+
+2006-10-27  SZALAY Attila  <sasa@balabit.hu>
+
+	* VERSION: Bumped to 3.2.0.3
+
+2006-10-27  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/Zorp.py (init): don't specify exception type for
+	except (fixes: #nobug)
+
+	* pylib/Zorp/KZorp.py (downloadKZorpConfig.startTransaction): use
+	random() instead of randing() as wait is no longer an integer
+	(fixes: #nobug)
+
+	* pylib/Zorp/KZorp.py (downloadKZorpConfig): fix indentation
+	problem in zone traversal code (fixes: #10354)
+
+	* pylib/kznf/kznf/nfnetlink.py (Handle.close): new method, closes
+	the netlink socket (fixes: #10354)
+
+	* pylib/Zorp/KZorp.py (downloadKZorpConfig): run all transactions
+	inside a try-except block and close nfnetlink handle if an
+	exception is caught (fixes: #10354)
+
+	* pylib/Zorp/KZorp.py (downloadKZorpConfig.exchangeMessage): put
+	nfnetlink talk() result into the exception message (fixes: #nobug)
+	(downloadKZorpConfig.startTransaction): change initial wait
+	interwal length to 0.1 second and retry limit to 7, this way
+	retries won't take more than 0.1 * 2^6 = 6.4 seconds (fixes:
+	#nobug)
+
+	* pylib/Zorp/Dispatch.py (ZoneDispatcher.buildKZorpMessage): do
+	not use super() as it works only for new-style classes, fix typo
+	in kznfnetlink function name and services hash reference (fixes:
+	#10353)
+	(CSZoneDispatcher.buildKZorpMessage): do not use super(), fix
+	kznfnetlink function name type and services hash reference (fixes:
+	#10353)
+
+	* pylib/Zorp/Zorp.py (init): catch and log exception contents and
+	traceback instead of simply swallowing it (fixes: #nobug)
+
+2006-10-19  Krisztian Kovacs <hidden@balabit.hu>
+
+	* lib/plugsession.c (z_plug_update_eof_mask): call the ->finish()
+	callback of the plugsession as the last operation of the function.
+	First of all, we must be sure to have all of the streams removed
+	from the poll. Other than that, ->finish() will probably free the
+	session (it's not reference counted), so it's absolutely forbidden
+	to do anything with the session after having called ->finish().
+	Every caller of z_plug_update_eof_mask() does so as the last
+	operation before returning from the I/O callback, so moving the
+	call to the end of this function is supposed to solve the
+	problem. (fixes: #10240)
+
+	* lib/proxygroup.c (z_proxy_group_iteration): really append proxy
+	pointer to self->nonblocking_proxies (fixes: #10237)
+
+	* lib/plugsession.c (z_plug_copy_data): don't copy more than
+	MAX_READ_AT_A_TIME packets at a time (fixes: #10237)
+
+	* pylib/Zorp/Service.py (PFService.__init__): make router argument
+	non-mandatory, defaults to the global default_router or
+	TransparentRouter if no global default was configured (fixes:
+	#10224)
+
+	* pylib/kznf/kznf/kznfnetlink.py: introduce KZF_SVC_FORGE_ADDR
+	service flag (fixes: #10225)
+
+	* pylib/Zorp/Service.py (PFService.buildKZorpMessage): set
+	KZF_SVC_FORGE_ADDR flag iff forge_addr is enabled in the router
+	(fixes: #10225)
+
+	* pylib/Zorp/Chainer.py (ConnectChainer): fix default value of
+	timeout_connect argument, now all descendant classes use None as
+	the default argument value and the constructor of ConnectChainer
+	uses the value set in Config.py as default (fixes: #10235)
+	(StateBasedChainer) the timeout_state value is now in msecs, the
+	default has been changed (fixes: #10235)
+	(FailoverChainer) swapped the order of timeout and timeout_state
+	arguments for compatibility, this was necessary because
+	timeout_state is now in milliseconds (fixes: #10235)
+
+	* lib/proxy.c (z_proxy_propagate_channel_props): add missing
+	z_enter() and z_leave() macreos (fixes: #nobug)
+
+2006-10-11  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/NAT.py (GeneralNAT.getKZorpMapping): domain.netaddr()
+	and domain.broadcast() methods return addresses in network byte
+	order, so conversion to host byte order is necessary before
+	passing these values to kznfnetlink (fixes: #nobug)
+
+2006-10-11  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/pydispatch.c (z_policy_dispatch_new_instance_iface_group):
+	the string value for group might also contain a number handle that
+	as well.
+
+2006-10-11  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/Zone.py (InetZone.buildKZorpmessage): don't check if
+	the given service name is present in the current service (fixes:
+	#10195)
+
+2006-10-11  Balazs Scheidler <bazsi@balabit.hu>
+
+	*
+	lib/pydispatch.c(z_policy_dispatch_bind_new_instance_iface_group):
+	use dual-typing for the group parameter and resolve it if it was a
+	string
+
+	* lib/dgram.c (z_nf_origaddrs_opt): initialize to -1,
+	(z_nf_dgram_socket_setup): don't enable SO_RECVORIGADDRS if
+	z_nf_origaddrs_opt is unset,
+	(z_dgram_init): don't initialize z_nf_origaddrs_opt in the
+	Z_SD_TPROXY_NETFILTER_V40 case
+
+	* configure.in.in: removed various tproxy fallback options,
+	they'll always be enabled with ENABLE_NETFILTER_TPROXY
+
+	* lib/dgram.c (z_dgram_init): added case for
+	Z_SD_TPROXY_NETFILTER_V40
+
+	* lib/sysdep.c (z_sysdep_parse_tproxy_arg): removed complicated
+	preprocessor conditionals, added tproxy40,
+	(z_sysdep_init): added tproxy40 detection (basically it's
+	hardwired as there's no way to properly autodetect it)
+
+	* lib/tpsocket.c: removed complicated preprocessor conditionals,
+	added tproxy 4.0 support
+
+	* zorp/main.c (z_version): removed publishing tproxy fallback
+	options as they don't exist anymore
+
+2006-10-11  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/kznf/kznf/kznfnetlink.py
+	(parse_bind_{addr,iface,ifgroup}_attr): fix syntax errors (fixes:
+	#nobug)
+
+	* pylib/Zorp/Dispatch.py (Dispatcher.buildKZorpMessage): pass
+	rule_port instead of self.rule_port to kznfnetlink message builder
+	(fixes: #nobug)
+
+	* pylib/Zorp/KZorp.py: fix kznfnetlink module references
+	introduced in zorp-core--feature-kzorp--3.2--patch-60 (fixes:
+	#10052)
+
+	* pylib/Zorp/KZorp.py (startTransaction): resend KZNL_MSG_START
+	message in case KZorp returns an error (fixes: #10052)
+
+2006-10-11  Pal Tamas <folti@balabit.hu>
+
+	* pylib/kznf: Added directory.
+
+	* pylib/kznf/Makefile.am: Added Makefile template. Contains clean
+	and distclean targets and the setup.py as EXTRA_DIST.
+
+	* pylib/kznf/setup.py: Added python script to allow installing the
+	kznf module in a python friendly way.
+
+	* debian/rules.in-pro: Added instruction to install python-kzorp
+	to the proper place.
+
+	* configure.in.in: Added Makefiles under pylib/kznf to AC_OUTPUT.
+
+	* pylib/Makefile.am: Added directory kznf to SUBDIRS.
+
+	* pylib/Zorp/Makefile.am: Removed Lib from SUBDIRS.
+
+	* pylib/Zorp/NAT.py, pylib/Zorp/Service.py, pylib/Zorp/Zone.py,
+	pylib/Zorp/KZorp.py, pylib/Zorp/Dispatch.py: Changed all
+	Lib.kznfnetlink calls to kznf.kznfnetlink.
+
+	* debian/control.in-pro: Added package python-kznf. zorp-pro noww
+	depends on this package.
+
+	* debian/zorp-pro.files.in: Removed all knfnetlink files.
+
+	* pylib/kznl/kznl/Makefile.am: Modifed, only EXTRA_DIST remains.
+
+	* pylib/Zorp/Lib: directory moved to pylib/kznf/kznf
+
+2006-10-11  Attila SZALAY <sasa@balabit.hu>
+
+	* VERSION: Bumped to version 3.2.0.2
+
+2006-10-11  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/proxygroup.c (z_proxy_group_start_thread): add a variable in
+	addition to a condvar to synchronize thread startup
+
+	* modules/pssl2/pssl.c (pssl_finished): new function, calls
+	z_poll_quit,
+	(pssl_main): exit the proxy main loop when z_poll_quit() was
+	called
+
+	* modules/pssl2/pssl.c (pssl_app_verify_cb): don't use
+	SSL_app_data, use user_data instead,
+	(pssl_start_main_session): removed,
+	(pssl_main): parts of the old pssl_start_main_session moved here,
+	(pssl_proxy_free): z_poll_unref handles NULL args, so no need to
+	explicitly check for that
+
+	* pylib/Zorp/NAT.py (NATPolicy.performTranslation): never clone
+	SockAddrs with wildcard set to TRUE
+
+	* modules/sip/Sip.py (SipProxy.rewriteAddr): adapted to latest NAT
+	changes
+
+	* modules/http/http.c (http_handle_connect): connectMethod returns
+	an instance instead of an integer,
+
+	* modules/http/Http.py (AbstractHttpProxy.connectMethod): use
+	stackProxy() to perform stacking instead of a separate
+	implementation
+
+	* pylib/Zorp/Proxy.py (Proxy.stackProxy): raise an exception if
+	stacking failed
+
+	* lib/pydict.c (ZPolicyDict): added reference counter
+	(ZPolicyMethod): added dict member,
+	(z_policy_method_new): added a reference to the dict instance to
+	avoid freeing it while the "floating" method object is around,
+	(z_policy_method_free): free reference to dict,
+	(z_policy_dict_method_get_value): pass dict instance as argument
+	to z_policy_method_new,
+	(ZPolicyHash, z_policy_hash_new, z_policy_hash_free,
+	z_policy_dict_hash_get_value): same changes as ZPolicyMethod,
+	(ZPolicyDimHash, z_policy_dim_hash_new, z_policy_dim_hash_free,
+	z_policy_dict_dim_hash_get_value): same changes as ZPolicyMethod,
+	(z_policy_dict_new): added initialization of self->ref_cnt,
+	(z_policy_dict_ref): new function, increments ref_cnt,
+	(z_policy_dict_unref): renamed from z_policy_dict_free, added
+	refcounting,
+	(z_policy_dict_destroy): new function, needs to be called once for
+	every dictionary, frees self->vars to break circular references
+
+	* lib/proxy.c (z_proxy_destroy_method): use z_policy_dict_destroy
+	instead of _free,
+
+	* lib/pystruct.c (z_policy_struct_free): -"-,
+
+	* modules/ssh/sshpolicy.c (ssh_policy_query): -"-,
+
+	* lib/proxygroup.c: added z_enter/z_leave pairs to important
+	functions
+
+	* lib/attach.c (z_attach_cancel): check if self->connector is NULL
+
+	* lib/proxygroup.c (z_proxy_group_get_context): check if
+	self->poll is NULL and return NULL in that case
+
+	* lib/pyattach.c (z_policy_attach_start_method): save a reference
+	to conn->local
+
+	* lib/proxygroup.c (z_proxy_group_start_session): added locking to
+	protect self->sessions,
+	(z_proxy_group_stop_session): -"-, added some locking related
+	notes,
+
+	* lib/proxystack.c (z_proxy_stack_object): check if the object
+	returned by stackProxy() is indeed a Proxy instance,
+
+	* lib/pyproxygroup.c (z_policy_proxy_group_new_instance): the
+	"start" method references the proxy_group instance as otherwise
+	when only the start method is referenced (and not the instance),
+	the proxy group is freed too early
+
+	* pylib/Zorp/Proxy.py (Proxy.stackProxy): return the proxy
+	instance as that is needed by the C part, cleaned up error
+	handling,
+
+	* pylib/Zorp/Chainer.py (ConnectChainer.establishConnection): use
+	Attach.start instead of block() as the first does not exist,
+	(ConnectChainer.getNextTarget): target_local is not an array,
+	(ConnectChainer.connectTarget): pass 'session' instead of 'self'
+	as an argument to getNextTarget
+
+	* lib/pystruct.c (z_policy_struct_module_init): added entry for
+	Z_PST_PROXY_GROUP,
+
+	* debian/zorp-pro.files.in: removed Attach.py
+
+	* modules/plug/plug.c: removed obsolete reference to fastpath.h
+
+	* modules/sip/sip.c, modules/sip/sip.h: SipProxySession merged
+	into SipProxy, all SipProxySession references changed to SipProxy,
+	(sip_proxy_session_*): functions removed,
+	(sip_read_callback): use z_proxy_nonblocking_stop() to indicate
+	that proxy is to be stopped,
+	(sip_init_streams): renamed from sip_proxy_session_init_streams,
+	(sip_start_main_session, sip_start_secondary_session,
+	sip_secondary_accept, sip_enable_secondary_sessions,
+	sip_disable_secondary_sessions, sip_purge_sessions,
+	sip_main_loop): functions removed,
+	(sip_register_vars): removed secondary_mask and friends,
+	(sip_set_defaults): removed unneeded initializations,
+	(sip_nonblocking_init, sip_nonblocking_deinit): new functions,
+	largely constructed from existing code,
+	(sip_proxy_free): parts of deinitialization moved here,
+	(sip_proxy_funcs): use C99 initializers
+
+	* modules/http/httpftp.c (http_ftp_initiate_passive_data): follow
+	ZAttach changes
+
+	* modules/rsh/rsh.c (rsh_connect_client_stderr): -"-
+
+	* modules/radius/radiussession.c: removed this file, everything is
+	moved back to radius.c,
+
+	* modules/radius/radius.c (radius_config_set_defaults): removed
+	secondary_mask and friends,
+	(radius_register_vars): -"-,
+	(radius_start_main_session, radius_start_secondary_session,
+	radius_secondary_accept, radius_enable_secondary_sessions,
+	radius_disable_secondary_sessions, radius_main_loop,): removed
+	these functions,
+	(radius_nonblocking_init, radius_nonblocking_deinit): new
+	functions, initialize the proxy in nonblocking mode,
+	(radius_proxy_new): specify ZPF_NONBLOCKING flag,
+	(radius_proxy_funcs): use C99 initializers,
+
+	* modules/radius/radius.h: removed unneeded declarations, merged
+	RadiusSession into RadiusProxy
+
+	* modules/radius/radiuspacket.c: use RadiusProxy instead of
+	RadiusSession
+
+	* modules/msrpc/msrpcforward.c (msrpc_forwarder_accept): follow
+	ZAttach changes
+
+	* modules/msrpc/msrpc.c (msrpc_proxy_funcs): use C99 initializers
+
+	* modules/ftp/ftp.c (ftp_data_start_proxy): removed explicit ToS
+	propagation, it'll be taken care of by the core,
+	(ftp_proxy_funcs): use C99 initializers
+
+	* modules/ftp/ftp.c (ftp_data_prepare): set aparam.timeout instead
+	of aparam.tcp.timeout (because of ZAttach change)
+
+	* modules/anypy/anypy.c, modules/finger/finger.c,
+	modules/http/http.c, modules/imap/imap.c, modules/ldap/ldap.c,
+	modules/lp/lp.c, modules/mime/mime.c, modules/pop3/pop3.c: use C99
+	initializers for ZProxyFuncs initialization
+
+	* lib/proxy.c (z_proxy_propagate_channel_props): new function to
+	be called every time some kind of data movement was performed
+	(like poll loops), propagates ToS value from client->server and
+	server->client directions,
+	(z_proxy_config_method): added client_tos & server_tos attributes,
+	(z_proxy_run): call z_proxy_propagate_channel_props after startup
+	in order to be server_local_tos initialized, so that Attach can
+	use the actual ToS value
+	(z_proxy_connect_server): call z_proxy_propagate_channel_props
+	after connection was successfully established,
+
+	* lib/zorp/proxy.h: nonblocking_deinit returns void, added
+	ZChannelProps structure
+
+	* lib/plugsession.c (z_plug_session_free): handle self == NULL
+
+	* lib/proxygroup.c (ZProxyGroup): nonblocking_start_queue member
+	renamed from nonblocking_sessions, added nonblocking_proxies for a
+	list of non-blocking proxies,
+	(z_proxy_group_stop_session): maintain nonblocking_proxies by
+	removing the ending proxy,
+	(z_proxy_group_iteration): added z_proxy_propagate_channel_props
+	call for nonblocking proxies, add new nonblocking proxies to
+	nonblocking_proxies list,
+	(z_proxy_group_unref): free nonblocking_proxies list
+
+	* pylib/Zorp/Chainer.py (ConnectChainer.establishConnection): set
+	ToS based on the client's setting
+
+	* lib/proxystack.c (z_proxy_stack_remote_handshake): adapted to
+	ZConnector changes
+
+	* lib/satyr.c: removed inclusion of proxy.h
+
+	* lib/attach.c (z_attach_setup_connector): removed tos parameter
+	from ZConnector constructor, call z_connector_set_tos separately
+
+	* lib/pyattach.c (z_policy_attach_new_instance): adapted to
+	ZAttach changes
+
+	* lib/zorp/dgram.h: adpated to ZConnector changes
+
+	* lib/zorp/attach.h (ZAttachParams): timeout parameter is moved to
+	the global section instead of the tcp specific params,
+
+	* lib/attach.c (z_attach_setup_connector): use timeout from
+	params.timeout instead of params.tcp.timeout
+
+	* lib/pyattach.c (z_policy_attach_new_instance): support for
+	timeout argument in a protocol independent manner
+
+	* lib/satyr.c (z_satyr_connect): removed tos argument passed to
+	z_stream_connector_new(),
+
+	* lib/zasauth.c (z_zas_connect): -"-
+
+	* lib/pydict.c: changed all g_assert(0) to g_assert_not_reached(),
+	(ZPolicyDictEntry): added int8_value member,
+	(z_policy_dict_int_parse_args): added support for Z_VT_INT8,
+	(z_policy_dict_int_get_value): -"-,
+	(z_policy_dict_int_set_value): -"-,
+
+	* lib/pydict.c (z_policy_dict_types): added Z_VT_INT8 entry
+
+	* lib/attach.c (ZAttach): removed multithreaded synchronization,
+	z_attach_start_block() either uses the thread of the current
+	proxy, or uses z_connector_start_block(), no other thread
+	synchronization is necessary,
+	(ZAttach): added proxy member, removed reference counting,
+	(z_attach_setup_connector): new function, initializes
+	self->connector,
+	(z_attach_start): nonblocking start function, performs the
+	connection operation in the context of the specified poll or by
+	the poll of the associated proxy,
+	(z_attach_ref, z_attach_unref): removed,
+	(z_attach_free): new function, from the remnants of unref
+
+	* lib/dispatch.c (ZDispatchCallbackFunc): renamed from
+	ZDispatchCallback,
+
+	* lib/plugsession.c (ZPlugSession): removed dict, added started
+	members, removed support for multiple interoperating
+	ZPlugSessions, that kind of multiplexing is done at a different
+	level now,
+	(z_plug_update_eof_mask): call user specified "finished" callback
+	if the session ends,
+	(z_plug_read_input): changed packet_stats invocation to pass self
+	to it,
+	(z_plug_session_start): set self->started,
+	(z_plug_session_cancel): new function, cancels all pending
+	callbacks,
+	(z_plug_sessions_purge): removed,
+
+	* lib/proxy.c (z_proxy_check_secondary): removed,
+	(z_proxy_set_group, z_proxy_get_group): new function, gets and
+	sets the proxy's group,
+	(z_session_var_new, z_proxy_set_session_dict): removed,
+	(z_proxy_run): renamed from z_proxy_run_method, as this is not
+	going to be a virtual function,
+	(z_proxy_threaded_start): renamed from z_proxy_start, added
+	proxy_group argument,
+	(z_proxy_nonblocking_start, z_proxy_nonblocking_stop): new
+	functions, for alternative, nonblocking operation,
+	(z_proxy_free_method): unref self->group added,
+
+	* lib/zorp/proxy.h (ZPS_*): converted macros to enums,
+	(ZS_MATCH_*): removed,
+	(ZPF_NONBLOCKING): new enum,
+	(ZProxyFuncs): added nonblocking_init and nonblocking_deinit,
+	removed run,
+	(ZProxy): added flags, group, fastpath
+
+	* lib/proxystack.c (z_proxy_stack_remote_handshake_one): removed
+	error argument, it is not a connector callback anymore,
+	(z_proxy_stack_remote_handshake): adapted to the new connector
+	blocking connect semantics
+
+	* lib/proxygroup.c: new file, contains ZProxyGroup implementation
+
+	* lib/zorp/proxygroup.h: new file, ZProxyGroup interface
+
+	* lib/satyr.c (z_satyr_connect): don't use ZAttach as that
+	requires a ZProxy pointer, use the blocking ZConnector API
+	instead,
+
+	* lib/zasauth.c (z_zas_connect): -"-,
+
+	* lib/pyproxygroup.c, lib/zorp/pyproxygroup.h: new file, contains
+	Python wrapper for ZProxyGroup
+
+	* lib/pyattach.c (ZPolicyAttach): renamed from ZorpAttach, all
+	z_py_zorp prefixes changed to z_policy_, only support blocking
+	operation from Python, removed callback support, removed cancel
+	method, followed API changes in attach.c
+
+	* lib/pypolicy.c (z_policy_boot): removed obsolete fastpath
+	references, follow renames in pyattach, added pyproxygroup module
+	init
+
+	* lib/pyproxy.c (ZPolicyProxy): structure made private,
+	(z_policy_proxy_bind_implementation): new function, second stage
+	of proxy initialization, the constructor will only create the
+	"shell" of a proxy, bind_implementation is what actually connects
+	the C implementation to the Python wrapper,
+	(z_policy_proxy_getattr): added proxy_started attribute support,
+	this way this assignment can be removed from Python, the Python
+	wrapper will automatically "publish" a true value once the C part
+	has been initialized, also removed support for session
+	dictionaries,
+	(z_policy_proxy_setattr): removed support for session dicts,
+	(z_policy_proxy_init_instance): first part of initialization, only
+	stores the necessary fields to initialize the proxy later,
+
+	* lib/zorp/pyproxy.h (ZPolicyProxy): made private,
+	(z_policy_proxy_check): added proper type checking so this one
+	returns true for descendant Proxy instances as well
+
+	* lib/zorp/pystruct.h: added Z_PST_PROXY_GROUP,
+
+	* modules/ftp/ftp.c (ftp_data_prepare): follow ZAttach API
+	changes,
+
+	* modules/http/httpftp.c (http_ftp_initiate_passive_data): -"-,
+	(http_ftp_complete_data): use http_ftp_cleanup_data instead of
+	open coding
+
+	* modules/plug/plug.c (PlugProxy): removed secondary connection
+	support, as secondary connections are automatically handled by the
+	core, follow ZPlugSession changes, implement nonblocking proxy
+	interface
+
+	* modules/pssl/pssl.c: follow API changes in plugsession
+
+	* modules/rsh/rsh.c: follow attach changes
+
+	* modules/tftp/tftp.c: follow attach changes
+
+	* pylib/Zorp/Chainer.py: removed Attacher module import and
+	setupFastpath methods
+
+	* pylib/Zorp/Dispatcher.py (Dispatcher.connected): don't return
+	the proxy instance
+
+	* pylib/Zorp/Attach.py: removed
+
+	* pylib/Zorp/NAT.py: removed setupFastpath methods,
+
+	* pylib/Zorp/Router.py: removed setupFastpath methods,
+
+	* pylib/Zorp/Proxy.py: removed setupFastpath invocations,
+	(Proxy.stackProxy): start child proxies in a separate proxy group,
+
+	* pylib/Zorp/Service.py (Service.__init__): added max_sessions
+	attribute, create service specific proxy group,
+	(Service.startInstance): start proxy in a ProxyGroup
+
+	* pylib/Zorp/Session.py (MasterSession): removed client_tos and
+	server_tos attributes,
+
+	* pylib/Zorp/Router.py (AbstractRouter): removed ToS propagation
+
+	* pylib/Zorp/Dispatch.py (Dispatcher): removed ToS query of the
+	client connection
+
+	* lib/pycore.c: removed ToS related functions
+
+	* lib/satyr.c (z_satyr_connect): removed tos argument passed to
+	z_stream_connector_new(),
+
+	* lib/zasauth.c (z_zas_connect): -"-
+
+2006-10-11  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/Service.py (PFService.buildKZorpMessage): dest_addr
+	attribute of DirectedRouter is a SockAddr, the IP address is
+	stored in network byte order so that we have to convert it
+
+	* pylib/Zorp/Lib/nfnetlink.py: reformat source code
+	(NfnetlinkMessage.get_attributes): fix attribute parsing,
+	attribute lengths should be nfa_align()-ed when computing the
+	position of the next attribute
+
+	* pylib/Zorp/Lib/kznfnetlink.py: reformat source code, remove
+	obsolete tests
+
+	* pylib/Zorp/Lib/kznfnetlink.py: it's not meaningful to convert
+	single bytes to host byte order
+
+	* pylib/Zorp/NAT.py (GeneralNAT.getKZorpMapping): specify correct
+	KZorp NAT range flags, return result list
+
+	* pylib/Zorp/Service.py: import NAT_SNAT and NAT_DNAT from NAT
+	(PFService.__init__): look up NAT policy names and store the
+	policy reference
+	(PFService.buildKZorpMessage): fix DirectedRouter destination
+	address resolution, send NAT entry messages
+
+	* pylib/Zorp/Dispatch.py (parsePortString): new function to parse
+	port and port range lists (fixes: #10089)
+	(AbstractDispatch.__init__): use parsePortString to initialize the
+	rule_port attribute (fixes: #10089)
+	(Dispatcher.buildKZorpMessage): self.rule_port is a list (fixes:
+	#10089)
+
+	* pylib/Zorp/Lib/kznfnetlink.py ({create,parse}_bind_addr_attr):
+	new functions to construct and parse the new KZA_DPT_BIND_ADDR
+	nfnetlink attributes (fixes: #10089)
+	({create,parse}_bind_{iface,ifgroup}_attr): handle port range
+	lists (fixes: #10089)
+	(create_add_dispatcher_{sabind,ifacebind,ifgroupbind}_msg): handle
+	port range lists (fixes: #10089)
+
+	* pylib/Zorp/Dispatch.py (AbstractDispatch): don't raise an error
+	if rule_port argument is present for non-transparent dispatchers
+	(fixes: #9945)
+
+	* lib/pydispatch.c (z_policy_dispatch_bind_new): interface and
+	interface group bind port arguments should not be converted to
+	network byte order (fixes: #9944)
+
+	* pylib/Zorp/Lib/kznfnetlink.py: remove endianness conversion from
+	all create_ functions, from now on _all_ arguments are passed to
+	these in host byte order (fixes: #9944)
+
+	* pylib/Zorp/Dispatch.py (Dispatcher): don't convert anything to
+	network byte order, as kznfnetlink functions require arguments in
+	host byte order. There's one exception: ip attribute of SockAddr
+	objects has to be converted to host byte order (fixes: #9944)
+
+	* pylib/Zorp/Zone.py (InetZone): import socket module, convert
+	address and mask to host byte order before passing it to the
+	appropriate kznfnetlink function (fixes: #9944)
+
+	* lib/dispatch.c (z_dispatch_bind_format): include port numbers in
+	the format string, this is necessary to make these names unique
+	(fixes: #9924)
+
+2006-10-11  Balazs Scheidler <bazsi@balabit.hu>
+
+	* debian/zorp-pro.files.in: added KZorp specific files
+
+	* pylib/Zorp/Zorp.py (init): added exception handling around KZorp
+	configuration download
+
+2006-10-11  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/Dispatch.py (Dispatcher.buildKZorpMessage): handle
+	DBIfaceGroup dispatch bind type
+
+	* pylib/Zorp/Lib/kznfnetlink.py
+	(create_add_dispatcher_ifacebind_msg): fix create_name_attr()
+	method name
+
+	* pylib/Zorp/Zorp.py (init): remove hashmark left before the
+	downloadKZorpConfig() call
+
+	* pylib/Zorp/Dispatch.py (Dispatcher): interface listener's rule
+	port is host byte order
+
+2006-10-11  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/zorp/dispatch.h (ZDispatchBind): avoid the use of unnammed
+	structs as they'd clash as soon as interface group and interface
+	bind lives in the same structure
+
+	* lib/dispatch.c: follow ZDispatchBind member name changes in the
+	header
+	(ZDispatchChain): iface_watches member became a list, new member
+	named iface_group_watch,
+	(z_dispatch_bind_equal): added support for ZD_BIND_IFACE_GROUP,
+	(z_dispatch_bind_hash): -"-,
+	(z_dispatch_bind_format): -"-,
+	(z_dispatch_bind_is_wildcard): -"-,
+	(z_dispatch_iface_addr_matches): -"-,
+	(z_dispatch_bind_new_iface_group): new function, creates an
+	interface-group bind,
+	(z_dispatch_bind_iface_change): changed to handle
+	chain->registered_key being ZD_BIND_IFACE_GROUP type, earlier this
+	was only used for ZD_BIND_IFACE binds,
+	(z_dispatch_bind_iface_group_change): new function, registered as
+	an interface group monitor,
+	(z_dispatch_bind_listener): iface_watch became a list, follow the
+	change, added support for ZD_BIND_IFACE_GROUP binds,
+	(z_dispatch_unbind_listener): free ifgroup watch and the
+	ifmon_watches list,
+
+	* lib/ifmonitor.c (ZIfaceInfo): added group member,
+	(ZIfmonGroupWatch): new struct,
+	(z_ifmon_call_watchers_unlocked): removed unnecessary unlock call,
+	(z_ifmon_watch_iface_matches): new function, returns if a given
+	IfmonWatch refers to the interface given,
+	(z_ifmon_register_watch): instead of calling z_ifmon_iterate_addrs
+	that'd call all registered callbacks, use only the callback
+	currently registered, might have caused some unnecessary binds,
+	(z_ifmon_unregister_watch): call the callback for all known
+	addresses before unregistering the watch,
+	(z_ifmon_call_group_watchers_unlocked,
+	z_ifmon_call_group_watchers): new functions, they iterate the
+	group_watchers list,
+	(z_ifmon_iterate_ifaces): new function call the callback for all
+	registered interfaces in a group,
+	(z_ifmon_register_group_watch, z_ifmon_unregister_group_watch):
+	register/deregister an interface group watch,
+
+	* lib/pydispatch.c (z_policy_dispatch_bind_new): added support for
+	ZD_BIND_IFACE_GROUP,
+	(z_policy_dispatch_bind_new_instance_iface_group): new function,
+	constructs a DBIfaceGroup,
+
+	* lib/pystruct.c (z_policy_struct_module_init): added
+	Z_PST_DB_IFACE_GROUP
+
+	* pylib/Zorp/Chainer.py (ConnectChainer.__init__): added timeout
+	parameter documentation, renamed timeout to timeout_connect as it
+	clashed in descendant classes,
+	(ConnectChainer.establishConnection): use setServerAddress instead
+	of setServer,
+	(ConnectChainer.getNextTarget): new function, should return the
+	next target to connect to,
+	(ConnectChainer.connectTarget): new function, performs NAT mapping
+	and establishes connection to the target server,
+	(ConnectChainer.chainParent): remove server_address is a list
+	hacks, use the new methods, simplified a lot,
+	(MultiTargetChainer): new class, simple stateless,
+	round-robin-like operation,
+	(StateBasedChainer): new base class, implements state keeping and
+	related methods,
+	(FailoverChainer): stateful, failover HA,
+	(RoundRobinChainer): new class, stateful round-robin
+
+	* pylib/Zorp/Dispatch.py (Dispatcher.accepted): use
+	setClientAddress instead of setClient
+
+	* pylib/Zorp/Core.py: added imports for new classes
+
+	* pylib/Zorp/Resolver.py (DNSResolver, HashResolver): make sure an
+	array is returned
+
+	* pylib/Zorp/Router.py: adapted to server/target address
+	separation
+
+2006-10-10  Balazs Scheidler <bazsi@balabit.hu>
+
+	* pylib/Zorp/NAT.py (NATPolicy.getKZorpMapping): new method,
+	returns the KZorp representation of the given NAT policy,
+	(GeneralNAT.getKZorpMapping): new method, returns the KZorp
+	representation of GeneralNAT
+
+	* pylib/Zorp/NAT.py (AbstractNAT.performTranslation): changed
+	prototype to accept a tuple of addresses instead of a single
+	address,
+	(NATPolicy.performTranslation): support src/dst address tuple,
+	(GeneralNAT): support source/destination match,
+	(StaticNAT, OneToOneNAT, OneToOneMultiNAT, RandomNAT): follow
+	interface change
+
+	* pylib/Zorp/Domain.py (InetDomain, Inet6Domain): if address is
+	not specified cover the entire address space (0.0.0.0/0 for ipv4,
+	0::0/0 for ipv6)
+
+2006-10-10  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/Lib/kznfnetlink.py: renamed create_add_zonesvc_msg()
+	to create_add_zone_svc_msg() to comply with the naming scheme of
+	the module
+
+	* pylib/Zorp/Zone.py (InetZone.buildKZorpMessage): iterate through
+	inbound and outbound services and build ADD_ZONE_SVC messages
+
+	* pylib/Zorp/Service.py: import DirectedRouter
+	(PFService) temporarily disable NAT mapping generation, fix
+	transparent flag reference
+
+	* pylib/Zorp/Dispatch.py (Dispatcher.buildKZorpMessage): convert
+	self.rule_port to network byte order before handing it to the
+	kznfnetlink message builder
+
+	* pylib/Zorp/Dispatch.py (AbstractDispatch): process transparent
+	and rule_port attributes
+
+	* pylib/Zorp/Dispatch.py (AbstractDispatch): store transparent and
+	rule_port arguments in self
+
+	* lib/pydispatch.c (struct _ZPolicyDispatch): remove transparent
+	member;
+	(z_policy_dispatch_getattr): no need to handle 'transparent'
+	attribute as it's handled in Python now
+
+	* pylib/Zorp/Zone.py (InetZone): pass inherit_name argument to
+	Zone constructor; define an InetZone specific subZone() method so
+	that InetZone subzones are also created as InetZone instances
+
+2006-10-10  Balazs Scheidler <bazsi@balabit.hu>
+
+	* pylib/Zorp/Dispatch.py: remove debug print-outs
+
+	* lib/pystruct.c: copy-paste the ZPolicyProxy type definition with
+	some slight changes, now type() and isinstance() works properly on
+	ZPolicyStruct objects
+
+2006-10-10  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/Lib/kznfnetlink.py: adapt to latest kernel API
+	changes (interface group dispatcher support)
+
+	* pylib/Zorp/Dispatch.py: KZorp updates
+
+	* pylib/Zorp/KZorp.py: fix imports (from X import * was not
+	allowed here)
+
+	* pylib/Zorp/Service.py: KZorp updates
+
+	* pylib/Zorp/Zone.py: KZorp updates
+
+	* pylib/Zorp/Zorp.py (init): don't catch AttributeError exceptions
+	raised in the instance initializer function as this makes
+	debugging impossible
+
+	* lib/pypolicy.c (z_policy_init): run Python policy initializer
+	function with CAP_NET_ADMIN enabled, this is required for
+	Nfnetlink communication
+
+2006-10-10  Balazs Scheidler <bazsi@balabit.hu>
+
+	* lib/pydispatch.c (z_policy_dispatch_bind_format): renamed from
+	z_policy_dispatch_bind_pyformat,
+	(z_policy_dispatch_bind_new): use different types for descendant
+	DispatchBind types,
+
+	* lib/pysockaddr.c (z_policy_sockaddr_new): use different types
+	for descendant DispatchBind types,
+
+	* lib/pystruct.c (z_policy_struct_module_init): added support for
+	derived types, added info on new types
+
+	* pylib/Zorp/Dispatch.py (convertSockAddrToDB): use isinstance
+	instead of type() to determine compatibility
+
+	* pylib/Zorp/Zorp.py: removed ugly storing of SockAddr type
+	reference, it is now automatically done by the C part,
+
+2006-10-10  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/KZorp.h: whitespace cleanup
+
+	* pylib/Zorp/Makefile.am: subdirectory Lib added
+
+	* pylib/Zorp/Lib/Makefile.am: added Makefile.am for new directory
+
+	* configure.in.in: added pylib/Zorp/Lib/Makefile to the list of
+	makefiles to be generated
+
+2006-10-09  Krisztian Kovacs <hidden@balabit.hu>
+
+	* pylib/Zorp/Lib/kznfnetlink.py: Update to match the latest
+	specifications.
+
+	* pylib/Zorp/Lib/nfnetlink.py: Import the (patched) socket module,
+	remove test code.
+
+	* pylib/Zorp/Service.py (PFService): Update to match the latest
+	specifications, send flags and router target address to KZorp if
+	necessary.
+
+2006-10-09  MOLDVAI Dezso E. <mde@balabit.hu>
+
+	* pylib/Zorp/Router.py: Fixed DirectedRouter dest_addr gui type
+	(fixes: #9604)
+
+	* pylib/Zorp/Dispatch.py, pylib/Zorp/Zone.py: Fixed syntax errors
+	(fixes: #nobug)
+
+2006-10-09  Fazekas Andrea <fazek@balabit.hu>
+
+	* pylib/Zorp/Dispatch.py: Removed the internal flag from the
+	Dispatcher and CSZoneDispatcher classes. (fixes: #3683)
+
+2006-08-29  SZALAY Attila  <sasa@localhost>
+
+	* Initial log entry for version 3.2
+

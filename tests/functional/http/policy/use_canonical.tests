@@ -1,0 +1,64 @@
+StartGlobalInfo
+	Tags bug7318
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.use_canonicalized_urls = TRUE
+                self.transparent_mode = FALSE
+                self.parent_proxy = '1'
+                self.request["POST"] = (HTTP_REQ_POLICY, self.filterURL)
+
+        def filterURL(self, method, url, version):
+                self.request_url = 'http://owa.domain.int/exch%61nge/'
+                return HTTP_REQ_ACCEPT
+EndPolicy
+
+C2P: "GET http://www.kakukk.bu/valami%2ecgi HTTP/1.0\r\n\
+Host: www.kakukk.bu\r\n\
+\r\n"
+P2S: "GET http://www.kakukk.bu/valami.cgi HTTP/1.0\r\n\
+Host: www.kakukk.bu\r\n\
+\r\n"
+.
+
+C2P: "POST http://www.kakukk.bu/valami%2ecgi HTTP/1.0\r\n\
+Host: www.kakukk.bu\r\n\
+\r\n"
+P2S: "POST http://owa.domain.int/exchange/ HTTP/1.0\r\n\
+Host: owa.domain.int\r\n\
+\r\n"
+.
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.use_canonicalized_urls = FALSE
+                self.transparent_mode = FALSE
+                self.parent_proxy = '1'
+                self.request["POST"] = (HTTP_REQ_POLICY, self.filterURL)
+
+        def filterURL(self, method, url, version):
+                self.request_url = 'http://owa.domain.int/exch%61nge/'
+                return HTTP_REQ_ACCEPT
+EndPolicy
+
+
+C2P: "GET http://www.kakukk.bu/valami%2ecgi HTTP/1.0\r\n\
+Host: www.kakukk.bu\r\n\
+\r\n"
+P2S: "GET http://www.kakukk.bu/valami%2ecgi HTTP/1.0\r\n\
+Host: www.kakukk.bu\r\n\
+\r\n"
+.
+
+C2P: "POST http://www.kakukk.bu/valami%2ecgi HTTP/1.0\r\n\
+Host: www.kakukk.bu\r\n\
+\r\n"
+P2S: "POST http://owa.domain.int/exch%61nge/ HTTP/1.0\r\n\
+Host: owa.domain.int\r\n\
+\r\n"
+.

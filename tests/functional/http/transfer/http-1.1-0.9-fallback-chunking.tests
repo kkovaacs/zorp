@@ -1,0 +1,33 @@
+
+
+StartPolicy
+	def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+                self.require_host_header = FALSE
+                self.permit_http09_responses = TRUE
+		# no real stacking, but let the traffic through an external program
+		self.response_stack["*"] = (HTTP_STK_DATA, "/bin/cat")
+EndPolicy
+
+StartInfo
+        Tags        bug4567
+	Min-Version 3.0
+EndInfo
+
+
+#HTTP 1.1 request and HTTP 0.9 response
+C2P: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "This is a simple, but long response without headers. The proxy should not add chunking here.\r\n\
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n"
+P2C: "This is a simple, but long response without headers. The proxy should not add chunking here.\r\n\
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+

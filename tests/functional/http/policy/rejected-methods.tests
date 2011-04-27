@@ -1,0 +1,21 @@
+StartPolicy
+	def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+		self.request["PUT"] = (HTTP_REQ_REJECT,)
+		self.request["GET"] = (HTTP_REQ_ABORT,)
+EndPolicy
+
+C2P: "PUT /foo.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2C: "HTTP/1." $VER " 500" $NIHIL "</html>\n"
+.
+
+C2P: "GET /foo.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2C: "HTTP/1." $VER " 500" $NIHIL "</html>\n"
+P2C: Disconnect
+.
+

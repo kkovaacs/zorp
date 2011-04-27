@@ -1,0 +1,95 @@
+StartGlobalInfo
+	Tags limits
+EndGlobalInfo
+
+
+# "Max length" scenarios
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.max_body_length = 10
+		self.max_chunk_length = 8
+EndPolicy
+
+# explicit length
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 10\r\n\
+\r\n\
+1234567890"
+.
+
+# chunked length
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+4\r\n\
+1234\r\n\
+8\r\n\
+56789012\r\n\
+0\r\n\r\n"
+P2C: "HTTP/1.1 200 OK\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+4\r\n\
+1234\r\n\
+6\r\n\
+567890\r\n\
+0\r\n\r\n"
+.
+                                                                                                                                        
+# no length
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+\r\n\
+123456789012"
+P2C: "HTTP/1.0 200 OK\r\n\
+\r\n\
+1234567890"
+.
+
+# max_chunk_length
+
+C2P: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 6\r\n\
+\r\n\
+haliho"
+P2S: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 6\r\n\
+\r\n\
+haliho"
+S2P: "HTTP/1.1 200 OK\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+a\r\n\
+1234567890\r\n\
+0\r\n"
+P2C: "HTTP/1.0 500 Error encountered\r\n" $NIHIL "</html>\n"
+
+.

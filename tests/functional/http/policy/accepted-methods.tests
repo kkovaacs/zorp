@@ -1,0 +1,260 @@
+
+StartPolicy
+	def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+		self.request["*"] = (HTTP_REQ_ACCEPT,)
+EndPolicy
+
+
+C2P: "OPTIONS /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "OPTIONS /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "GET /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "GET /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "HEAD /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "HEAD /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+# The response to a HEAD command *NEVER* contains an entity
+# Bug #4060
+C2P: "HEAD /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "HEAD /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 1000\r\n\
+\r\n"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Length: 1000\r\n\
+\r\n"
+.
+
+C2P: "POST /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "POST /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "PUT /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "PUT /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "DELETE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "DELETE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+#C2P: "TRACE /index.html HTTP/1.1\r\n\
+#Host: www.foo.bar\r\n\
+#\r\n"
+#P2S: "TRACE /index.html HTTP/1.1\r\n\
+#Host: www.foo.bar\r\n\
+#\r\n"
+#.
+
+# TRACE request / entity doesn't present in request
+#C2P: "TRACE /index.html HTTP/1.1\r\n\
+#Host: www.foo.bar\r\n\
+#Content-length: 13\r\n\
+#\r\n\
+#entitas teste"
+#P2C: "TRACE /index.html HTTP/1.1\r\n\
+#Host: www.foo.bar\r\n\
+#Content-length: 13\r\n\
+#\r\n\"
+#.
+
+C2P: "PATCH /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "PATCH /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "LINK /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "LINK /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "UNLINK /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "UNLINK /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "PROPFIND /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "PROPFIND /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "PROPPATCH /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "PROPPATCH /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "MKCOL /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "MKCOL /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "COPY /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "COPY /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "MOVE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "MOVE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "NOTIFY /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "NOTIFY /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "POLL /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "POLL /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "SEARCH /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "SEARCH /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "SUBSCRIBE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "SUBSCRIBE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "UNSUBSCRIBE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "UNSUBSCRIBE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "LOCK /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "LOCK /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "UNLOCK /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "UNLOCK /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "BCOPY /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "BCOPY /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "BDELETE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "BDELETE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "BMOVE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "BMOVE /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "BPROPFIND /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "BPROPFIND /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "BPROPPATCH /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+P2S: "BPROPPATCH /index.html HTTP/1.1\r\n\
+Host: www.foo.bar\r\n\
+\r\n"
+.
+
+C2P: "CONNECT www.foo.bar:443 HTTP/1.1\r\n\
+Host: www.foo.bar:443\r\n\
+\r\n"
+P2C: "HTTP/1.0 200 Connection established\r\n\r\n"
+.
+
+

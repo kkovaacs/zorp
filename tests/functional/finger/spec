@@ -1,0 +1,6 @@
+StartSpec
+        Proxy FingerProxy
+        ZSleep 2
+        CSleep 2
+EndSpec
+ 

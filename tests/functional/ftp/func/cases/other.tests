@@ -1,0 +1,193 @@
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.transparent_mode = FALSE
+		self.strict_port_checking = FALSE
+EndPolicy
+
+#Bug 2986
+#Accept all (unknown) command in preconnect state
+P2C: "220-Welcome in Zorp FTP proxy authentication module!\r\n\
+ Please authenticate yourself!\r\n\
+ Authentication form:\r\n\
+   USER <user>@<remote site>\r\n\
+   PASS <password>\r\n\
+220 \r\n"
+C2P: "AUTH SASL\r\n"
+P2C: "502 " $NIHIL "\r\n"
+C2P: "USER user@remotesite\r\n"
+P2C: "331 Username and host okay, send your password.\r\n"
+.
+
+#testing FTP_DATA_PASSIVE and FTP_DATA_ACTIVE
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.data_mode = FTP_DATA_PASSIVE
+		self.strict_port_checking = FALSE
+EndPolicy
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: Listen 1300
+C2P: "PORT " %CLIENT_COMMAIP ",5,20\r\n"
+P2S: "PASV\r\n"
+PORT = 1289
+SERVER_COMMAIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen PORT
+S2P: "227 Entering Passive Mode (" %SERVER_COMMAIP ",5,9)\r\n"
+P2C: "200 " $NIHIL "\r\n"
+C2P: "LIST\r\n"
+P2S: "LIST\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Accept
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150 Data Follow\r\n"
+dP2C: "barmi\r\n"
+.
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.data_mode = FTP_DATA_ACTIVE
+		self.strict_port_checking = FALSE
+EndPolicy
+
+StartInfo
+Tags    qwer
+EndInfo
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+C2P: "PASV\r\n"
+P2S: "PORT " $CIP1 "," $CIP2 "," $CIP3 "," $CIP4 "," $CPORT1 "," $CPORT2 "\r\n"
+S2P: "200 Ok\r\n"
+P2C: "227 Entering Passive mode (" $SIP1 "," $SIP2 "," $SIP3 "," $SIP4 "," $SPORT1 "," $SPORT2 ").\r\n"
+C2P: "RETR barmi\r\n"
+P2S: "RETR barmi\r\n"
+S2P: "150 Data follow\r\n"
+TMP_CLIENT_IP = str(CIP1)+'.'+str(CIP2)+'.'+str(CIP3)+'.'+str(CIP4)
+CLIENT_PORT = CPORT1*256+CPORT2
+S2P: Connect TMP_CLIENT_IP CLIENT_PORT
+TMP_SERVER_IP = str(SIP1)+'.'+str(SIP2)+'.'+str(SIP3)+'.'+str(SIP4)
+SERVER_PORT = SPORT1*256+SPORT2
+C2P: Connect TMP_SERVER_IP SERVER_PORT
+dS2P: "barmi\r\n"
+P2C: "150 Data follow\r\n"
+dP2C: "barmi\r\n"
+.
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+# testing aborted and reinitiated transfer
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: "PORT " %CLIENT_COMMAIP ",5,21\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+PORT = PORT1*256 + PORT2
+IP = str(IP1)+'.'+str(IP2)+'.'+str(IP3)+'.'+str(IP4)
+S2P: "200 Ok\r\n"
+P2C: "200 Ok\r\n"
+C2P: Listen 1301
+C2P: "RETR egyik\r\n"
+P2S: "RETR egyik\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Connect IP PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150 Data Follow\r\n"
+dP2C: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+S2P: "226 Ok\r\n"
+P2C: "226 Ok\r\n"
+
+C2P: "PORT " %CLIENT_COMMAIP ",5,22\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+PORT = PORT1*256 + PORT2
+IP = str(IP1)+'.'+str(IP2)+'.'+str(IP3)+'.'+str(IP4)
+S2P: "200 Ok\r\n"
+P2C: "200 Ok\r\n"
+C2P: Listen 1302
+C2P: "RETR masik\r\n"
+P2S: "RETR masik\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Connect IP PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150 Data Follow\r\n"
+dP2C: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+.
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+
+CLIENT_COMMAIP = string.replace(ZTS_CLIENT_IP,".",",")
+C2P: "PORT " %CLIENT_COMMAIP ",5,23\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+PORT = PORT1*256 + PORT2
+IP = str(IP1)+'.'+str(IP2)+'.'+str(IP3)+'.'+str(IP4)
+S2P: "200 Ok\r\n"
+P2C: "200 Ok\r\n"
+C2P: Listen 1303
+C2P: "RETR barmi\r\n"
+P2S: "RETR barmi\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Connect IP PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150 Data Follow\r\n"
+dP2C: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+S2P: "451 Error\r\n"
+P2C: "451 Error\r\n"
+
+
+C2P: "PORT " %CLIENT_COMMAIP ",5,24\r\n"
+P2S: "PORT " $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 "\r\n"
+PORT = PORT1*256 + PORT2
+IP = str(IP1)+'.'+str(IP2)+'.'+str(IP3)+'.'+str(IP4)
+S2P: "200 Ok\r\n"
+P2C: "200 Ok\r\n"
+C2P: Listen 1304
+C2P: "RETR barmi\r\n"
+P2S: "RETR barmi\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Connect IP PORT
+C2P: Accept
+dS2P: "barmi\r\n"
+P2C: "150 Data Follow\r\n"
+dP2C: "barmi\r\n"
+dS2P: Disconnect
+dP2C: Disconnect
+.

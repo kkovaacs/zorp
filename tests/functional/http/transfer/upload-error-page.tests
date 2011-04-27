@@ -1,0 +1,32 @@
+StartGlobalInfo
+	Tags bug8533
+EndGlobalInfo
+
+StartPolicy
+	def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+		self.request_stack["POST"] = (HTTP_STK_DATA, "/bin/cat >/dev/null; /bin/echo -en '0 SETVERDICT\\\\nn[]Verdict\\\\nnZ_REJECT\\\\nn[]Description\\\\nn Nem nyert\\\\nn\\\\nn'>&3; read alma <&3")
+		self.request_stack["HEAD"] = (HTTP_STK_DATA, "/bin/cat >/dev/null; /bin/echo -en '0 SETVERDICT\\\\nn[]Verdict\\\\nnZ_REJECT\\\\nn[]Description\\\\nn Nem nyert\\\\nn\\\\nn'>&3; read alma <&3")
+EndPolicy
+
+
+# When uploading is rejected send an errorpage to the client
+C2P: "POST /var/www/eicar.com HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 68\r\n\
+\r\n\
+X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
+P2C: "HTTP/1.0 500 Error encountered\r\n" $NIHIL "</html>\n"
+.
+
+C2P: "HEAD /var/www/eicar.com HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 68\r\n\
+\r\n\
+X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
+P2C: "HTTP/1.0 500 Error encountered\r\n\
+Connection: close\r\n\
+Content-Type: text/html\r\n\
+\r\n"
+.

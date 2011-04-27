@@ -1,0 +1,22 @@
+
+* kernel 2.4 support with a custom transparent proxy patch
+  (available at http://www.balabit.hu/en/downloads/tproxy)
+* transition to glib 2.0 instead of 1.3.1
+* transition to python 2.1
+
+* rewritten, more robust UDP implementation
+  * the same proxy can work on UDP and TCP transparently without changes 
+    (for example: plug)
+  * it is theoretically possible to convert an UDP stream to a TCP stream on
+    the fly, without the proxy knowing this fact
+* the introduction of fastpath connection establishment
+  * proxies can register the connections they are interested in, and as a
+    new connection arrives a callback is delivered (dispatch)
+  * the possibility to support several subsessions in a single proxy
+    instance (plug is currently the only one which supports this, see the
+    documentation of the attributes secondary_mask & secondary_sessions)
+  * it is now much easier to support protocols with multiple channels (e.g.
+    FTP)
+* an effort was made to make log messages more consistent, log categories
+  better selected
+* updated authentication framework, the possibility to use ZAS2 and Satyr2

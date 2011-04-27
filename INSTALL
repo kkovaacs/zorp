@@ -1,0 +1,107 @@
+
+ZORP installation
+-----------------
+
+Zorp requires some preinstalled components to compile properly. 
+
+Note that ZORP requires the linux kernel version 2.2.x (latest is 2.2.19 as
+of this writing) with transparent proxy support compiled in. Support for
+2.4.x kernels is not complete, you'll not be able to use connection tracking.
+
+Required packages:
+
+glib 2.0.x
+python 2.1 or python 1.5
+python-extclass 1.2
+openssl 0.9.6f
+
+Recommended packages:
+
+libcap 1.10 for on-the-fly capability management
+
+Installation steps:
+-------------------
+
+1) Choose an installation prefix (/usr/local/zorp), or simply /usr/local if
+   you plan to use the libraries installed on your system.
+
+2) Install glib 2.0
+
+   This step is optional if your system ships glib 2.0. Note that you will
+   need library headers as well which is usually included in the development
+   package.
+
+	tar xvfz glib-2.0.6.tar.gz
+	cd glib-2.0.6
+	./configure 
+	make
+	make install
+
+3) Install Python-2.1 or Python-1.5.2
+
+   You can either use the package as installed on your system, or compile
+   on your own. Make sure you have development files. Debian distributions
+   create a shared library version of the Python interpreter, Zorp will use
+   this by default. If your distribution doesn't have libpython2.1.so you
+   will have to add a --with-python-libs configure option to Zorp.
+
+4) Install Zorp
+
+	tar xvfz zorp-xxx.tar.gz
+	cd zorp-xxx
+	./configure
+	make
+	make install
+
+   The configure script has a couple of important switches you might need
+   to change. For example:
+
+        --enable-tproxy[=platform]
+
+	  Turn on transparent proxying support for the given platform. By
+	  default an autodetection of your platform is performed which will
+	  recognize either linux22/netfilter/ipfilter. The following
+	  platforms are available:
+
+	    linux22   -- Linux 2.2 transparent proxy support
+
+            netfilter -- Linux 2.4 with our Transparent Proxy support patches
+
+	    ipfilter  -- assumed on non-Linux platforms (your OS might not be
+		         supported, as ipfilter needs to be patched as well)
+			 Currently only Solaris is fully supported,
+			 otherwise you will not be able to forge the source
+			 address of firewall initiated connections.
+			 (webserver in the DMZ)
+
+	--enable-conntrack
+
+	  You can either enable or disable UDP proxy support. CONNTRACK
+	  might not be supported on the platform chosen by --enable-tproxy in which
+	  cases you may have to disable it.
+
+        --with-python-headers & --with-python-libs
+
+	  If your system doesn't supply a libpython.so, or places it to a
+	  location unknown to this configure script, you'll have to give
+	  explicit paths. For example on RedHat you might need something
+	  like this:
+
+		--with-python-headers=/usr/include/python2.1 \
+		--with-python-libs=/usr/lib/python2.1/config
+
+5) Create your policy
+
+   Create your policy file in $prefix/etc/zorp/policy.py and
+   $prefix/etc/zorp/instances.conf according to the available documentation.
+
+   As a beginner reading Zorp Getting Started Guide might be a good starting
+   point. Reference like information is available in python docstrings under
+   /usr/share/zorp/pylib/Zorp/*.py
+
+Configure options:
+------------------
+
+There are certain features that can be enabled/disabled at compile time. To
+enable a certain feature add an --enable-<feature> on the configure command
+line.

@@ -1,0 +1,59 @@
+
+# "Max length" scenarios
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.max_line_length = 40
+                self.max_hostname_length = 12
+                self.max_url_length = 20
+                self.max_header_lines = 3
+EndPolicy
+
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.network.org\r\n\
+\r\n"
+P2C: "HTTP" $NIHIL "</html>\n"
+.
+
+C2P: "GET /index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 7\r\n\
+Content-Language: barmi1barmi2barmi3barmi4\r\n\
+\r\n\
+content"
+P2C: "HTTP" $NIHIL "</html>\n"
+.
+
+C2P: "GET /index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 7\r\n\
+Content-MD5: Q2hlY2sgSW50Z==\r\n\
+Content-Language: barmi1barmi2\r\n\
+\r\n\
+content"
+P2C: "HTTP" $NIHIL "</html>\n"
+.
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OKezitttobbmintharminckarakterlesz\r\n\
+Connection: close\r\n\
+\r\n\
+entitas nagyon"
+P2C: Disconnect
+.
+
+
+# max_url_length
+C2P: "GET /var/abcdef/ghijklmnop/qrstuvwxyz/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n\"
+P2C: Disconnect
+.
+

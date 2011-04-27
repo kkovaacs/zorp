@@ -1,0 +1,17 @@
+############################################################################
+##
+## Copyright (c) 2000-2001 BalaBit IT Ltd, Budapest, Hungary
+## All rights reserved.
+##
+## $Id: instances.conf.sample,v 1.1 2004/02/13 19:37:41 bazsi Exp $
+##
+############################################################################
+#
+# This file lists the Zorp instances you want to run.
+#
+# The instance name and arguments _must_ be separated by spaces instead
+# of tabs! Otherwise zorpctl will stop working.
+
+#instance  arguments
+#zorp_http --verbose=5 --policy /etc/zorp/policy-http.py
+#zorp_plug --policy /etc/zorp/policy-plug.py

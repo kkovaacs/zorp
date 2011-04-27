@@ -1,0 +1,33 @@
+
+#First case. Proxy working?
+
+StartPolicy
+	def config(self):
+		pass
+EndPolicy
+
+
+C2P: "Haho"
+P2S: "Haho"
+S2P: "Hello"
+P2C: "Hello"
+.
+#Testing bidirectional
+
+C2P: "One"
+S2P: "Two"
+P2C: "Two"
+P2S: "One"
+.
+#Testing forced-one-way
+
+StartPolicy
+	def config(self):
+		PlugProxy.config(self)
+		self.copy_to_server=FALSE
+EndPolicy
+
+C2P: "Nem_megy_at"
+S2P: "Atmegy"
+P2C: "Atmegy"
+.

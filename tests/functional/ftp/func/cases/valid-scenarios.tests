@@ -1,0 +1,127 @@
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.request["SMNT"] = (FTP_REQ_ACCEPT)
+		self.request["REIN"] = (FTP_REQ_ACCEPT)
+		self.strict_port_checking = FALSE
+		AbstractFtpProxy.loadAnswers(self)
+EndPolicy
+
+# Some valid scenarios
+
+S2P: "220 Service ready for new user\r\n"
+P2C: "220 Service ready for new user\r\n"
+C2P: "USER username\r\n"
+P2S: "USER username\r\n"
+S2P: "331 User name okay, need password\r\n"
+P2C: "331 User name okay, need password\r\n"
+C2P: "PASS password\r\n"
+P2S: "PASS password\r\n"
+S2P: "332 Need account for login\r\n"
+P2C: "332 Need account for login\r\n"
+C2P: "ACCT account\r\n"
+P2S: "ACCT account\r\n"
+S2P: "230 User logged in, proceed\r\n"
+P2C: "230 User logged in, proceed\r\n"
+C2P: "CWD /home/test/\r\n"
+P2S: "CWD /home/test/\r\n"
+S2P: "250 Requested file action okay, completed\r\n"
+P2C: "250 Requested file action okay, completed\r\n"
+C2P: "CDUP\r\n"
+P2S: "CDUP\r\n"
+S2P: "200 Command okay\r\n"
+P2C: "200 Command okay\r\n"
+C2P: "SMNT server\r\n"
+P2S: "SMNT server\r\n"
+S2P: "250 Requested file action okay, completed\r\n"
+P2C: "250 Requested file action okay, completed\r\n"
+C2P: "REIN\r\n"
+P2S: "REIN\r\n"
+S2P: "220 Service ready for new user\r\n"
+P2C: "220 Service ready for new user\r\n"
+C2P: "QUIT\r\n"
+P2S: "QUIT\r\n"
+S2P: "221 \r\n"
+P2C: "221 \r\n"
+P2C: Disconnect
+.
+
+# PASS when no password is required
+# Bazsi 2004-01-23
+# bug: 1642
+
+S2P: "220 Service ready for new user\r\n"
+P2C: "220 Service ready for new user\r\n"
+C2P: "USER username\r\n"
+P2S: "USER username\r\n"
+S2P: "230 Authenticated, no password needed\r\n"
+P2C: "230 Authenticated, no password needed\r\n"
+C2P: "PASS password\r\n"
+P2S: "PASS password\r\n"
+S2P: "230 I said no password was needed\r\n"
+P2C: "230 I said no password was needed\r\n"
+C2P: "QUIT\r\n"
+P2S: "QUIT\r\n"
+S2P: "221 \r\n"
+P2C: "221 \r\n"
+P2C: Disconnect
+.
+
+S2P: "220 Szia\r\n"
+P2C: "220 Szia\r\n"
+C2P: "USER ftp\r\n"
+P2S: "USER ftp\r\n"
+S2P: "331 Send your password\r\n"
+P2C: "331 Send your password\r\n"
+C2P: "PASS myself@\r\n"
+P2S: "PASS myself@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2C: "230 Anonymous access granted\r\n"
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+PORT=1290
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: Listen PORT
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,10)\r\n"
+P2C: "227 Entering Passive Mode (" $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 ")\r\n"
+C_PORT=PORT1*256+PORT2
+C_IP=str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+C2P: "LIST\r\n"
+P2S: "LIST\r\n"
+S2P: "150 Data Follow\r\n"
+S2P: Accept
+C2P: Connect C_IP C_PORT
+dS2P: "barmi\r\n"
+P2C: "150 Data Follow\r\n"
+dP2C: "barmi\r\n"
+dC2P: "masikbarmi\r\n"
+dP2S: Nothing
+.
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.transparent_mode = FALSE
+		self.strict_port_checking = FALSE
+EndPolicy
+
+P2C: "220-Welcome in Zorp FTP proxy authentication module!\r\n\
+ Please authenticate yourself!\r\n\
+ Authentication form:\r\n\
+   USER <user>@<remote site>\r\n\
+   PASS <password>\r\n\
+220 \r\n"
+C2P: "USER user@remotesite\r\n"
+P2C: "331 Username and host okay, send your password.\r\n"
+C2P: "PASS password@\r\n"
+S2P: "220 Udv\r\n"
+P2S: "USER user\r\n"
+S2P: "331 Send your password\r\n"
+P2S: "PASS password@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2C: "230 Anonymous access granted\r\n"
+C2P: "QUIT\r\n"
+P2S: "QUIT\r\n"
+S2P: "221 Goodbye.\r\n"
+P2C: "221 Goodbye.\r\n"
+.

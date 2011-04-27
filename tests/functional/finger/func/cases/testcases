@@ -1,0 +1,261 @@
+
+StartPolicy
+	def config(self):
+		self.max_hop_count = 4
+EndPolicy
+
+#Format: {C} / null command line
+C2P: "\r\n"
+P2S: "\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: "aztan meg sok barmilyen valasz\r\n"
+P2C: "aztan meg sok barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+C2P: "   \r\n"
+P2S: "\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: "aztan meg sok barmilyen valasz\r\n"
+P2C: "aztan meg sok barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+#Format: {W}{C}
+C2P: "/W\r\n"
+P2S: "/W\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: "aztan meg sok barmilyen valasz\r\n"
+P2C: "aztan meg sok barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+C2P: "   /W\r\n"
+P2S: "/W\r\n"
+.
+
+C2P: "/w\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+#Format: {W}{S}{U}{C} / name specified request
+C2P: "/W username\r\n"
+P2S: "/W username\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: "aztan meg sok barmilyen valasz\r\n"
+P2C: "aztan meg sok barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+C2P: "&^%*(+-@hostname.org\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+C2P: "/W      username\r\n"
+P2S: "/W username\r\n"
+.
+
+C2P: "/W user@gepnev\r\n"
+P2S: "/W user@gepnev\r\n"
+.
+
+C2P: "/W user name\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+C2P: "/Wusername\r\n"
+P2S: "/W username\r\n"
+.
+
+C2P: " /W username\r\n"
+P2S: "/W username\r\n"
+.
+
+C2P: "/w username\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+#Format: {H}{C}
+C2P: "@hostnev.org\r\n"
+P2S: "@hostnev.org\r\n"
+.
+
+C2P: "@192.168.131.46\r\n"
+P2S: "@192.168.131.46\r\n"
+.
+
+C2P: "@hostnev\r\n"
+P2S: "@hostnev\r\n"
+.
+
+C2P: "   @hostnev.org\r\n"
+P2S: "@hostnev.org\r\n"
+.
+
+C2P: "hostnev.org\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+C2P: "@hostnev.org@hostnev.org\r\n"
+P2S: "@hostnev.org@hostnev.org\r\n"
+.
+
+C2P: "@hostnev.org@hostnev.org@hostnev.org\r\n"
+P2S: "@hostnev.org@hostnev.org@hostnev.org\r\n"
+.
+
+C2P: "@hostnev.org@hostnev.org alma korte\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+.
+
+#Format: {W}{S}{H}{C}
+C2P: "/W @hostnev.org\r\n"
+P2S: "/W @hostnev.org\r\n"
+.
+
+C2P: "/W @hostnev\r\n"
+P2S: "/W @hostnev\r\n"
+.
+
+C2P: "/W@hostnev.org\r\n"
+P2S: "/W @hostnev.org\r\n"
+.
+
+C2P: "/W @hostnev.org@hostnev.org@hostnev.org\r\n"
+P2S: "/W @hostnev.org@hostnev.org@hostnev.org\r\n"
+.
+
+C2P: "/W@hostnev.org@hostnev.org@hostnev.org\r\n"
+P2S: "/W @hostnev.org@hostnev.org@hostnev.org\r\n"
+.
+
+C2P: "/W @hostnev.org@hostnev.org@hostnev.org alma korte\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+.
+
+#Format:{U}{H}{C}
+C2P: "user@hostnev.org\r\n"
+P2S: "user@hostnev.org\r\n"
+.
+
+C2P: "user@hostnev.org@hostnev.org@hostnev.org\r\n"
+P2S: "user@hostnev.org@hostnev.org@hostnev.org\r\n"
+.
+
+C2P: "user@hostnev.org@hostnev.org@hostnev.org alma korte\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+.
+
+C2P: "barmi user@hostnev.org@hostnev.org@hostnev.org\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+P2C: Disconnect
+.
+
+#Format:{W}{S}{U}{H}{C}
+C2P: "/W user@hostnev.hu\r\n"
+P2S: "/W user@hostnev.hu\r\n"
+.
+
+C2P: "/Wuser@hostnev.hu\r\n"
+P2S: "/W user@hostnev.hu\r\n"
+.
+
+C2P: "/W user@hostnev.org@hostnev.org@hostnev.org\r\n"
+P2S: "/W user@hostnev.org@hostnev.org@hostnev.org\r\n"
+.
+
+C2P: "/W user@hostnev.org@hostnev.org@hostnev.org alma korte\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+.
+
+C2P: "/W barmi user@hostnev.org@hostnev.org@hostnev.org\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+.
+
+C2P: "/Wuser@hostnev.org@hostnev.org@hostnev.org\r\n"
+P2S: "/W user@hostnev.org@hostnev.org@hostnev.org\r\n"
+.
+
+C2P: "/Wuser@hostnev.org@hostnev.org@hostnev.org alma korte\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+.
+
+C2P: "/Wbarmi user@hostnev.org@hostnev.org@hostnev.org\r\n"
+P2C: "Finger protocol or disallowed protocol element, request denied.\r\n"
+.
+
+StartPolicy
+        def config(self):
+                FingerProxy.config(self)
+                self.max_hop_count = 1
+EndPolicy
+
+C2P: "user@hostname1.org@hostname2.org@hostname3.org\r\n"
+P2S: "user@hostname1.org\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+C2P: "user@hostname1.org\r\n"
+P2S: "user@hostname1.org\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: Disconnect
+.
+
+StartPolicy
+        def config(self):
+                FingerProxy.config(self)
+                self.response_header = "header "
+                self.response_footer = "footer"
+EndPolicy
+
+C2P: "user@hostname\r\n"
+P2S: "user\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "header peldaul barmilyen valasz\r\n"
+S2P: Disconnect
+P2C: "footer"
+P2C: Disconnect
+.
+
+StartPolicy
+        def config(self):
+                FingerProxy.config(self)
+EndPolicy
+
+#Long line in response
+C2P: "\r\n"
+P2S: "\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: "a"x1024
+P2C: Disconnect
+.
+
+#Many lines in response
+C2P: "\r\n"
+P2S: "\r\n"
+S2P: "peldaul barmilyen valasz\r\n"
+P2C: "peldaul barmilyen valasz\r\n"
+S2P: "a\r\n"x50
+P2C: "a\r\n"x50
+S2P: Disconnect
+P2C: Disconnect
+.

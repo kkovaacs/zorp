@@ -1,0 +1,30 @@
+StartGlobalInfo
+        Tags bug5356
+	Min-Version 3.0
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+		from Zorp.AuthDB import AbstractAuthenticationBackend
+
+                HttpProxy.config(self)
+                self.timeout_request=30000
+                self.transparent_mode = FALSE
+		self.request["CONNECT"] = (HTTP_REQ_ACCEPT,)
+                self.target_port_range = "80-2000"
+		# always fails
+		self.auth = AbstractAuthenticationBackend()
+EndPolicy
+
+QUOTE = chr(34)
+
+C2P: "CONNECT " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT " HTTP/1.1\r\n\
+Host: " %ZTS_SERVER_IP ":" %ZTS_SERVER_PORT "\r\n\
+\r\n"
+P2C: "HTTP/1.0 407 Authentication is required.\r\n\
+Proxy-Connection: close\r\n\
+Proxy-Authenticate: Basic realm=" %QUOTE "Zorp HTTP auth" %QUOTE "\r\n\
+Content-Type: text/html\r\n\
+\r\n\
+<html>" $NIHIL "</html>\n"
+.

@@ -1,0 +1,19 @@
+StartGlobalInfo
+	Tags bug12342
+EndGlobalInfo
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.strict_port_checking = FALSE
+EndPolicy
+
+S2P: "220 kesz\r\n"
+P2C: "220 kesz\r\n"
+C2P: "USER user\r\n"
+P2S: "USER user\r\n"
+S2P: "230 logged in\r\n"
+P2C: "230 logged in\r\n"
+C2P: "PORT\r\n"
+P2C: "500 Error parsing PORT parameters\r\n"
+.

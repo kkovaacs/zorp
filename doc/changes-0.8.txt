@@ -1,0 +1,74 @@
+
+This file summarizes user visible changes between version 0.6 and version
+0.8 of Zorp.
+
+1. Zone semantics have changed, where you wrote:
+
+	Zorp.zones = \
+	[
+	        Zone.InetZone("intranet", "192.168.1.0", "255.255.255.0", None,
+	                outbound_services=["*"],
+	                inbound_services=["*"])
+	]
+
+   you should write:
+
+	InetZone("intranet", "192.168.1.0/24",
+		 outbound_services=["*"],
+		 inbound_services=["*"])
+
+   instead. You don't need the Zorp.zones array anymore, zones automatically
+   record themselves to an internal storage.
+
+2. HTTP and FTP proxies were rewritten, they now have a redesigned policy
+   interface. You'll generally need to delete your config() method, and look
+   for the features you need in the documentation (zorp-reference.pdf).
+   The FTP proxy now autodetects the external and internal interface addresses
+   so you don't need to set them manually.
+
+3. Service and Listener definitions don't need python variables anymore. They
+   are identified by names in parameters. For 0.6 you had to write:
+
+	plug_service = Service.Service("testplug", Chainer.DirectedChainer(None, SockAddr.SockAddrInet('127.0.0.1', 1998)), MyPlug)
+	Listener.Listen(SockAddr.SockAddrInet("0.0.0.0", 1999), plug_service)
+
+   now it should look like:
+
+	Service("testplug", DirectedChainer(SockAddrInet('127.0.0.1', 1998)), MyPlug)
+	Listener(SockAddrInet('0.0.0.0', 1999), "testplug")
+
+4. Some chainers were enhanced and their constructor parameters were
+   changed.  Generally rarely used arguments were changed to optional, which
+   required reordering of arguments. Read the documentation of chainers in
+   zorp-reference.pdf for more information.
+
+5. The startup function init() was split into a per-instance init function
+   with no arguments, to help you manage multiple instances of Zorp. Where
+   you had:
+
+	def init(name):
+		if name == "ftps":
+			# set up ftp instance here
+		elif name == "https":
+			# set up https instance here
+		else:
+			# invalid instance name
+
+   you'll need two different functions:
+
+	def ftps():
+		# set up ftps instance here
+
+	def https():
+		# set up https instances here
+
+   you can use your old init() functions as before, this feature is provided
+   as a convinience feature only.
+
+6. New logging mechanism, which lets you tune the set of messages you want
+   logged. Each message has an assigned log tag, which is a multilevel
+   string identifier in the form 'core.debug', apart from this message
+   tag, each message has a verbosity level as well. With the --log-spec
+   command line option you can control the verbosity within each message
+   tag. zorp-reference.pdf has more details.
+   

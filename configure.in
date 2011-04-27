@@ -1,0 +1,665 @@
+##############################################################################
+##############################################################################
+##############################################################################
+###
+###
+### DONT CHANGE THIS FILE, CHANGE CONFIGURE.IN.IN INSTEAD
+###
+###
+##############################################################################
+##############################################################################
+##############################################################################
+dnl Process this file with autoconf to produce a configure script.
+dnl
+dnl There are a couple of environment defined variables which this script
+dnl makes use of in addition to the standard CFLAGS/LDFLAGS/etc. These are:
+dnl
+dnl RELEASE_TAG        - Debian release tag which is put to debian/changelog
+dnl SNAPSHOT_VERSION   - snapshot version to add to version number
+dnl BINARY_BRANCH      - the value is added to all source/binary packages
+dnl SOURCE_REVISION    - Revision of the source-tree, will added to the version string
+dnl
+
+AC_INIT(zorp/main.c)
+
+dnl ***************************************************************************
+dnl Definitions
+
+PACKAGE=zorp-pro
+VERSION=`cat $srcdir/VERSION`
+ZORP_PRODUCT_NAME="Zorp Professional"
+ZORP_LICENSE_VERSION="3.3"
+
+dnl ***************************************************************************
+dnl Dependencies
+
+GLIB_MIN_VERSION="2.2.1"
+ZORPLL_MIN_VERSION="3.9.0.1"
+ZORPLIC_MIN_VERSION="4.0.0"
+ZORPMISC_MIN_VERSION="4.0.0.2"
+OPENSSL_MIN_VERSION="0.9.8"
+PYTHON_MIN_VERSION="2.6"
+OSIP_MIN_VERSION="2.2.1"
+OSIP_MAX_VERSION="3.4"
+# all samba libs declare themselves as version 0
+WBCLIENT_MIN_VERSION=0
+
+dnl ***************************************************************************
+dnl Initial setup
+
+# We want an absolute path to the source-dir.
+case "$srcdir" in
+    /*)
+        top_srcdir=$srcdir
+        ;;
+    *)
+        oldsrcdir="$srcdir"
+        top_srcdir="`cd \"$srcdir\"; pwd`"
+        ;;
+esac
+
+if test -r $srcdir/dist.conf; then
+        # read defaults, dist.conf does not change
+        # values for parameters that are already set
+        source $srcdir/dist.conf
+        fi
+
+if test -z "$ZORP_PACKAGE_LICENSE"; then
+        ZORP_PACKAGE_LICENSE="pro"
+fi
+
+if test "$ZORP_PACKAGE_LICENSE" = "gpl"; then
+        PACKAGE="zorp"
+        PACKAGE_SUFFIX=""
+elif test "$ZORP_PACKAGE_LICENSE" = "pro"; then
+        PACKAGE_SUFFIX="-pro"
+else
+        AC_ERROR(Invalid license type: %s)
+fi
+
+AM_CONDITIONAL(PRO, test x$ZORP_PACKAGE_LICENSE = xpro)
+
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
+
+if test -n "$SNAPSHOT_VERSION"; then
+        VERSION=$VERSION+$SNAPSHOT_VERSION
+fi
+
+if test -z "$RELEASE_TAG"; then
+        RELEASE_TAG=zorp30dbg
+fi
+
+if test -n "$BINARY_BRANCH"; then
+        if echo $BINARY_BRANCH | grep '^\-' > /dev/null; then
+                BINARY_BRANCH="$BINARY_BRANCH"
+        else
+                BINARY_BRANCH="-$BINARY_BRANCH"
+        fi
+        PACKAGE=${PACKAGE}${BINARY_BRANCH}
+else
+        BINARY_BRANCH=""
+fi
+
+AM_CONFIG_HEADER(zorpconfig.h)
+AC_PREFIX_DEFAULT(/usr/local)
+
+
+if test "x$prefix" = "xNONE"; then
+	prefix=$ac_default_prefix
+fi
+
+zorp_srcdir=$top_srcdir
+
+AC_ARG_ENABLE(debug,
+              [  --enable-debug       Enable debug information & messages (default: no)],,
+	      enable_debug=no)
+
+AC_ARG_ENABLE(trace,
+              [  --enable-trace       Enable debug information & messages (default: no)],,
+              enable_trace=no)
+
+AC_ARG_ENABLE(coverage,
+              [  --enable-coverage    Enable runtime coverage information generation (default: no)],,
+              enable_coverage=no)
+
+AC_ARG_ENABLE(ip_options,
+              [  --enable-ip-options  Enable handling IP options (EXPERIMENTAL)],,
+              enable_ip_options=no)
+
+AC_ARG_ENABLE(ipv6,
+              [  --enable-ipv6        Enable IPv6 support (EXPERIMENTAL)],,
+              enable_ipv6=no)
+              
+AC_ARG_ENABLE(tproxy,
+	      [  --enable-tproxy=[which] Enable transparent proxying, one of linux22/netfilter/ipfilter/none],,
+	      enable_tproxy=auto)
+
+AC_ARG_ENABLE(netfilter,
+              [  --enable-netfilter   Enable Linux kernel 2.4 netfilter support (NAT destination lookup)],
+              AC_ERROR(--enable-netfilter is deprecated use --enable-tproxy instead))
+
+AC_ARG_ENABLE(ipfilter,
+              [  --enable-ipfilter    Enable portable ipfilter support],
+              AC_ERROR(--enable-ipfilter is deprecated use --enable-tproxy instead))
+              
+AC_ARG_ENABLE(prefork,
+              [  --enable-prefork             Enable prefork],,
+	      enable_prefork=no)
+
+AC_ARG_WITH(python-headers,
+ 	      [  --with-python-headers=[path]   Python headers are located at path])
+
+AC_ARG_WITH(python-libs,
+ 	      [  --with-python-libs=[path]   Python libraries are located at path],
+ 	      LDFLAGS="$LDFLAGS -L$with_python_libs")
+
+AC_ARG_WITH(python,
+ 	      [  --with-python=[path]     Python binary is located at path],
+ 	      PYTHON="$with_python")
+
+AC_ARG_WITH(pidfiledir,
+              [  --with-pidfiledir=[path]   Path to run directory where pidfile is stored],
+              pidfiledir="$with_pidfiledir",
+              pidfiledir='${prefix}/var/run/zorp/')
+
+sysconfdir="${sysconfdir}/zorp"
+#datadir='${prefix}/share/zorp'
+libdir='${prefix}/lib'
+
+dnl ***************************************************************************
+dnl Argument processing which might affect detection
+
+if test "x$enable_debug" = "xyes"; then
+  # maybe we should check whether /usr/lib/debug exists
+  LIBS="$LIBS -L/usr/lib/debug"
+  CFLAGS="$CFLAGS -O0"
+else
+  CFLAGS="$CFLAGS -O2 "
+fi
+
+dnl ***************************************************************************
+dnl Checks for programs.
+
+AC_PROG_CC
+AC_PROG_CPP
+AC_DISABLE_STATIC
+AM_PROG_LIBTOOL
+AC_PATH_PROG(GPERF, gperf)
+if test "x$GPERF" = "x"; then
+	AC_ERROR(No gperf found)
+fi
+
+if test "x$PYTHON" = "x"; then
+	AC_PATH_PROG(PYTHON, python, none)
+fi
+
+if test "x$PYTHON" = "xnone"; then
+	AC_ERROR(python interpreter required)
+fi
+
+AC_MSG_CHECKING(Python version and location)
+PYTHON_PREFIX=`$PYTHON -c "import sys; print sys.prefix"`
+PYTHON_VERSION_MAJOR=[`$PYTHON -c "import sys; print '%d' % (sys.version_info[0]);"`]
+PYTHON_VERSION_MINOR=[`$PYTHON -c "import sys; print '%d' % (sys.version_info[1]);"`]
+PYTHON_VERSION="${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}"
+AC_MSG_RESULT([$PYTHON, $PYTHON_VERSION, $PYTHON_PREFIX])
+
+AC_MSG_CHECKING(Whether Python is at least 2.3)
+if test $PYTHON_VERSION_MAJOR -lt 2 -o $PYTHON_VERSION_MAJOR -eq 2 -a $PYTHON_VERSION_MINOR -lt 3; then
+	AC_MSG_RESULT(no)
+	AC_ERROR(Zorp requires at least Python 2.3)
+fi
+AC_MSG_RESULT(yes)
+
+dnl ***************************************************************************
+dnl Checks for header files.
+
+
+AC_CHECK_HEADERS(sys/capability.h sys/prctl.h limits.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_CACHE_CHECK(for MSG_PROXY, blb_cv_msg_proxy,
+  [AC_EGREP_CPP(MSG_PROXY, 
+[
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#ifdef MSG_PROXY
+MSG_PROXY
+#endif
+],
+  blb_cv_msg_proxy=yes,
+  blb_cv_msg_proxy=no)])
+  
+if test "x$blb_cv_msg_proxy" = "xyes"; then
+	AC_DEFINE(HAVE_MSG_PROXY, 1, [Have MSG_PROXY flag (Linux 2.2)])
+fi
+
+if test "x$with_python_headers" = "x"; then
+	PYTHON_CFLAGS="-I$PYTHON_PREFIX/include/python$PYTHON_VERSION"
+else
+	PYTHON_CFLAGS=$with_python_headers
+fi
+
+save_CPPFLAGS=$CPPFLAGS
+CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
+
+AC_CHECK_HEADERS(Python.h)
+
+if test "x$ac_cv_header_Python_h" = "xno"; then
+	AC_ERROR(Python.h not found)
+fi 
+
+CPPFLAGS=$save_CPPFLAGS
+
+dnl ***************************************************************************
+dnl Checks for libraries.
+
+dnl Checks for library functions.
+AC_CHECK_LIB(socket, setsockopt, SOCK_LIBS="$SOCK_LIBS -lsocket")
+AC_CHECK_LIB(xnet, inet_addr, SOCK_LIBS="$SOCK_LIBS -lxnet")
+AC_CHECK_LIB(nsl, gethostbyname, SOCK_LIBS="$SOCK_LIBS -lnsl")
+
+dnl Python might required -ldl, -lutil & -lm
+AC_CHECK_LIB(rt, aio_read, PYTHON_DEPS="$PYTHON_DEPS -lrt")
+AC_CHECK_LIB(m, sin, PYTHON_DEPS="$PYTHON_DEPS -lm")
+AC_CHECK_LIB(util, openpty, PYTHON_DEPS="$PYTHON_DEPS -lutil")
+AC_CHECK_LIB(dl, dlsym, PYTHON_DEPS="$PYTHON_DEPS -ldl")
+
+AC_CHECK_LIB(z, inflate, ZLIB_LIBS="$ZLIB_LIBS -lz")
+
+save_LIBS=$LIBS
+LIBS="$LIBS $SOCK_LIBS"
+AC_CHECK_FUNCS(socket)
+AC_CHECK_FUNCS(select snprintf vsnprintf strerror inet_aton)
+AC_CHECK_FUNCS(prctl gethostbyname_r)
+
+AC_CACHE_CHECK(for PR_SET_DUMPABLE, blb_cv_dumpable,
+  [AC_EGREP_CPP(PR_SET_DUMPABLE, 
+[
+#include <sys/prctl.h>
+
+PR_SET_DUMPABLE
+],
+  blb_cv_dumpable=no,
+  blb_cv_dumpable=yes)])
+
+if test "x$blb_cv_dumpable" = "xyes"; then
+        AC_DEFINE(HAVE_PR_SET_DUMPABLE, 1, [Zorp may enable core_dumping Linux 2.4-])
+fi
+
+
+LIBS=$save_LIBS
+
+PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_MIN_VERSION,,
+	AC_MSG_ERROR(Cannot find GLib library version >= $GLIB_MIN_VERSION: is pkg-config in path?))
+
+PKG_CHECK_MODULES(GMODULE, gmodule-2.0 >= $GLIB_MIN_VERSION,,
+	AC_MSG_ERROR(Cannot find GModule library version >= $GLIB_MIN_VERSION: is pkg-config in path?))
+
+PKG_CHECK_MODULES(GTHREAD, gthread-2.0 >= $GLIB_MIN_VERSION,,
+	AC_MSG_ERROR(Cannot find GThread library version >= $GLIB_MIN_VERSION: is pkg-config in path?))
+
+PKG_CHECK_MODULES(ZORPLL, zorplibll >= $ZORPLL_MIN_VERSION,,
+	AC_MSG_ERROR(Cannot find ZORP Lowlevel library version >= $ZORPLL_MIN_VERSION: is pkg-config in path?))
+
+PKG_CHECK_MODULES(OPENSSL, openssl >= $OPENSSL_MIN_VERSION,,
+        AC_MSG_ERROR(Cannot find OpenSSL library version >= $OPENSSL_MIN_VERSION: is pkg-config in path?))
+
+if test "$ZORP_PACKAGE_LICENSE" = "pro"; then
+
+	save_CPPFLAGS=$CPPFLAGS
+	CPPFLAGS="$CPPFLAGS $OPENSSL_CFLAGS"
+	AC_CHECK_HEADER(openssl/ts.h, [], [AC_MSG_ERROR([OpenSSL header file <openssl/ts.h> is missing])])
+	CPPFLAGS=$save_CPPFLAGS
+
+	PKG_CHECK_MODULES(OSIP, libosip2 < $OSIP_MAX_VERSION,,
+		AC_MSG_ERROR(Cannot find osip2 library version >= $OSIP_MIN_VERSION and < $OSIP_MAX_VERSION: is pkg-config in path?))
+
+	PKG_CHECK_MODULES(ZORPLIC, libzlicense >= $ZORPLIC_MIN_VERSION,,
+		AC_MSG_ERROR(Cannot find ZORP license library version >= $ZORPLIC_MIN_VERSION: is pkg-config in path?))
+
+	PKG_CHECK_MODULES(ZORPMISC, libzmisc >= $ZORPMISC_MIN_VERSION,,
+		AC_MSG_ERROR(Cannot find Zorp Misc library version >= $ZORPMISC_MIN_VERSION: is pkg-config in path?))
+
+        PKG_CHECK_MODULES(XMLSEC, xmlsec1-openssl >= 1.0.0 libxml-2.0 libxslt,,
+                AC_MSG_ERROR(Cannot find libxmlsec1 libxml-2.0 or libxslt))
+
+	XMLSEC_LIBS="$XMLSEC_LIBS -L$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages -L/usr/lib/python-support/python-libxml2/python$PYTHON_VERSION/ -L/usr/lib/python$PYTHON_VERSION/site-packages -lxml2mod"
+
+	PKG_CHECK_MODULES(WBCLIENT, wbclient >= $WBCLIENT_MIN_VERSION,,
+		AC_MSG_ERROR(Cannot find Samba wbclient library version >= $WBCLIENT_MIN_VERSION: is pkg-config in path?))
+
+	AC_CHECK_HEADERS(google/coredumper.h)
+	AC_CHECK_LIB(coredumper, WriteCoreDump, COREDUMP_LIBS="$COREDUMP_LIBS -lcoredumper")
+
+	AC_CHECK_LIB(pcap, pcap_open_live, PCAP_LIBS="$PCAP_LIBS -lpcap")
+
+fi
+
+
+dnl
+dnl Locating Python libraries
+dnl  
+
+if test "x$with_python_libs" != "xno"; then
+	found=no
+	for pylibpath in '' $PYTHON_PREFIX/lib $PYTHON_PREFIX/lib/python$PYTHON_VERSION/config; do
+                eval `echo unset ac_cv_lib_python$PYTHON_VERSION'_'Py_Finalize | tr '.' '_'`
+                eval `echo unset ac_cv_lib_python$PYTHON_VERSION''___Py_Finalize | tr '.' '_'`
+
+                save_LIBS=$LIBS
+                if test "x$pylibpath" != "x"; then
+                        PYTHON_LIBS="-L$pylibpath -lpython$PYTHON_VERSION $PYTHON_DEPS"
+                else
+                        PYTHON_LIBS="-lpython$PYTHON_VERSION $PYTHON_DEPS"
+                fi
+                LIBS="$LIBS $PYTHON_LIBS"
+                AC_CHECK_LIB(python$PYTHON_VERSION, Py_Finalize, found=yes,,$PYTHON_DEPS)
+                LIBS=$save_LIBS
+                if test "x$found" = "xyes"; then
+                        break
+                fi
+	done
+	if test "x$found" != "xyes"; then
+		AC_ERROR(Python development libraries required)
+	fi
+
+else
+	PYTHON_LIBS="$with_python_libs $PYTHON_DEPS"
+fi
+
+if test "x$ac_cv_func_gethostbyname_r" = "xyes"; then
+dnl	if test "`uname -s`" = "Linux"; then
+dnl		AC_DEFINE(HAVE_LEAK_IN_GETHOSTBYNAME_R, 1, [We have a leak in gethostbyname_r, avoid using it])
+	if test "`uname -s`" = "SunOS"; then
+		AC_DEFINE(HAVE_SUN_GETHOSTBYNAME_R, 1, [We have a Solaris style gethostbyname_r];)
+	fi
+fi
+
+save_LIBS="$LIBS"
+LIBS="$LIBS $OPENSSL_LIBS"
+AC_SEARCH_LIBS(DES_ecb_encrypt, eay32 crypto,
+    AC_SEARCH_LIBS(des_ecb_encrypt, eay32 crypto))
+AC_SEARCH_LIBS(SSL_accept, ssl32 ssl)
+AC_CHECK_FUNC(ENGINE_by_id)
+LIBS=$save_LIBS
+
+if test "x$ac_cv_search_SSL_accept" = "xno"; then
+        AC_ERROR(OpenSSL libraries required)
+fi
+
+dnl ***************************************************************************
+dnl Misc checks
+
+AC_SYS_LARGEFILE
+
+ZORP_PROC="`uname -m`"
+ZORP_OS="`uname -s`"
+ZORP_OS_RELEASE="`uname -r | cut -d '.' -f 1-2`"
+
+if test "x$ZORP_OS" = "xLinux";then
+        CURRDATE=`date -R`
+else
+        CURRDATE=`date +"%a, %d %b %Y %H:%M:%S %Z"`
+fi
+
+if test "x$enable_tproxy" = "xauto"; then
+	if test "x$ZORP_OS" != "xLinux"; then
+		enable_tproxy=ipfilter
+	elif test "x$ZORP_OS_RELEASE" = "x2.6"; then
+		enable_tproxy=netfilter
+	elif test "x$ZORP_OS_RELEASE" = "x2.4"; then
+		enable_tproxy=netfilter
+	elif test "x$ZORP_OS_RELEASE" = "x2.2"; then
+		enable_tproxy=linux22
+	else
+		AC_ERROR(Cannot autodetect transparent proxy support for this OS/Release)
+	fi
+fi
+
+dnl ***************************************************************************
+dnl Export detected settings to Makefiles and Zorp
+
+AC_SUBST(zorp_srcdir)
+AC_SUBST(ZORP_PROC)
+AC_SUBST(ZORP_OS)
+
+zorpeval()
+{
+	OLD=$1
+	NEW=`eval echo $1`
+	while /usr/bin/test "x$OLD" != "x$NEW"
+	do
+		OLD=$NEW
+		NEW=`eval echo $OLD`
+	done
+	echo $OLD
+}
+
+AC_DEFINE_UNQUOTED(ZORP_SYSCONFDIR, "`zorpeval $sysconfdir`", [sysconfdir])
+AC_DEFINE_UNQUOTED(ZORP_DATADIR, "`zorpeval $datadir/zorp`", [datadir])
+AC_DEFINE_UNQUOTED(ZORP_LIBDIR, "`zorpeval $libdir/zorp`", [libdir])
+AC_DEFINE_UNQUOTED(ZORP_STATEDIR, "`zorpeval $localstatedir`", [localstatedir])
+AC_DEFINE_UNQUOTED(ZORP_PIDFILEDIR, "`zorpeval $pidfiledir`", [pidfiledir])
+
+CFLAGS="$CFLAGS -Wall -W -Werror-implicit-function-declaration -Wno-pointer-sign -g -D_GNU_SOURCE -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
+
+dnl ***************************************************************************
+dnl Export results
+
+enable_value()
+{
+	if test "x$1" = "xyes" ; then
+		echo 1
+	else
+		echo 0
+	fi
+}
+
+dnl Library versioning, the resulting shared object is named:
+dnl 	zorplib-<RELEASE>.so.<AGE>
+dnl
+VERSION_NOSNAPSHOT="`echo $VERSION | cut -d '+' -f 1`"
+
+VERSION_MAJOR=`echo $VERSION_NOSNAPSHOT |  cut -d '.' -f 1`
+VERSION_MINOR=`echo $VERSION_NOSNAPSHOT |  cut -d '.' -f 2`
+VERSION_COMPAT=`echo $VERSION_NOSNAPSHOT |  cut -d '.' -f 3`
+VERSION_AGE=0
+
+LIBZORP_LT_RELEASE="$VERSION_MAJOR.$VERSION_MINOR"
+LIBZORP_LT_CURRENT=$@<:@ $VERSION_COMPAT + $VERSION_AGE @:>@
+LIBZORP_LT_COMPAT_BRANCH="$VERSION_MAJOR.$VERSION_MINOR-$VERSION_COMPAT"
+LIBZORP_LT_COMPAT_PL="$VERSION_COMPAT"
+LIBZORP_LT_AGE="$VERSION_AGE"
+
+dnl ***************************************************************************
+dnl Size check of pointers
+AC_CHECK_SIZEOF(void *)
+
+AC_SUBST(BINARY_BRANCH)
+AC_SUBST(RELEASE_TAG)
+AC_SUBST(SNAPSHOT_VERSION)
+AC_SUBST(SOURCE_REVISION)
+
+AC_SUBST(ZORP_PACKAGE_LICENSE)
+AC_SUBST(PACKAGE_SUFFIX)
+
+AC_DEFINE_UNQUOTED(ZORP_LICENSE_VERSION, "$ZORP_LICENSE_VERSION", [Required license version])
+AC_DEFINE_UNQUOTED(ZORP_PRODUCT_NAME, "$ZORP_PRODUCT_NAME", [Required product name in license])
+
+AC_DEFINE_UNQUOTED(VERSION, "$VERSION", [Zorp package version])
+AC_DEFINE_UNQUOTED(ZORP_SOURCE_REVISION, "$SOURCE_REVISION", [Zorp source revision number])
+
+AC_DEFINE_UNQUOTED(ENABLE_DEBUG, `enable_value $enable_debug`, [Enable debugging])
+AC_DEFINE_UNQUOTED(ENABLE_TRACE, `enable_value $enable_trace`, [Enable trace messages])
+AC_DEFINE_UNQUOTED(ENABLE_IPOPTIONS, `enable_value $enable_ip_options`, [Enable IP option processing])
+AC_DEFINE_UNQUOTED(ENABLE_IPV6, `enable_value $enable_ipv6`, [Enable IPv6 support])
+
+case "x$enable_tproxy" in
+	xipfilter) 
+	        enable_ipfilter_tproxy="yes"
+		;;
+	xnetfilter) 
+		enable_netfilter_tproxy="yes"
+		enable_netfilter_tproxy_v12_fallback="yes"
+		enable_netfilter_linux22_fallback="yes"
+		;;
+	xlinux22) 
+		enable_linux22_tproxy="yes"
+		;;
+	xnone) 
+		echo No transparency options have been specified, Zorp will not function in transparent mode. Use --enable-tproxy. 
+		;;
+	*) 
+		AC_ERROR(Invalid argument for --enable-tproxy) 
+		;;
+esac
+AC_DEFINE_UNQUOTED(ENABLE_IPFILTER_TPROXY, `enable_value $enable_ipfilter_tproxy`, [Enable ipf based tproxy]) 
+AC_DEFINE_UNQUOTED(ENABLE_NETFILTER_TPROXY, `enable_value $enable_netfilter_tproxy`, [Enable netfilter tproxy]) 
+AC_DEFINE_UNQUOTED(ENABLE_LINUX22_TPROXY, `enable_value $enable_linx22_tproxy`, [Enable Linux 2.2 tproxy behaviour]) 
+
+
+AC_DEFINE_UNQUOTED(ENABLE_PREFORK, `enable_value $enable_prefork`, [Enable prefork support])
+
+
+# CPPFLAGS as supplied by dependencies
+DEPS_CPPFLAGS="$CPPFLAGS $ZORPLL_CFLAGS $ZORPLIC_CFLAGS $ZORPMISC_CFLAGS $PYTHON_CFLAGS $OPENSSL_CFLAGS"
+# CPPFLAGS defined to access local header files in addition to dependencies
+CPPFLAGS="-I$top_srcdir/lib -I$top_srcdir $DEPS_CPPFLAGS"
+# common libraries (dependencies)
+MODULES_CPPFLAGS="-I$top_srcdir/libproxy/ $CPPFLAGS "
+
+# Dependencies outside the source tree
+DEPS_LIBS="$SOCK_LIBS $ZORPLL_LIBS $ZORPLIC_LIBS $ZORPMISC_LIBS $PYTHON_LIBS $COREDUMP_LIBS $OPENSSL_LIBS"
+# zorp library libs
+LIBZORP_LIBS="$DEPS_LIBS $GLIB_LIBS $GMODULE_LIBS $GTHREAD_LIBS $PYTHON_LIBS $OPENSSL_LIBS $PCAP_LIBS"
+# Zorp main program
+ZORP_LIBS="-L\$(top_builddir)/lib/ -lzorp $ZORPLL_LIBS"
+# libraries to link the zorp modules against (implicitly linked 
+# against the main binary, those does not need to be listed here
+MODULES_LIBS="-L\$(top_builddir)/lib/ -lzorp -L\$(top_builddir)/libproxy/ -lzorpproxy $ZORPLL_LIBS $PYTHON_LIBS"
+# module test program libs
+MODULETESTS_LIBS="$MODULES_LIBS $ZORP_LIBS"
+
+dnl ***************************************************************************
+dnl Coverage flags and libs
+if test "x$enable_coverage" = "xyes"; then
+        LDFLAGS="$LDFLAGS -fprofile-arcs -lgcov"
+        CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"
+fi
+
+AC_SUBST(DEPS_CPPFLAGS)
+AC_SUBST(DEPS_LIBS)
+AC_SUBST(ZLIB_LIBS)
+AC_SUBST(GLIB_LIBS)
+AC_SUBST(OPENSSL_LIBS)
+AC_SUBST(OPENSSL_CPPFLAGS)
+AC_SUBST(PCAP_LIBS)
+
+AC_SUBST(LIBZORP_LIBS)
+
+AC_SUBST(ZORP_LIBS)
+
+AC_SUBST(MODULES_LIBS)
+AC_SUBST(MODULES_CPPFLAGS)
+
+AC_SUBST(MODULETESTS_LIBS)
+
+dnl for zorpctl 
+AC_SUBST(SOCK_LIBS)
+
+dnl for xmlsec proxy
+AC_SUBST(XMLSEC_LIBS)
+AC_SUBST(XMLSEC_CFLAGS)
+
+
+date=`date +%Y/%m/%d`
+AC_DEFINE_UNQUOTED(ZORP_CONFIG_DATE, "$date", [Configuration date])
+
+if test -r module.list; then
+	MODULE_DIRS="`cat module.list`"
+else
+	MODULE_DIRS="anypy finger ftp http plug whois telnet"
+fi
+
+AC_SUBST(MODULE_DIRS)
+
+TESTCASES=""
+for mod in $MODULE_DIRS; do
+	TESTCASES="${TESTCASES} `cd $top_srcdir/tests; find functional/$mod -type f -a ! -path '*.arch-ids*' | tr '\n' ' '`"
+done
+AC_SUBST(TESTCASES)
+
+
+cat <<EOF
+
+
+Compile time options:
+---------------------
+debug: $enable_debug
+coverage: $enable_coverage
+ipoptions: $enable_ip_options
+ipv6: $enable_ipv6
+tproxy: $enable_tproxy
+prefork: $enable_prefork
+modules: $MODULE_DIRS
+License: $ZORP_PACKAGE_LICENSE
+
+
+EOF
+
+AC_CONFIG_COMMANDS([zorp-exe], [chmod +x zorp-config])
+AC_CONFIG_COMMANDS([runtest-exe], [chmod +x tests/python/runtest.sh])
+
+AC_SUBST(LIBZORP_LT_RELEASE)
+AC_SUBST(LIBZORP_LT_CURRENT)
+AC_SUBST(LIBZORP_LT_COMPAT_BRANCH)
+AC_SUBST(LIBZORP_LT_COMPAT_PL)
+AC_SUBST(LIBZORP_LT_AGE)
+
+AC_SUBST(GLIB_MIN_VERSION)
+AC_SUBST(ZORPLL_MIN_VERSION)
+AC_SUBST(ZORPLIC_MIN_VERSION)
+AC_SUBST(ZORPMISC_MIN_VERSION)
+AC_SUBST(OPENSSL_MIN_VERSION)
+AC_SUBST(PYTHON_MIN_VERSION)
+AC_SUBST(OSIP_MIN_VERSION)
+AC_SUBST(OSIP_MAX_VERSION)
+AC_SUBST(CURRDATE)
+AC_SUBST(pidfiledir)
+
+AC_OUTPUT(
+zorp-config
+solbuild/Makefile
+
+Makefile 
+zorp/Makefile 
+zorp/urlfilter/Makefile
+zorp/urlfilter/whitelist/Makefile
+lib/Makefile 
+lib/zorp/Makefile 
+libproxy/Makefile
+libproxy/zorp/Makefile
+libproxy/zorp/proxy/Makefile
+zorpctl/Makefile
+zorpblgen/Makefile
+pylib/Makefile 
+pylib/Zorp/Makefile 
+pylib/kznf/Makefile
+pylib/kznf/kznf/Makefile
+doc/Makefile 
+doc/examples/Makefile
+doc/man/Makefile
+modules/Makefile
+debian/Makefile
+scripts/Makefile
+zorpaddr/Makefile
+tests/Makefile
+tests/python/Makefile
+tests/python/runtest.sh
+tests/unit/Makefile
+tests/kzorp/Makefile
+
+ modules/anypy/Makefile modules/anypy/debian/Makefile modules/finger/Makefile modules/finger/debian/Makefile modules/ftp/Makefile modules/ftp/debian/Makefile modules/ftp/tests/Makefile modules/http/Makefile modules/http/messages/Makefile modules/http/debian/Makefile modules/http/tests/Makefile modules/plug/Makefile modules/plug/debian/Makefile modules/whois/Makefile modules/whois/debian/Makefile modules/telnet/Makefile modules/telnet/debian/Makefile
+)

@@ -1,0 +1,31 @@
+StartGlobalInfo
+        Tags bug9423
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.keep_persistent=TRUE
+EndPolicy
+
+
+C2P: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET / HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+12345"
+S2P: Disconnect
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: keep-alive\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+5\r\n\
+12345\r\n\
+0\r\n\r\n"
+.
+

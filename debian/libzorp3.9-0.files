@@ -1,0 +1,3 @@
+usr/bin/zorp-config
+usr/lib/libzorp-*.so.*
+usr/lib/libzorpproxy.so.*

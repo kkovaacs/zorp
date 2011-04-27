@@ -1,0 +1,26 @@
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+
+# Host field scenarios
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.%.org\r\n\
+\r\n"
+P2C: "HTTP/1.0 500 Error encountered\r\n" $NIHIL "</html>\n"
+.
+                                                                                                             
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: \r\n\
+\r\n"
+P2C: "HTTP/1.0 500 Error encountered\r\n" $NIHIL "</html>\n"
+.
+                                                                                                             
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Allow: GET, HEAD\r\n\
+\r\n"
+P2C: "HTTP/1.0 500 Error encountered" $NIHIL "</html>\n"
+.
+

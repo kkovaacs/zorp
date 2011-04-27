@@ -1,0 +1,37 @@
+StartGlobalInfo
+	Tags bug3043
+EndGlobalInfo
+
+StartPolicy
+	def config(self):
+		FtpProxyRW.config(self)
+		self.timeout = 3000
+		self.strict_port_checking = FALSE
+		AbstractFtpProxy.loadAnswers(self)
+EndPolicy
+
+# Some valid scenarios
+
+S2P: "220 Szia\r\n"
+P2C: "220 Szia\r\n"
+C2P: "USER ftp\r\n"
+P2S: "USER ftp\r\n"
+S2P: "331 Send your password\r\n"
+P2C: "331 Send your password\r\n"
+C2P: "PASS myself@\r\n"
+P2S: "PASS myself@\r\n"
+S2P: "230 Anonymous access granted\r\n"
+P2C: "230 Anonymous access granted\r\n"
+C2P: "PASV\r\n"
+P2S: "PASV\r\n"
+SERVER_DOTIP=string.replace(ZTS_SERVER_IP,".",",")
+S2P: "227 Entering Passive Mode (" %SERVER_DOTIP ",5,10)\r\n"
+P2C: "227 Entering Passive Mode (" $IP1 "," $IP2 "," $IP3 "," $IP4 "," $PORT1 "," $PORT2 ")\r\n"
+C_PORT=PORT1*256+PORT2
+C_IP=str(IP1)+"."+str(IP2)+"."+str(IP3)+"."+str(IP4)
+C2P: "LIST\r\n"
+P2S: "LIST\r\n"
+A=time.sleep(10)
+P2C: "500 Connection timed out\r\n"
+P2C: Disconnect
+.

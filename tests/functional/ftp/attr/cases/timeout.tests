@@ -1,0 +1,28 @@
+StartGlobalInfo
+    Tags timeout D-01046 bug12123
+EndGlobalInfo
+
+StartPolicy
+    def config(self):
+        FtpProxyRW.config(self)
+        self.timeout = 3000
+        self.strict_port_checking = FALSE
+EndPolicy
+
+S2P: "220"
+A=time.sleep(6)
+S2P: " Szia\r\n"
+#P2C: "220 Szia\r\n"
+P2C: Disconnect
+.
+
+S2P: "220 Szia\r\n"
+P2C: "220 Szia\r\n"
+C2P: "USER"
+A=time.sleep(6)
+C2P: " ftp\r\n"
+#P2S: "USER ftp\r\n"
+P2C: "500 Connection timed out\r\n"
+P2C: Disconnect
+
+.

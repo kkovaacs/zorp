@@ -1,0 +1,99 @@
+StartGlobalInfo
+	Tags bug6233
+EndGlobalInfo
+
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout_request=30000
+		self.request_stack["POST"] = (HTTP_STK_DATA, "/bin/cat")
+		self.response_stack["POST"] = (HTTP_STK_DATA, "/bin/cat")
+EndPolicy
+
+# fix length -> chunked conversion
+C2P: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Content-Length: 6\r\n\
+\r\n\
+haliho"
+P2S: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+6\r\n\
+haliho\r\n\
+0\r\n\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Length: 10\r\n\
+Connection: close\r\n\
+\r\n\
+1234567890"
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+a\r\n\
+1234567890\r\n\
+0\r\n\r\n"
+.
+
+# chunked -> chunked
+C2P: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+6\r\n\
+haliho\r\n\
+0\r\n\r\n"
+P2S: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+6\r\n\
+haliho\r\n\
+0\r\n\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Transfer-Encoding: chunked\r\n\
+Connection: close\r\n\
+\r\n\
+a\r\n\
+1234567890\r\n\
+0\r\n\r\n"
+P2C: "HTTP/1.1 200 OK\r\n\
+Transfer-Encoding: chunked\r\n\
+Connection: close\r\n\
+\r\n\
+a\r\n\
+1234567890\r\n\
+0\r\n\r\n"
+.
+
+# EOF terminated -> chunked
+C2P: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+6\r\n\
+haliho\r\n\
+0\r\n\r\n"
+P2S: "POST /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+6\r\n\
+haliho\r\n\
+0\r\n\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+\r\n\
+1234567890"
+S2P: Disconnect
+P2C: "HTTP/1.1 200 OK\r\n\
+Connection: close\r\n\
+Transfer-Encoding: chunked\r\n\
+\r\n\
+a\r\n\
+1234567890\r\n\
+0\r\n\r\n"
+.

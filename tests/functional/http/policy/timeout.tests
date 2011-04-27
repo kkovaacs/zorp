@@ -1,0 +1,35 @@
+StartGlobalInfo
+        Tags timeout D-01046 bug12123
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+                HttpProxy.config(self)
+                self.timeout = 3000
+EndPolicy
+
+
+C2P: "GET /foo.html HTTP/1.1\r\n"
+A=time.sleep(6)
+C2P: "Host: www\r\n\
+\r\n"
+P2C: "HTTP/1." $VER " 500" $NIHIL "</html>\n"
+P2C: Disconnect
+.
+
+
+C2P: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+P2S: "GET /foo.html HTTP/1.1\r\n\
+Host: www\r\n\
+\r\n"
+
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 7\r\n\
+\r\n"
+A=time.sleep(6)
+S2P: "aaaaa\r\n"
+P2C: "HTTP/1." $VER " 500" $NIHIL "</html>\n"
+P2C: Disconnect
+.

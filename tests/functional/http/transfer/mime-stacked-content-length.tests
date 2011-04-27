@@ -1,0 +1,58 @@
+StartGlobalInfo
+	Tags bug9529
+	Min-Version 3.0
+EndGlobalInfo
+
+# FIXME: We need a testcase when http send a content length hint and receiving it back
+#
+#StartPolicy
+#	def config(self):
+#		HttpProxy.config(self)
+#                self.timeout_request=30000
+#		self.response_stack["GET"] = (HTTP_STK_MIME, "/bin/cat >/dev/null; /bin/echo -en '0 SETCONTENTHINT\\\\nn[]Content-Length\\\\nn61\\\\nn\\\\nnSETVERDICT\\\\nn[]Verdict\\\\nnZ_ACCEPT\\\\nn\\\\nn'>&3; read alma <&3; /bin/echo -en 'Content-Type: text/plain\\\\rr\\\\nnContent-Length: 12\\\\rr\\\\nn\\\\rr\\\\nn123456789012'")
+#EndPolicy
+#
+#
+#C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+#Host: www.net.org\r\n\
+#\r\n"
+#P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+#Host: www.net.org\r\n\
+#\r\n"
+#S2P: "HTTP/1.1 200 OK\r\n\
+#Content-Type: text/plain\r\n\
+#Content-Length: 12\r\n\
+#\r\n\
+#123456789012"
+#P2C: "HTTP/1.1 200 OK\r\n\
+#Content-Type: text/plain\r\n\
+#Content-Length: 12\r\n\
+#\r\n\
+#123456789012"
+#.
+
+StartPolicy
+	def config(self):
+		HttpProxy.config(self)
+		self.response_stack["*"] = (HTTP_STK_MIME, "/bin/cat >/dev/null; /bin/echo -en '0 SETCONTENTHINT\\\\nn[]Content-Length\\\\nn61\\\\nn\\\\nnSETVERDICT\\\\nn[]Verdict\\\\nnZ_ACCEPT\\\\nn\\\\nn'>&3; read alma <&3; /bin/echo -en 'Content-Type: text/plain\\\\rr\\\\nnContent-Length: 122\\\\rr\\\\nn\\\\rr\\\\nn123456789012'")
+EndPolicy
+
+
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.1 200 OK\r\n\
+Content-Type: text/plain\r\n\
+Content-Length: 122\r\n\
+\r\n\
+123456789012345678901234567890123456789012345678901234567890\r\n\
+123456789012345678901234567890123456789012345678901234567890"
+P2C: "HTTP/1.1 200 OK\r\n\
+Content-Type: text/plain\r\n\
+Content-Length: 12\r\n\
+\r\n\
+123456789012"
+.

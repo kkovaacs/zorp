@@ -1,0 +1,316 @@
+
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+QUOTE = chr(34)
+
+# Valid scenario with authenticate
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: keep-alive\r\n\
+Allow: GET, HEAD\r\n\
+Accept: text/plain; text/html\r\n\
+Content-Encoding: x-gzip\r\n\
+Content-Length: 14\r\n\
+Content-Range: bytes 21010-47021/47022\r\n\
+Content-Type: text/html\r\n\
+Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+From: webmaster@w3.org\r\n\
+Last-Modified: Tue, 15 Nov 1994 12:45:26 GMT\r\n\
+Pragma: no-cache\r\n\
+Referer: http://www.w3.org/hypertext/DataSources/Overview.html\r\n\
+User-Agent: CERN-LineMode/2.15 libwww/2.17b3\r\n\
+\r\n\
+request entity"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Connection: keep-alive\r\n\
+Allow: GET, HEAD\r\n\
+Accept: text/plain; text/html\r\n\
+Content-Encoding: x-gzip\r\n\
+Content-Length: 14\r\n\
+Content-Range: bytes 21010-47021/47022\r\n\
+Content-Type: text/html\r\n\
+Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+From: webmaster@w3.org\r\n\
+Last-Modified: Tue, 15 Nov 1994 12:45:26 GMT\r\n\
+Pragma: no-cache\r\n\
+Referer: http://www.w3.org/hypertext/DataSources/Overview.html\r\n\
+User-Agent: CERN-LineMode/2.15 libwww/2.17b3\r\n\
+\r\n\
+request entity"
+S2P: "HTTP/1.1 401 Authorization Required\r\n\
+WWW-Authenticate: Basic realm=" %QUOTE "egy realm" %QUOTE "\r\n\
+Content-Length: 20\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+Please authenticate!"
+P2C: "HTTP/1.1 401 Authorization Required\r\n\
+WWW-Authenticate: Basic realm=" %QUOTE "egy realm" %QUOTE "\r\n\
+Content-Length: 20\r\n\
+Connection: keep-alive\r\n\
+\r\n\
+Please authenticate!"
+C2P: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Allow: GET, HEAD\r\n\
+Authorization: Basic 889t98hgetuogihtg948hg49hpg\r\n\
+Content-Encoding: x-gzip\r\n\
+Content-Length: 14\r\n\
+Content-Type: text/html\r\n\
+Date: Tue, 15 Nov 1994 08:22:31 GMT\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+From: webmaster@w3.org\r\n\
+Last-Modified: Tue, 15 Nov 1994 12:45:26 GMT\r\n\
+Pragma: no-cache\r\n\
+Referer: http://www.w3.org/hypertext/DataSources/Overview.html\r\n\
+User-Agent: CERN-LineMode/2.15 libwww/2.17b3\r\n\
+\r\n\
+request entity"
+P2S: "GET /var/www/index.html HTTP/1.1\r\n\
+Host: www.net.org\r\n\
+Allow: GET, HEAD\r\n\
+Authorization: Basic 889t98hgetuogihtg948hg49hpg\r\n\
+Content-Encoding: x-gzip\r\n\
+Content-Length: 14\r\n\
+Content-Type: text/html\r\n\
+Date: Tue, 15 Nov 1994 08:22:31 GMT\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+From: webmaster@w3.org\r\n\
+Last-Modified: Tue, 15 Nov 1994 12:45:26 GMT\r\n\
+Pragma: no-cache\r\n\
+Referer: http://www.w3.org/hypertext/DataSources/Overview.html\r\n\
+User-Agent: CERN-LineMode/2.15 libwww/2.17b3\r\n\
+\r\n\
+request entity"
+S2P: "HTTP/1.1 200 OK\r\n\
+Allow: GET, HEAD\r\n\
+Connection: keep-alive\r\n\
+Content-Encoding: x-gzip\r\n\
+Content-Length: 15\r\n\
+Content-Type: text/html\r\n\
+Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+Last-Modified: Tue, 15 Nov 1994 12:45:26 GMT\r\n\
+Location: http://www.net.org/hypertext/WWW/NewLocation.html\r\n\
+Pragma: no-cache\r\n\
+Server: CERN/3.0 libwww/2.17\r\n\
+WWW-Authenticate: Basic realm=" %QUOTE "egy realm" %QUOTE "\r\n\
+\r\n\
+response entity"
+P2C: "HTTP/1.1 200 OK\r\n\
+Allow: GET, HEAD\r\n\
+Connection: keep-alive\r\n\
+Content-Encoding: x-gzip\r\n\
+Content-Length: 15\r\n\
+Content-Type: text/html\r\n\
+Date: Tue, 15 Nov 1994 08:12:31 GMT\r\n\
+Expires: Thu, 01 Dec 2003 16:00:00 GMT\r\n\
+Last-Modified: Tue, 15 Nov 1994 12:45:26 GMT\r\n\
+Location: http://www.net.org/hypertext/WWW/NewLocation.html\r\n\
+Pragma: no-cache\r\n\
+Server: CERN/3.0 libwww/2.17\r\n\
+WWW-Authenticate: Basic realm=" %QUOTE "egy realm" %QUOTE "\r\n\
+\r\n\
+response entity"
+.
+
+#Content codings
+C2P: "GET /var/www/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+Content-Encoding: x-compress\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+Content-Encoding: x-compress\r\n\
+\r\n"
+.
+
+C2P: "GET /var/www/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+Accept-Encoding: identity\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+Accept-Encoding: identity\r\n\
+\r\n"
+.
+
+C2P: "GET /var/www/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+Content-Type: text\r\n\
+Content-Encoding: X-gZip\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+Content-Type: text\r\n\
+Content-Encoding: X-gZip\r\n\
+\r\n"
+.
+
+# Content charset, language and type
+C2P: "GET /var/www/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+Accept-Charset: iso-8859-5, unicode-1-1\r\n\
+Accept-Language: da, en\r\n\
+\r\n"
+P2S: "GET /var/www/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+Accept-Charset: iso-8859-5, unicode-1-1\r\n\
+Accept-Language: da, en\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+Content-Type: text/html\r\n\
+Content-Length: 4\r\n\
+Content-Language: en\r\n\
+\r\n\
+abcd"
+P2C: "HTTP/1.0 200 OK\r\n\
+Connection: close\r\n\
+Content-Type: text/html\r\n\
+Content-Length: 4\r\n\
+Content-Language: en\r\n\
+\r\n\
+abcd"
+.
+
+# Invalid version
+C2P: "GET /var/www/index.html HTTP/1.qwer\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2C: "HTTP/1.0 500 Error encountered\r\n\
+Connection: close\r\n\
+Content-Type: text/html\r\n\
+" $NIHIL "</html>\n"
+.
+
+# HTTP/0.9 / Simple request
+C2P: "GET /pub/var/index.html\r\n"
+P2C: "<html>\n\
+" $NIHILA "\
+'Host:' header is required, and HTTP/0.9 can't transfer headers.\
+" $NIHILB "</html>\n"
+.
+
+# Invalid HTTP messages / missing null line
+# 
+#C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+#Host: www.w3.org\r\n\
+#Contetnt-Length: 12\r\n\
+#Location: http://www.w3.org/hypertext/WWW/NewLocation.html\r\n"
+#P2C: "HTTP/1.0 500 Error encountered" $NIHIL "</html>\n"
+#.
+
+# Request header field in a response
+#C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+#Host: www.w3.org\r\n\
+#Content-Length: 12\r\n\
+#\r\n\
+#entitas test"
+#
+#P2S: "GET /pub/var/index.html HTTP/1.0\r\n\
+#Host: www.w3.org\r\n\
+#Content-Length: 12\r\n\
+#\r\n\
+#entitas test"
+#
+#S2P: "HTTP/1.0 200 OK\r\n\
+#Allow: GET, HEAD\r\n\
+#Content-Length: 19\r\n\
+#Location: http://www.w3.org/hypertext/WWW/NewLocation.html\r\n\
+#From: webmaster@w3.org\r\n\
+#Connection: close\r\n\
+#\r\n\ 
+#masik entitas teste"
+#
+#P2C: "HTTP/1.0 500 Error encountered\r\n" $NIHIL "</html>"
+#.
+#
+# Response header field in a request
+#C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+#Host: www.w3.org\r\n\
+#Location: http://www.w3.org/hypertext/WWW/NewLocation.html\r\n\
+#Content-Length: 12\r\n\
+#\r\n\
+#entitas test"
+#P2C: "HTTP/1.0 500 Error encountered\r\n" $NIHIL "</html>\n"
+#.
+
+# URI variation
+C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /pub/var/index.html HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+.
+
+C2P: "GET http://www.balabit.hu/ HTTP/1.1\r\n\
+Host: www.balabit.hu\r\n\
+\r\n"
+P2C: "HTTP/1.0 500 Error encountered" $NIHIL "</html>\n"
+.
+
+C2P: "GET http://www.balabit.hu/ HTTP/1.0\r\n\
+Host: www.balabit.hu\r\n\
+\r\n"
+P2C: "HTTP/1.0 500 Error encountered" $NIHIL "</html>\n"
+.
+
+#C2P: "GET http://www.balabit.hu\r\n"
+#P2C: "<html>\n\
+#<head>\n\
+#<title>Invalid request</title>\n\
+#</head>\n\
+#<body>\n\
+#<p>Your browser sent a request this gateway didn't understand.</p>\n\
+#" $NIHIL "</html>\n"
+#.
+
+
+# Text search
+C2P: "GET /var/www/index.html?abc HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+P2S: "GET /var/www/index.html?abc HTTP/1.0\r\n\
+Host: www.net.org\r\n\
+\r\n"
+S2P: "HTTP/1.0 200 OK\r\n\
+Content-Length: 3\r\n\
+Connection: close\r\n\
+\r\n\
+abc"
+P2C: "HTTP/1.0 200 OK\r\n\
+Content-Length: 3\r\n\
+Connection: close\r\n\
+\r\n\
+abc"
+.
+
+
+#C2P: "GET /pub/var/index.html HTTP/1.0\r\n\
+#Host: www.w3.org\r\n\
+#\r\n\
+#entitas test\r\n"
+#
+#P2S: "GET /pub/var/index.html HTTP/1.0\r\n\
+#Host: www.w3.org\r\n\
+#\r\n\
+#entitas test"
+#.
+
+
+# POST request / Content-length is mandatory
+#C2P: "POST /pub/var/index.html HTTP/1.0\r\n\
+#Host: www.w3.org\r\n\
+#\r\n\
+#abc"
+#P2C: "HTTP/1.0 400 Error encountered\r\n" $NIHIL "</html>\n"
+#.
+

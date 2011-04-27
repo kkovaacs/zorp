@@ -1,0 +1,65 @@
+StartGlobalInfo
+	Tags urlrewrite
+EndGlobalInfo
+
+StartPolicy
+        def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+EndPolicy
+
+
+C2P: "GET /pub/var/index%s%s.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+P2C: "HTTP/1.0 500 Error encountered" $NIHIL "</html>\n"
+.
+                                                                                                             
+C2P: "GET /pub/var/index%ab.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+P2S: "GET /pub/var/index%AB.html HTTP/1.0\r\n\
+Host: www.w3.org\r\n\
+\r\n"
+.
+
+C2P: "GET /dict_search.php?L=ENG%3AHUN%3AEngHunDict&O=HUN&flash=&E=1&sid=39d326b3ed5258dfc0e695d6af882aae&in_form=1&W=provide&M=2&P=0&C=0&A=0&T=1&F=0 HTTP/1.0\r\n\
+Host: szotar.sztaki.hu\r\n\
+\r\n"
+P2S: "GET /dict_search.php?L=ENG%3AHUN%3AEngHunDict&O=HUN&flash=&E=1&sid=39d326b3ed5258dfc0e695d6af882aae&in_form=1&W=provide&M=2&P=0&C=0&A=0&T=1&F=0 HTTP/1.0\r\n\
+Host: szotar.sztaki.hu\r\n\
+\r\n"
+.
+
+StartPolicy
+	def config(self):
+		HttpProxy.config(self)
+                self.timeout_request=30000
+		self.permit_unicode_url = TRUE
+		self.transparent_mode = FALSE
+		self.parent_proxy="some"
+EndPolicy
+
+C2P: "GET http://%73%61:%70%61%73%73@a.b/%63 HTTP/1.0\r\n\
+Host: a.b\r\n\
+\r\n"
+P2S: "GET http://sa:pass@a.b/c HTTP/1.0\r\n\
+Host: a.b\r\n\
+\r\n"
+.
+
+C2P: "GET http://latin2.hu/k%e9r%e9s.php?b%e9la HTTP/1.0\r\n\
+Host: latin2.hu\r\n\
+\r\n"
+P2S: "GET http://latin2.hu/k%E9r%E9s.php?b%E9la HTTP/1.0\r\n\
+Host: latin2.hu\r\n\
+\r\n"
+.
+
+C2P: "GET http://utf8.hu/k%u00e9r%u01e9s.php HTTP/1.0\r\n\
+Host: utf8.hu\r\n\
+\r\n"
+P2S: "GET http://utf8.hu/k%E9r%u01E9s.php HTTP/1.0\r\n\
+Host: utf8.hu\r\n\
+\r\n"
+.

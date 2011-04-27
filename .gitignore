@@ -1,0 +1,13 @@
+Makefile.in
+aclocal.m4
+autom4te.cache/
+config.guess
+config.sub
+configure
+debian/Makefile.in
+depcomp
+install-sh
+ltmain.sh
+missing
+INSTALL
+Makefile.in

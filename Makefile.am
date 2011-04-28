@@ -4,7 +4,7 @@ else
 PRODIRS =
 endif
 
-SUBDIRS = lib libproxy modules zorp pylib doc debian zorpctl zorpblgen scripts tests solbuild $(PRODIRS)
+SUBDIRS = lib libproxy modules zorp pylib doc zorpctl zorpblgen scripts tests solbuild $(PRODIRS)
 
 
 EXTRA_DIST = dist.conf BUGS module.list WHATIS.TXT VERSION

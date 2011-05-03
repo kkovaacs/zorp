@@ -631,7 +631,6 @@ AC_SUBST(pidfiledir)
 
 AC_OUTPUT(
 zorp-config
-solbuild/Makefile
 
 Makefile 
 zorp/Makefile 

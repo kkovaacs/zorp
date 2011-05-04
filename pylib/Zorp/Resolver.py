@@ -35,7 +35,7 @@ to perform name lookups.
 
 from Zorp import *
 from SockAddr import SockAddrInet
-from socket import gethostbyname
+from socket import gethostbyname_ex
 import types
 
 # NOTE: This is IPv4 specific
@@ -207,7 +207,7 @@ ResolverPolicy(name="Mailservers", resolver=DNSResolver(multi=TRUE))
 		</method>
 		"""
                 try:
-			ip_list = gethostbyname(host)
+			ip_list = gethostbyname_ex(host)[2]
 			if self.multi:
 			        return map(lambda ip: SockAddrInet(ip, port), ip_list)
 			else:

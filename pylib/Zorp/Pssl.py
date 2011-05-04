@@ -522,7 +522,6 @@ import types
 import thread
 import string
 import fcntl
-from sets import ImmutableSet
 
 PSSL_ERROR	= 'pssl.error'
 PSSL_DEBUG	= 'pssl.debug'
@@ -1315,7 +1314,7 @@ class AbstractPsslProxy(AbstractPlugProxy):
         """
 	name = "plug"
 
-        compat_attributes = ImmutableSet(( \
+        compat_attributes = frozenset(( \
                 'handshake_timeout', \
                 'permit_invalid_certificates', \
                 'handshake_seq', \

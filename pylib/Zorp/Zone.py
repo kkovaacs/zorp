@@ -127,19 +127,18 @@ InetZone('DMZ', ['10.50.0.0/32'],
 
 from Zorp import *
 from Domain import InetDomain, Inet6Domain
-from Cache import ShiftCache
 from socket import htonl, ntohl
 from traceback import print_exc
 import types
+import radix
+import struct
 
 import kznf.kznfnetlink
 
-#labelset_class = LabelSet;
-#zones = {}
 root_zone = None
 
-class AbstractZone:
-	"""
+class AbstractZone(object):
+        """
         <class maturity="stable" abstract="yes" internal="yes">
           <summary>
             Class encapsulating the abstract Zone.
@@ -585,25 +584,19 @@ class RootZone(AbstractZone):
                     </arguments>
                   </metainfo>
                 </method>
-		"""
-
-		# FIXME: this is address family specific, should be separated
-		# to its own method
-		hash = address.ip
+                """
 
                 zone = None
-                zone = self.cache.lookup(hash)
-                if not zone:
-        		domain_root = self.findDomain(address)
-	        	if domain_root:
-                		zone = domain_root.findZone(address)
-	                	self.cache.store(hash, zone)
-	        	
-        	if not zone:
-	                raise ZoneException, str(address)
 
-		return zone
-		
+                domain_root = self.findDomain(address)
+                if domain_root:
+                        zone = domain_root.findZone(address)
+
+                if not zone:
+                        raise ZoneException, str(address)
+
+                return zone
+
 class Zone(AbstractZone):
 	"""
         <class maturity="stable" internal="yes">
@@ -894,7 +887,7 @@ class InetZone(Zone):
                 return messages
 
 class InetRootZone(InetZone):
-	"""
+        """
         <class internal="yes">
           <summary>
             Class encapsulating the top of the IPv4 address hierarchy.
@@ -909,49 +902,52 @@ class InetRootZone(InetZone):
             </para>
           </description>
         </class>
-	"""
+        """
 
-	def __init__(self, name):
-		"""
+        def __init__(self, name):
+                """
                 <method internal="yes">
                 </method>
-		"""
-		global root_zone
+                """
+                global root_zone
 
-		InetZone.__init__(self, name, None)
-		root_zone.addDomain(self)
-		self.zones = []
-		self.mask_hashes = [None]*33;
+                InetZone.__init__(self, name, None)
+                root_zone.addDomain(self)
 
-	def isMatchingAddress(self, addr):
-		"""
+                self.rtree = radix.Radix();
+
+        def isMatchingAddress(self, addr):
+                """
                 <method internal="yes">
                 </method>
-		"""
-		if type(addr) == types.ClassType and (addr is InetDomain):
-			return TRUE
-		try:
-			if addr.family == AF_INET:
-				return TRUE
-		except AttributeError:
-			pass
-		return FALSE
+                """
+                if type(addr) == types.ClassType and (addr is InetDomain):
+                        return TRUE
+                try:
+                        if addr.family == AF_INET:
+                                return TRUE
+                except AttributeError:
+                        pass
+                return FALSE
 
-	def addZone(self, zone):
-		"""
+        def addZone(self, zone):
+                """
                 <method internal="yes">
                 </method>
-		"""
-		bits = zone.address.mask_bits
-		ip = zone.address.ip
-		if not self.mask_hashes[bits]:
-			self.mask_hashes[bits] = {}
-		if self.mask_hashes[bits].has_key(ip):
-			raise ZoneException, "Zone with duplicate IP range, %s" % (zone.address)
-		self.mask_hashes[bits][zone.address.ip] = zone
+                """
 
-	def findZone(self, addr):
-		"""
+                packed_ip = struct.pack('>L', ntohl(zone.address.ip))
+                # check if we already have the exact same subnet added
+                rnode = self.rtree.search_exact(packed = packed_ip, masklen = zone.address.mask_bits)
+                if rnode:
+                        raise ZoneException, "Zone with duplicate IP range, %s" % (zone.address)
+
+                packed_ip = struct.pack('>L', ntohl(zone.address.ip))
+                rnode = self.rtree.add(packed = packed_ip, masklen = zone.address.mask_bits)
+                rnode.data["zone"] = zone
+
+        def findZone(self, addr):
+                """
                 <method internal="yes">
                   <summary>
                     Function to find the most specific containing Zone of 'addr'
@@ -972,67 +968,97 @@ class InetRootZone(InetZone):
                     </arguments>
                   </metainfo>
                 </method>
-		"""
-		ip = addr.ip
-		i = 32
-		best = None
-		while i >= 0:
-			h = self.mask_hashes[i]
-			if h:
-				try:
-					m = htonl(((1 << i) - 1) << (32 - i))
-				except OverflowError:
-					m = htonl(0x7fffffff << 1)
+                """
+                rnode = self.rtree.search_best(packed = struct.pack('>L', ntohl(addr.ip)))
+                if rnode:
+                        return rnode.data["zone"]
 
-				try:
-					best = h[ip & m]
-					break
-				except KeyError:
-					pass
-			i = i - 1
-		return best
+                return None
 
         def buildKZorpMessage(self):
-		"""<method internal="yes">
+                """<method internal="yes">
                 </method>
                 """
                 return []
 
-#class Inet6Zone(Zone):
-#	"""A class inherited from Zone using the Inet6Domain address type.
-#
-#	This is a simple Zone class using Inet6Domain as its address
-#	type.
-#	
-#	"""
-#	def __init__(self, name, addr, inbound_services = None, outbound_services = None, admin_parent = None, umbrella = 0):
-#		"""Constructor to initialize an Inet6Zone instance
-#
-#		This constructor initializes an Inet6Zone object instance,
-#		and sets its attributes based on arguments.
-#
-#		Arguments
-#
-#		  self -- this instance
-#		  
-#		  name -- name of this zone
-#		  
-#		  addr -- a string representing an address range,
-#		          interpreted by the domain class (last argument),
-#		          *or* a list of strings representing multiple
-#		          address ranges.
-#		  
-#		  inbound_services  -- set of permitted inbound services as described by RootZone
-#		  
-#		  outbound_services -- set of permitted outbound services as described by RootZone
-#		  
-#		  admin_parent -- name of the administrative parent 
-#		  
-#		  umbrella  -- TRUE if this zone is an umbrella zone
-#		  
-#		"""
-#		Zone.__init__(self, name, addr, inbound_services, outbound_services, admin_parent, umbrella, Inet6Domain)
+class Inet6Zone(Zone):
+        """A class inherited from Zone using the Inet6Domain address type.
 
+        This is a simple Zone class using Inet6Domain as its address
+        type.
+        """
+        def __init__(self, name, addr, inbound_services = None, outbound_services = None, admin_parent = None, umbrella = 0, inherit_name = FALSE):
+                """Constructor to initialize an Inet6Zone instance
+
+                This constructor initializes an Inet6Zone object instance,
+                and sets its attributes based on arguments.
+
+                Arguments
+
+                  self -- this instance
+
+                  name -- name of this zone
+
+                  addr -- a string representing an address range,
+                          interpreted by the domain class (last argument),
+                          *or* a list of strings representing multiple
+                          address ranges.
+
+                  inbound_services  -- set of permitted inbound services as described by RootZone
+
+                  outbound_services -- set of permitted outbound services as described by RootZone
+
+                  admin_parent -- name of the administrative parent
+
+                  umbrella  -- TRUE if this zone is an umbrella zone
+                """
+                Zone.__init__(self, name, addr, inbound_services, outbound_services, admin_parent, umbrella, Inet6Domain, inherit_name)
+
+        def subZone(self, name, addr, admin_parent, domain):
+                return Inet6Zone(name, addr, admin_parent=admin_parent, inherit_name=TRUE)
+
+class Inet6RootZone(Inet6Zone):
+
+        def __init__(self, name):
+                global root_zone
+
+                super(Inet6RootZone, self).__init__(name, None)
+                root_zone.addDomain(self)
+
+                self.rtree = radix.Radix()
+
+        def isMatchingAddress(self, addr):
+                if type(addr) == types.ClassType and (addr is Inet6Domain):
+                        return TRUE
+
+                try:
+                        if addr.family == AF_INET6:
+                                return TRUE
+                except AttributeError:
+                        pass
+
+                return FALSE
+
+        def addZone(self, zone):
+                # check if we already have the exact same subnet added
+                packed_address = struct.pack('8H', *zone.address.ip)
+                rnode = self.rtree.search_exact(packed = packed_address, masklen = zone.address.mask_bits)
+                if rnode:
+                        raise ZoneException, "Zone with duplicate IP range, %s" % (zone.address)
+
+                rnode = self.rtree.add(packed = packed_address, masklen = zone.address.mask_bits)
+                rnode.data["zone"] = zone
+
+        def findZone(self, addr):
+                import pdb
+                pdb.set_trace()
+                packed_address = struct.pack('8H', *addr.ip)
+                rnode = self.rtree.search_best(packed = packed_address)
+                if rnode:
+                        return rnode.data["zone"]
+
+                return None
 
 root_zone = RootZone("root")
 inet_root_zone = InetRootZone("inet_root")
+inet6_root_zone = Inet6RootZone("inet6_root")

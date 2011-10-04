@@ -52,7 +52,7 @@ z_policy_dispatch_bind_get_db(ZPolicyObj *self)
   db = (ZDispatchBind *) z_policy_dict_get_app_data(z_policy_struct_get_dict(self));
   return z_dispatch_bind_ref(db);
 }
-  
+
 ZPolicyObj *
 z_policy_dispatch_format(ZPolicyObj *s)
 {

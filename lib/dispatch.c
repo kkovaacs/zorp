@@ -202,15 +202,21 @@ z_dispatch_bind_equal(ZDispatchBind *key1, ZDispatchBind *key2)
 static guint 
 z_dispatch_bind_hash(ZDispatchBind *key)
 {
-  struct sockaddr_in *s_in;
-  
   switch (key->type)
     {
     case ZD_BIND_SOCKADDR:
-      g_assert(z_sockaddr_inet_check(key->sa.addr));
-  
-      s_in = (struct sockaddr_in *) &key->sa.addr->sa;
-      return s_in->sin_family + ntohs(s_in->sin_port) + ntohl(s_in->sin_addr.s_addr) + key->protocol; 
+      if (z_sockaddr_inet_check(key->sa.addr))
+        {
+          struct sockaddr_in *s_in = (struct sockaddr_in *) &key->sa.addr->sa;
+          return s_in->sin_family + ntohs(s_in->sin_port) + ntohl(s_in->sin_addr.s_addr) + key->protocol;
+        }
+      else if (z_sockaddr_inet6_check(key->sa.addr))
+        {
+          struct sockaddr_in6 *s_in6 = (struct sockaddr_in6 *) &key->sa.addr->sa;
+          return s_in6->sin6_family + ntohs(s_in6->sin6_port) + ntohl(s_in6->sin6_addr.s6_addr32[0]) + key->protocol;
+        }
+      else
+        g_assert_not_reached();
     case ZD_BIND_IFACE:
       return g_str_hash(key->iface.iface) + ntohs(key->iface.port);
     case ZD_BIND_IFACE_GROUP:

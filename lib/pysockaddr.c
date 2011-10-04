@@ -98,7 +98,7 @@ z_py_inet_ntop(PyObject *self G_GNUC_UNUSED, PyObject *args)
   char buf[128];
   
   z_enter();
-  if (!PyArg_ParseTuple(args, "iO", &i, &x))
+  if (!PyArg_ParseTuple(args, "lO", &i, &x))
     z_return(NULL);
   switch (i)
     {
@@ -144,7 +144,7 @@ z_py_inet_ntop(PyObject *self G_GNUC_UNUSED, PyObject *args)
 static PyObject *
 z_py_inet_pton(PyObject *self G_GNUC_UNUSED, PyObject *args)
 {
-  long i;
+  int i;
   char *addr;
   PyObject *res = NULL;
   

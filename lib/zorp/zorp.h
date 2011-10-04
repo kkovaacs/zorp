@@ -38,7 +38,6 @@
 #endif
 
 #include <Python.h>
-#undef ENABLE_IPV6
 #include <zorp/zorplibconfig.h>
 #include <zorpconfig.h>
 #include <glib.h>

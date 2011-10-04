@@ -433,29 +433,28 @@ class Inet6Domain(AbstractDomain):
                   </metainfo>
                 </method>
 	       	"""
-	       	
-	       	def calculate_mask(number):
-	       		mask=()
-	       		while number > 0:
-	       			n = min(number, 16)
-	       			v = htonl(((1 << n) - 1) << (16 - n))
-	       			mask = mask + (v,)
-	       			number = number - n
-	       		mask = mask + (0, ) * (8 - len(mask))
-	       		return mask
-	       	
-	       	if not addr:
-	       		addr = '0::0/0'
-	        #FIXME: input validation!
-	        self.family = AF_INET6
-		parts = split(addr,'/')
-		try:
-			self.mask_bits = atoi(parts[1])
-			self.mask = calculate_mask(self.mask_bits)
-		except IndexError:
-			self.mask_bits = 128
-			self.mask = (65535,) * 8
-		self.ip = map(lambda x,y: x&y, inet_pton(AF_INET6, parts[0]), self.mask)
+                def calculate_mask(number):
+                        mask=()
+                        while number > 0:
+                                n = min(number, 16)
+                                v = htons(((1 << n) - 1) << (16 - n))
+                                mask = mask + (v,)
+                                number = number - n
+                        mask = mask + (0, ) * (8 - len(mask))
+                        return mask
+
+                if not addr:
+                        addr = '0::0/0'
+                #FIXME: input validation!
+                self.family = AF_INET6
+                parts = split(addr,'/')
+                try:
+                        self.mask_bits = atoi(parts[1])
+                        self.mask = calculate_mask(self.mask_bits)
+                except IndexError:
+                        self.mask_bits = 128
+                        self.mask = (0xffff,) * 8
+                self.ip = map(lambda x,y: x & y, inet_pton(AF_INET6, parts[0]), self.mask)
 
 	def __str__(self):
 		"""
